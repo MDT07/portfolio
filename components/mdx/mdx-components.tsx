@@ -1,8 +1,18 @@
 /**
  * Маппинг MDX-элементов на стилизованные компоненты по DESIGN.md.
  * Tailwind preflight сбрасывает стили — возвращаем типографику вручную.
+ * Плюс интерактивные блоки, доступные прямо в MDX-кейсах.
  */
+import Counter from "@/components/interactive/Counter";
+import BeforeAfter from "@/components/interactive/BeforeAfter";
+import ProcessSteps from "@/components/interactive/ProcessSteps";
+import Gallery from "@/components/interactive/Gallery";
+
 export const mdxComponents = {
+  Counter,
+  BeforeAfter,
+  ProcessSteps,
+  Gallery,
   h2: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
     <h2
       className="mb-4 mt-12 text-2xl font-semibold tracking-tight text-text-primary"
