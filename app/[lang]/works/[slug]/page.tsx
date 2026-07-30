@@ -4,8 +4,8 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Container from "@/components/layout/Container";
 import Tag from "@/components/ui/Tag";
-import Button from "@/components/ui/Button";
 import Reveal from "@/components/ui/Reveal";
+import DemoViewer from "@/components/interactive/DemoViewer";
 import { getWork, getWorkSlugs } from "@/lib/mdx";
 import { getDictionary, isLocale, locales, withLocale } from "@/lib/i18n";
 
@@ -113,13 +113,23 @@ export default async function WorkDetailPage({
               <h2 className="text-2xl font-semibold">Live demo</h2>
               <p className="mt-2 text-text-secondary">
                 {lang === "ru"
-                  ? "Полностью рабочая версия — открывается в браузере."
-                  : "A fully working version — opens in the browser."}
+                  ? "Полностью рабочая версия — полноэкранный просмотр прямо здесь или в новой вкладке."
+                  : "A fully working version — fullscreen preview right here or in a new tab."}
               </p>
-              <div className="mt-6">
-                <Button href={w.demo} size="lg">
-                  {dict.common.openDemo} ↗
-                </Button>
+              <div className="mt-6 flex flex-wrap items-center gap-4">
+                <DemoViewer
+                  src={w.demo}
+                  title={w.title}
+                  openLabel={dict.common.openDemo}
+                />
+                <a
+                  href={w.demo}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-mono text-xs text-text-tertiary transition-colors hover:text-text-primary"
+                >
+                  {w.demo} ↗
+                </a>
               </div>
             </div>
           </Reveal>
