@@ -56,6 +56,10 @@ export default async function ContactPage({
           <p className="mt-6 max-w-xl text-lg text-text-secondary">
             {dict.contact.subtitle}
           </p>
+          <p className="mt-8 inline-flex items-center gap-2 rounded-md border border-surface-3 bg-surface-1 px-3 py-1.5 font-mono text-xs text-text-secondary">
+            <span className="h-1.5 w-1.5 rounded-full bg-success" />
+            {dict.contact.availability}
+          </p>
         </Reveal>
 
         <div className="mt-16 grid gap-16 md:grid-cols-2">

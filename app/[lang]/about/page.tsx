@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Container from "@/components/layout/Container";
 import Reveal from "@/components/ui/Reveal";
+import ProcessSteps from "@/components/interactive/ProcessSteps";
 import { getDictionary, isLocale } from "@/lib/i18n";
 
 export async function generateMetadata({
@@ -65,6 +66,48 @@ export default async function AboutPage({
               ))}
             </div>
           </Reveal>
+        </div>
+
+        {/* Услуги */}
+        <div className="mt-24 border-t border-surface-3 pt-16 md:mt-32 md:pt-24">
+          <Reveal>
+            <p className="mb-4 font-mono text-xs font-medium uppercase tracking-widest text-text-tertiary">
+              {dict.about.services.label}
+            </p>
+            <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
+              {dict.about.services.title}
+            </h2>
+          </Reveal>
+          <div className="mt-12 grid gap-6 sm:grid-cols-2">
+            {dict.about.services.items.map((service, i) => (
+              <Reveal key={service.title} i={i}>
+                <div className="h-full rounded-lg border border-surface-3 bg-surface-1 p-8 transition-colors duration-200 hover:border-text-tertiary">
+                  <p className="font-mono text-xs text-accent">
+                    {String(i + 1).padStart(2, "0")}
+                  </p>
+                  <h3 className="mt-4 text-lg font-semibold">{service.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-text-secondary">
+                    {service.description}
+                  </p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+
+        {/* Процесс */}
+        <div className="mt-24 border-t border-surface-3 pt-16 md:mt-32 md:pt-24">
+          <Reveal>
+            <p className="mb-4 font-mono text-xs font-medium uppercase tracking-widest text-text-tertiary">
+              {dict.about.process.label}
+            </p>
+            <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
+              {dict.about.process.title}
+            </h2>
+          </Reveal>
+          <div className="mt-12 max-w-2xl">
+            <ProcessSteps steps={[...dict.about.process.steps]} />
+          </div>
         </div>
       </Container>
     </section>

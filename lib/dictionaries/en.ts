@@ -83,6 +83,69 @@ export const en: Dictionary = {
       { label: "Format", value: "Full-cycle" },
     ],
     portraitAlt: "Developer portrait in monochrome dot-matrix stylization",
+    services: {
+      label: "Services",
+      title: "What I do",
+      items: [
+        {
+          title: "Company websites",
+          description:
+            "Fast marketing sites: project catalogs, forms, SEO foundation. The first screen sells, the rest proves.",
+        },
+        {
+          title: "Online stores",
+          description:
+            "Catalog, filters, product page, cart, checkout. My core specialization — where speed equals revenue.",
+        },
+        {
+          title: "Design systems",
+          description:
+            "Tokens, component libraries, documentation. Order that survives releases and team changes.",
+        },
+        {
+          title: "Audit & performance",
+          description:
+            "Core Web Vitals, accessibility, technical SEO. A prioritized plan: what to fix first and why.",
+        },
+      ],
+    },
+    process: {
+      label: "Process",
+      title: "How the work goes",
+      steps: [
+        {
+          title: "Brief & estimate",
+          description:
+            "A 30-minute call: goals, scope, constraints. Within a day — an estimate and a plan with checkpoints.",
+        },
+        {
+          title: "Prototype",
+          description:
+            "Key screens and user flows before development starts. Scope fixed — no mid-project surprises.",
+        },
+        {
+          title: "Design system",
+          description:
+            "Tokens, components, states. The foundation that makes development fast and predictable.",
+        },
+        {
+          title: "Development",
+          description:
+            "Markup, animation, integrations. A demo every week — progress you can see, not hear about.",
+        },
+        {
+          title: "Launch & metrics",
+          description:
+            "Deploy, monitoring, Web Vitals. Two weeks after release — a numbers report.",
+        },
+      ],
+    },
+  },
+  cta: {
+    title: "Have a project? Let's talk.",
+    subtitle:
+      "I reply within one business day. A 30-minute call — and you have an estimate, timeline, and plan.",
+    button: "Get in touch",
   },
   skills: {
     label: "Skills",
@@ -124,7 +187,8 @@ export const en: Dictionary = {
   contact: {
     label: "Contact",
     title: "Let's discuss your project",
-    subtitle: "Tell me about the task — I'll propose a solution, timeline and budget.",
+    subtitle: "Tell me about the task — I'll propose a solution, timeline, and cost.",
+    availability: "Open for new projects · I reply within one business day",
     emailLabel: "Email",
     telegramLabel: "Telegram",
     githubLabel: "GitHub",

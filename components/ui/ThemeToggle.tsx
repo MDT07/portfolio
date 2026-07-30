@@ -1,21 +1,31 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 type Theme = "dark" | "light";
+
+function subscribe(callback: () => void) {
+  const observer = new MutationObserver(callback);
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["data-theme"],
+  });
+  return () => observer.disconnect();
+}
+
+function getSnapshot(): Theme {
+  return document.documentElement.dataset.theme === "light" ? "light" : "dark";
+}
+
+function getServerSnapshot(): Theme {
+  return "dark";
+}
 
 /**
  * Переключатель темы. Состояние — в data-theme на <html>, зеркалируется в localStorage.
  */
 export default function ThemeToggle({ label }: { label: string }) {
-  const [theme, setTheme] = useState<Theme>("dark");
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    const current = document.documentElement.dataset.theme;
-    setTheme(current === "light" ? "light" : "dark");
-    setMounted(true);
-  }, []);
+  const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   const toggle = () => {
     const next: Theme = theme === "dark" ? "light" : "dark";
@@ -25,7 +35,6 @@ export default function ThemeToggle({ label }: { label: string }) {
     } catch {
       /* private mode */
     }
-    setTheme(next);
   };
 
   return (
@@ -35,7 +44,7 @@ export default function ThemeToggle({ label }: { label: string }) {
       aria-label={label}
       className="flex h-10 w-10 items-center justify-center rounded-md text-text-secondary transition-colors duration-150 hover:bg-surface-2 hover:text-text-primary"
     >
-      {mounted && theme === "light" ? (
+      {theme === "light" ? (
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
           <circle cx="8" cy="8" r="3.25" stroke="currentColor" strokeWidth="1.25" />
           <path

@@ -1,0 +1,37 @@
+---
+title: "NORDE — e-commerce store"
+description: "A minimalist store showcase: catalog with filters, quick-view, and a cart built in pure JS. Editorial product presentation, strict grid."
+tags: ["HTML", "CSS", "JavaScript", "E-commerce"]
+year: "2026"
+role: "Design & Development"
+stack: ["HTML5", "CSS3", "Vanilla JS"]
+cover: "/images/works/ecommerce-cover.png"
+demo: "/templates/ecommerce/index.html"
+featured: true
+---
+
+## Problem
+
+Small clothing and homeware brands need a storefront on par with major retailers, but without the budget for a team or a platform. Off-the-shelf website-builder templates all look the same: cluttered product cards, aggressive discount badges, random typography — and they fail to sell the one thing a niche brand actually has: character.
+
+## Solution
+
+A demo storefront template called "NORDE" in a Scandinavian aesthetic: a monochrome dark base, a single signal accent, editorial product presentation, and a strict modular grid. A fully self-contained HTML file — it opens in a browser with no build step or server — while the entire purchase flow works end to end: from catalog filtering to checkout.
+
+## What's inside
+
+- **Header** — fixed, with a blur backdrop on scroll and a cart icon with a live counter
+- **Hero** — large asymmetric typography, collection photo, CTA
+- **Categories** — 4 cards that filter the catalog on click
+- **Catalog** — 8 products with category filters and a hover "Quick view" action
+- **Quick view** — a modal with description, size selection, and add-to-cart (closes on Esc)
+- **Cart** — a right-side drawer: quantity controls, removal, delivery and total calculation, checkout
+- **Benefits** — delivery, returns, warranty, and payment in strict text cards
+
+## Architecture and stack
+
+A single self-contained `index.html`: semantic markup, design tokens via CSS custom properties, and all interactivity in dependency-free vanilla JavaScript. Cart state lives in a JS object; catalog and cart rendering use markup-generator functions and event delegation. IntersectionObserver drives the reveal animations.
+
+## Result
+
+A storefront that can be shown to a client as a finished concept or used as a foundation: the color and typography tokens transfer to any design system, and the catalog and cart JS modules can be wired up to a real backend.
