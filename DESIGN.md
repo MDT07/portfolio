@@ -54,7 +54,7 @@ description: Strict engineering realism. Monochrome base, one signal accent, mod
 | `text-secondary` | `#737373` | Captions |
 | `text-tertiary` | `#A3A3A3` | Placeholders |
 
-Dark mode — основной. Light — через `prefers-color-scheme` или toggle.
+Dark mode — основной (дефолт). Light — переопределение семантического слоя под `[data-theme="light"]` в `globals.css`; компоненты не меняются. Выбор пользователя — в localStorage (`theme`), иначе `prefers-color-scheme`.
 
 ## 3. Typography Rules
 
@@ -133,6 +133,46 @@ Uppercase только для `Label` и `Caption` в mono. Body и заголо
 - Padding: 2px 8px
 - Font: 12px mono, weight 500
 - Accent variant: `background: accent-subtle`, `border-color: accent`, `color: accent`
+
+### ThemeToggle / LangSwitcher
+
+- 32×32px (иконка) или mono-кнопка `RU / EN`, radius 6px, border `surface-3`
+- Idle: `text-secondary`; hover → `text-primary`, `border-color: text-tertiary`
+- Тема хранится в `data-theme` на `<html>` + localStorage; anti-FOUC inline-скрипт в `<head>`
+
+### Reveal (scroll-анимация)
+
+- `opacity 0 → 1`, `translateY(24px) → 0`, 400ms, ease `cubic-bezier(0.22, 1, 0.36, 1)`
+- `whileInView`, once, viewport margin `-80px`
+- Вариант `tiltIn` для карточек: + `rotateX(4deg) → 0`
+
+### Counter
+
+- Число: mono, tabular-nums; досчёт до значения 1.2s ease-out при появлении в кадре
+- Единица измерения (`M`, `%`) — `text-accent`, размер ~60% от числа
+
+### BeforeAfter
+
+- Контейнер `aspect-16/9`, radius 8px, border `surface-3`
+- Разделитель: 1px `text-primary/70` + ручка 36px круг `surface-0/90` + border
+- Drag — pointer events, keyboard: стрелки ±4%; `cursor: ew-resize`
+
+### ProcessSteps
+
+- Вертикальный рельс 1px `surface-3`, прогресс — 1px `accent`, scaleY по скроллу (useScroll)
+- Точки шагов: 8px круг, border `accent`, fill `surface-0`
+- Номер шага: mono 11px uppercase `text-tertiary`
+
+### DemoViewer
+
+- Fullscreen overlay `z-100`, background `surface-0`; появление — fade 200ms + scale 0.99→1
+- Тулбар 56px: mono-путь к демо, переключатель desktop/mobile, ссылка «в новой вкладке», закрытие (Esc)
+- Mobile-режим: iframe 390px, radius 8px, border
+
+### Gallery
+
+- Scroll-snap ряд кадров `aspect-16/9`, скрытый скроллбар
+- Счётчик `01 / 05` mono 12px `text-tertiary`; стрелки 32×32px border-кнопки
 
 ## 5. Layout Principles
 
