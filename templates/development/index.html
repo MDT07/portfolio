@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>МЕРИДИАН — Девелопмент и строительство</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --surface-0: #0A0A0A;
+      --surface-1: #111111;
+      --surface-2: #1A1A1A;
+      --surface-3: #242424;
+      --text-primary: #EDEDED;
+      --text-secondary: #A1A1A1;
+      --text-tertiary: #666666;
+      --accent: #0070F3;
+      --accent-hover: #0060DF;
+      --accent-subtle: #0C2D4D;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--surface-0);
+      color: var(--text-primary);
+      font-family: 'Inter', system-ui, sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .mono { font-family: 'JetBrains Mono', monospace; }
+
+    /* ── Header ── */
+    .header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: 64px;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .header.scrolled {
+      background: rgba(10,10,10,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom-color: var(--surface-3);
+    }
+    .header-inner {
+      max-width: 1200px; margin: 0 auto; height: 100%;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 48px;
+    }
+    .logo {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px; font-weight: 500; letter-spacing: 0.08em;
+      color: var(--text-primary); text-decoration: none;
+    }
+    .logo span { color: var(--accent); }
+    .nav { display: flex; gap: 32px; list-style: none; }
+    .nav a {
+      font-size: 14px; color: var(--text-secondary);
+      text-decoration: none; transition: color 0.15s;
+    }
+    .nav a:hover { color: var(--text-primary); }
+
+    /* ── Hero ── */
+    .hero {
+      min-height: 100vh;
+      display: flex; align-items: flex-end;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background: url('https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=1920&q=80') center/cover no-repeat;
+    }
+    .hero-bg::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, var(--surface-0) 0%, rgba(10,10,10,0.6) 40%, rgba(10,10,10,0.3) 100%);
+    }
+    .hero-content {
+      position: relative; z-index: 2;
+      max-width: 1200px; margin: 0 auto; width: 100%;
+      padding: 0 48px 96px;
+    }
+    .hero-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 500;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      color: var(--text-tertiary);
+      margin-bottom: 24px;
+      display: block;
+    }
+    .hero h1 {
+      font-size: clamp(40px, 6vw, 72px);
+      font-weight: 700; line-height: 1.05;
+      letter-spacing: -0.03em;
+      max-width: 700px;
+    }
+    .hero p {
+      margin-top: 24px;
+      font-size: 18px; line-height: 1.6;
+      color: var(--text-secondary);
+      max-width: 520px;
+    }
+    .hero-actions {
+      margin-top: 40px; display: flex; gap: 16px;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      height: 48px; padding: 0 24px;
+      font-size: 14px; font-weight: 500;
+      border-radius: 6px; border: none; cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-secondary {
+      background: var(--surface-2); color: var(--text-primary);
+      border: 1px solid var(--surface-3);
+    }
+    .btn-secondary:hover { border-color: var(--text-tertiary); }
+
+    /* ── Sections ── */
+    .section {
+      padding: 128px 0;
+      border-top: 1px solid var(--surface-3);
+    }
+    .section-inner {
+      max-width: 1200px; margin: 0 auto; padding: 0 48px;
+    }
+    .section-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 500;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      color: var(--text-tertiary);
+      margin-bottom: 16px;
+      display: block;
+    }
+    .section-title {
+      font-size: 36px; font-weight: 600;
+      letter-spacing: -0.02em; line-height: 1.2;
+      margin-bottom: 64px;
+    }
+
+    /* ── Stats ── */
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;
+    }
+    .stat {
+      padding: 32px;
+      background: var(--surface-1);
+      border: 1px solid var(--surface-3);
+      border-radius: 8px;
+    }
+    .stat-value {
+      font-size: 48px; font-weight: 700;
+      letter-spacing: -0.03em; line-height: 1;
+      color: var(--accent);
+    }
+    .stat-label {
+      margin-top: 12px;
+      font-size: 14px; color: var(--text-secondary);
+    }
+
+    /* ── Projects ── */
+    .projects-filter {
+      display: flex; gap: 8px; margin-bottom: 48px;
+    }
+    .filter-btn {
+      padding: 8px 16px;
+      font-size: 13px; font-weight: 500;
+      background: var(--surface-2); color: var(--text-secondary);
+      border: 1px solid var(--surface-3); border-radius: 6px;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .filter-btn:hover { border-color: var(--text-tertiary); color: var(--text-primary); }
+    .filter-btn.active {
+      background: var(--accent-subtle); color: var(--accent);
+      border-color: var(--accent);
+    }
+    .projects-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;
+    }
+    .project-card {
+      background: var(--surface-1);
+      border: 1px solid var(--surface-3);
+      border-radius: 8px;
+      overflow: hidden;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .project-card:hover {
+      border-color: var(--text-tertiary);
+      transform: translateY(-2px);
+    }
+    .project-img {
+      height: 280px;
+      background: var(--surface-2);
+      overflow: hidden;
+    }
+    .project-img img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+    .project-card:hover .project-img img {
+      transform: scale(1.03);
+    }
+    .project-body { padding: 24px; }
+    .project-type {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 500;
+      color: var(--accent);
+      text-transform: uppercase; letter-spacing: 0.08em;
+    }
+    .project-name {
+      margin-top: 8px;
+      font-size: 20px; font-weight: 600;
+    }
+    .project-desc {
+      margin-top: 8px;
+      font-size: 14px; color: var(--text-secondary);
+      line-height: 1.5;
+    }
+    .project-meta {
+      margin-top: 16px;
+      display: flex; gap: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; color: var(--text-tertiary);
+    }
+
+    /* ── Tech ── */
+    .tech-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+    }
+    .tech-card {
+      padding: 32px;
+      background: var(--surface-1);
+      border: 1px solid var(--surface-3);
+      border-radius: 8px;
+    }
+    .tech-icon {
+      width: 48px; height: 48px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--accent-subtle);
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-size: 20px;
+    }
+    .tech-card h3 {
+      font-size: 18px; font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .tech-card p {
+      font-size: 14px; color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* ── Contact ── */
+    .contact-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 64px;
+    }
+    .contact-info h3 {
+      font-size: 24px; font-weight: 600; margin-bottom: 24px;
+    }
+    .contact-item {
+      display: flex; gap: 16px; margin-bottom: 20px;
+      font-size: 15px;
+    }
+    .contact-item .mono {
+      color: var(--text-tertiary); font-size: 13px;
+      min-width: 80px;
+    }
+    .contact-form input,
+    .contact-form textarea {
+      width: 100%; height: 48px;
+      padding: 0 16px;
+      background: var(--surface-2);
+      border: 1px solid var(--surface-3);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-size: 14px; font-family: inherit;
+      margin-bottom: 16px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .contact-form textarea {
+      height: 120px; padding: 16px;
+      resize: vertical;
+    }
+    .contact-form input::placeholder,
+    .contact-form textarea::placeholder {
+      color: var(--text-tertiary);
+    }
+    .contact-form input:focus,
+    .contact-form textarea:focus {
+      border-color: var(--accent);
+    }
+
+    /* ── Footer ── */
+    .footer {
+      padding: 48px 0;
+      border-top: 1px solid var(--surface-3);
+    }
+    .footer-inner {
+      max-width: 1200px; margin: 0 auto; padding: 0 48px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .footer p {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; color: var(--text-tertiary);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .header-inner, .hero-content, .section-inner, .footer-inner { padding-left: 24px; padding-right: 24px; }
+      .nav { display: none; }
+      .hero h1 { font-size: 36px; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .projects-grid { grid-template-columns: 1fr; }
+      .tech-grid { grid-template-columns: 1fr; }
+      .contact-grid { grid-template-columns: 1fr; gap: 48px; }
+      .section { padding: 80px 0; }
+      .section-title { font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header" id="header">
+    <div class="header-inner">
+      <a href="#" class="logo">МЕРИДИАН<span>.</span></a>
+      <ul class="nav">
+        <li><a href="#about">О компании</a></li>
+        <li><a href="#projects">Проекты</a></li>
+        <li><a href="#tech">Технологии</a></li>
+        <li><a href="#contact">Контакты</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <span class="hero-label">Девелопмент · Строительство</span>
+      <h1>Строим пространства для жизни и бизнеса</h1>
+      <p>Полный цикл девелопмента: от концепции и проектирования до сдачи объекта в эксплуатацию. 18 лет на рынке, 47 реализованных проектов.</p>
+      <div class="hero-actions">
+        <a href="#projects" class="btn btn-primary">Смотреть проекты</a>
+        <a href="#contact" class="btn btn-secondary">Обсудить проект</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- About / Stats -->
+  <section class="section" id="about">
+    <div class="section-inner">
+      <span class="section-label">О компании</span>
+      <h2 class="section-title">Цифры говорят сами за себя</h2>
+      <div class="stats-grid">
+        <div class="stat">
+          <div class="stat-value">18</div>
+          <div class="stat-label">лет на рынке</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">47</div>
+          <div class="stat-label">проектов реализовано</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">1.2M</div>
+          <div class="stat-label">м² построено</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">98%</div>
+          <div class="stat-label">объектов сдано в срок</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Projects -->
+  <section class="section" id="projects">
+    <div class="section-inner">
+      <span class="section-label">Портфолио</span>
+      <h2 class="section-title">Реализованные проекты</h2>
+
+      <div class="projects-filter">
+        <button class="filter-btn active" data-filter="all">Все</button>
+        <button class="filter-btn" data-filter="residential">Жилые</button>
+        <button class="filter-btn" data-filter="commercial">Коммерческие</button>
+        <button class="filter-btn" data-filter="infrastructure">Инфраструктура</button>
+      </div>
+
+      <div class="projects-grid">
+        <article class="project-card" data-type="residential">
+          <div class="project-img">
+            <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&q=80" alt="ЖК Северный парк">
+          </div>
+          <div class="project-body">
+            <span class="project-type">Жилой комплекс</span>
+            <h3 class="project-name">ЖК «Северный парк»</h3>
+            <p class="project-desc">Три корпуса по 25 этажей, закрытый двор, подземный паркинг на 400 мест. Класс — бизнес.</p>
+            <div class="project-meta">
+              <span>2024</span>
+              <span>85 000 м²</span>
+              <span>Москва</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="project-card" data-type="commercial">
+          <div class="project-img">
+            <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&q=80" alt="БЦ Меридиан Тауэр">
+          </div>
+          <div class="project-body">
+            <span class="project-type">Офисный центр</span>
+            <h3 class="project-name">БЦ «Меридиан Тауэр»</h3>
+            <p class="project-desc">Офисный центр класса A. 32 этажа, панорамное остекление, BREEAM Excellent.</p>
+            <div class="project-meta">
+              <span>2023</span>
+              <span>62 000 м²</span>
+              <span>Москва-Сити</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="project-card" data-type="residential">
+          <div class="project-img">
+            <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80" alt="ЖК Речной">
+          </div>
+          <div class="project-body">
+            <span class="project-type">Жилой комплекс</span>
+            <h3 class="project-name">ЖК «Речной»</h3>
+            <p class="project-desc">Клубный дом на 120 квартир на набережной. Приватный причал, ландшафтный парк.</p>
+            <div class="project-meta">
+              <span>2024</span>
+              <span>28 000 м²</span>
+              <span>Санкт-Петербург</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="project-card" data-type="infrastructure">
+          <div class="project-img">
+            <img src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800&q=80" alt="Транспортный хаб">
+          </div>
+          <div class="project-body">
+            <span class="project-type">Инфраструктура</span>
+            <h3 class="project-name">Транспортный хаб «Восточный»</h3>
+            <p class="project-desc">Многоуровневый транспортно-пересадочный узел с торговой галереей и паркингом.</p>
+            <div class="project-meta">
+              <span>2022</span>
+              <span>45 000 м²</span>
+              <span>Казань</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="project-card" data-type="commercial">
+          <div class="project-img">
+            <img src="https://images.unsplash.com/photo-1554435493-93422e8220c8?w=800&q=80" alt="ТЦ Галерея">
+          </div>
+          <div class="project-body">
+            <span class="project-type">Торговый центр</span>
+            <h3 class="project-name">ТЦ «Галерея Юг»</h3>
+            <p class="project-desc">Региональный торговый центр с кинотеатром, фуд-кортом и якорными арендаторами.</p>
+            <div class="project-meta">
+              <span>2023</span>
+              <span>78 000 м²</span>
+              <span>Краснодар</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="project-card" data-type="infrastructure">
+          <div class="project-img">
+            <img src="https://images.unsplash.com/photo-1449157291145-7efd050a4d0e?w=800&q=80" alt="Логистический комплекс">
+          </div>
+          <div class="project-body">
+            <span class="project-type">Инфраструктура</span>
+            <h3 class="project-name">Логистический парк «Юг»</h3>
+            <p class="project-desc">Складской комплекс класса A с кросс-докингом и железнодорожной веткой.</p>
+            <div class="project-meta">
+              <span>2023</span>
+              <span>120 000 м²</span>
+              <span>Ростов-на-Дону</span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Technologies -->
+  <section class="section" id="tech">
+    <div class="section-inner">
+      <span class="section-label">Технологии</span>
+      <h2 class="section-title">Как мы строим</h2>
+      <div class="tech-grid">
+        <div class="tech-card">
+          <div class="tech-icon">📐</div>
+          <h3>BIM-проектирование</h3>
+          <p>Полный цикл информационного моделирования. Сокращение ошибок проектирования на 40%, точная смета на ранних этапах.</p>
+        </div>
+        <div class="tech-card">
+          <div class="tech-icon">🌿</div>
+          <h3>Энергоэффективность</h3>
+          <p>Здания класса A+ по энергопотреблению. Солнечные панели, рекуперация тепла, умное управление климатом.</p>
+        </div>
+        <div class="tech-card">
+          <div class="tech-icon">🏗</div>
+          <h3>Модульное строительство</h3>
+          <p>Заводское производство модулей сокращает сроки строительства на 30% без потери качества.</p>
+        </div>
+        <div class="tech-card">
+          <div class="tech-icon">📡</div>
+          <h3>Геомониторинг</h3>
+          <p>Непрерывный контроль деформаций и осадки зданий в реальном времени. Безопасность на каждом этапе.</p>
+        </div>
+        <div class="tech-card">
+          <div class="tech-icon">🔑</div>
+          <h3>Умный дом</h3>
+          <p>Интеграция систем управления зданием: доступ, климат, освещение, безопасность — через единое приложение.</p>
+        </div>
+        <div class="tech-card">
+          <div class="tech-icon">♻️</div>
+          <h3>Циркулярные материалы</h3>
+          <p>До 60% переработанных материалов в конструкциях. Сертификация LEED и BREEAM для всех новых проектов.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section class="section" id="contact">
+    <div class="section-inner">
+      <span class="section-label">Контакты</span>
+      <h2 class="section-title">Обсудим ваш проект</h2>
+      <div class="contact-grid">
+        <div class="contact-info">
+          <h3>Офис в Москве</h3>
+          <div class="contact-item">
+            <span class="mono">Адрес</span>
+            <span>Пресненская наб., 12, башня «Федерация»</span>
+          </div>
+          <div class="contact-item">
+            <span class="mono">Телефон</span>
+            <span>+7 (495) 123-45-67</span>
+          </div>
+          <div class="contact-item">
+            <span class="mono">Email</span>
+            <span>info@meridian.dev</span>
+          </div>
+          <div class="contact-item">
+            <span class="mono">Режим</span>
+            <span>Пн–Пт, 9:00–19:00</span>
+          </div>
+        </div>
+        <form class="contact-form" onsubmit="event.preventDefault(); alert('Форма отправлена (демо)');">
+          <input type="text" placeholder="Ваше имя" required>
+          <input type="email" placeholder="Email" required>
+          <input type="tel" placeholder="Телефон">
+          <textarea placeholder="Опишите ваш проект" required></textarea>
+          <button type="submit" class="btn btn-primary" style="width:100%">Отправить заявку</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <p>© 2025 МЕРИДИАН — Девелопмент и строительство</p>
+      <p>Демонстрационный шаблон</p>
+    </div>
+  </footer>
+
+  <script>
+    // Header scroll effect
+    const header = document.getElementById('header');
+    window.addEventListener('scroll', () => {
+      header.classList.toggle('scrolled', window.scrollY > 10);
+    }, { passive: true });
+
+    // Project filter
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const cards = document.querySelectorAll('.project-card');
+
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const filter = btn.dataset.filter;
+
+        cards.forEach(card => {
+          if (filter === 'all' || card.dataset.type === filter) {
+            card.style.display = '';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>
