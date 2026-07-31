@@ -20,7 +20,7 @@ time.sleep(0.6)
 
 server = subprocess.Popen([sys.executable, "-m", "http.server", "8082"], cwd=TMPL,
                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-proc = subprocess.Popen([CHROME, "--headless", "--disable-gpu", "--hide-scrollbars",
+proc = subprocess.Popen([CHROME, "--headless", "--hide-scrollbars",
     f"--remote-debugging-port={CDP_PORT}", "--remote-allow-origins=*",
     f"--window-size={WIDTH},900", "--no-first-run",
     "--user-data-dir=/tmp/cdp-profile-norde-qa", BASE + "/"],
@@ -75,12 +75,8 @@ try:
         if not ok:
             failures.append(name)
 
-    def shot(name, y0):
-        h = js("document.documentElement.scrollHeight") or 900
-        y0 = 0 if h <= 6000 else max(0, min(y0, h - 6000))
-        ch = min(h - y0, 6000)
-        data = cmd("Page.captureScreenshot", {"format": "png", "captureBeyondViewport": True,
-            "clip": {"x": 0, "y": y0, "width": WIDTH, "height": ch, "scale": 1}})["data"]
+    def shot_view(name):
+        data = cmd("Page.captureScreenshot", {"format": "png"})["data"]
         out = f"/tmp/norde-qa-{name}.png"
         open(out, "wb").write(base64.b64decode(data))
         print("  shot:", out)
@@ -97,14 +93,20 @@ try:
     for c in CHECKS:
         check(c["name"], c["js"], c.get("expect", True))
     if SHOT:
-        # headless не растризует текст в зоне текущего вьюпорта при captureBeyondViewport —
-        # поэтому «full» снимаем, удерживая скролл в середине (верх страницы вне экрана)
-        js("window.scrollTo(0, document.documentElement.scrollHeight * 0.5)")
-        time.sleep(1.4)
-        shot("full", 0)
-        js("window.scrollTo(0, document.documentElement.scrollHeight)")
-        time.sleep(1.4)
-        shot("tail", js("document.documentElement.scrollHeight") or 0)
+        # сброс UI-состояния после функциональных проверок (drawer с актом, toast)
+        js("document.querySelector('.drawer-close')?.click(); document.body.style.overflow=''")
+        time.sleep(2.8)  # переждать toast (2.4s)
+        # captureBeyondViewport ненадёжен в headless (дыры в растре) —
+        # снимаем по вьюпорту, прокручивая к каждой главе и футеру
+        anchors = js("""JSON.stringify(
+          [...document.querySelectorAll('[data-chapter], .footer')].map(e => ({
+            n: 'ch' + (e.dataset.chapter || 'footer'),
+            y: Math.round(e.getBoundingClientRect().top + window.scrollY)
+          })))""") or "[]"
+        for a in json.loads(anchors):
+            js(f"window.scrollTo(0, {a['y']})")
+            time.sleep(1.2)
+            shot_view(a["n"])
     if errors:
         print("CONSOLE ISSUES:")
         for e in dict.fromkeys(errors):

@@ -343,8 +343,10 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 /* ================= PRELOADER / MOTION STATES ================= */
 #preloader{
   position:fixed; inset:0; z-index:1000; background:var(--paper);
-  display:flex; align-items:flex-end; justify-content:flex-end; padding:40px;
+  display:none; align-items:flex-end; justify-content:flex-end; padding:40px;
+  /* показывается только из JS (Task 5): первый визит сессии и не reduced-motion */
 }
+#preloader.on{display:flex}
 #preloader span{font:500 64px/1 var(--font-mono); color:var(--ink)}
 .mask-line{display:block; overflow:hidden}
 .mask-line>span{display:block; transform:translateY(115%)}
@@ -694,7 +696,10 @@ const grid = $('#catalogGrid');
 const mediaIO = 'IntersectionObserver' in window
   ? new IntersectionObserver(entries => {
       entries.forEach(en => {
-        if (en.isIntersecting) { en.target.classList.add('is-in'); mediaIO.unobserve(en.target); }
+        if (!en.isIntersecting) return;
+        const m = $('.product-media', en.target);
+        if (m) m.classList.add('is-in');
+        mediaIO.unobserve(en.target);
       });
     }, { threshold: 0.15 })
   : null;
@@ -713,7 +718,12 @@ function renderCatalog() {
         <div class="product-price mono">${fmt(p.price)}</div>
       </div>
     </article>`).join('');
-  $$('.product-media', grid).forEach(m => mediaIO ? mediaIO.observe(m) : m.classList.add('is-in'));
+  /* наблюдаем карточку, а не сам media-блок: его clip-path обнуляет intersectionRatio */
+  $$('.product', grid).forEach(card => {
+    const m = $('.product-media', card);
+    if (mediaIO) mediaIO.observe(card);
+    else if (m) m.classList.add('is-in');
+  });
 }
 
 grid.addEventListener('click', e => {
