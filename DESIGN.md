@@ -288,3 +288,26 @@ Accent:     #0070F3
 - Зернистость: SVG-noise overlay, opacity ≤ 0.05, fixed, `pointer-events: none` — кинематографическая текстура, не декор.
 - Live-data штрихи: часы/координаты в mono, обновление не чаще 1 раза в секунду.
 - Display-типографика шаблонов: fluid `clamp()` до 10–14vw, uppercase допустим только в hero-headline и постерном футере.
+
+## 11. Editorial Layer (главная dev.developer)
+
+Применяется к главной странице портфолио (`app/[lang]/page.tsx`, секции `Poster*`/`AboutChapter`/`WorksIndex`) и постерному футеру на всех страницах. Остальные страницы (`/works`, `/works/[slug]`) остаются на правилах §4 и §7. Цель — editorial-постер уровня Awwwards внутри строгого реализма: палитра §2 и токены глубины §6 не меняются.
+
+### Типографика
+
+- Display-serif: **Prata** (Google Fonts, regular 400, кириллица). CSS-var `--font-prata`, утилита `font-display`; fallback Georgia, serif.
+- Prata — только для: hero-headline, заголовков глав, постерного футера. Body, UI, карточки — Inter; метаданные, индексы, маркеры — JetBrains Mono. Больше одной serif-роли на экране не бывает.
+- Размеры — fluid `clamp()`: hero до `clamp(3rem, 9vw, 8rem)`, заголовки глав до `clamp(2.25rem, 5vw, 4.5rem)`. Line-height 0.95–1.05, tracking 0 — Prata не требует сжатия.
+- Uppercase: только hero-headline и постерный футер (как §10). Заголовки глав — sentence case.
+
+### Motion
+
+- Полностью по §10 Motion: 800–1100ms, `cubic-bezier(0.65, 0, 0.35, 1)`, только `transform`/`opacity`/`clip-path`.
+- Допущены на главной: preloader 0→100 (один раз за сессию, sessionStorage), line-mask reveal заголовков, clip-reveal медиа, hover-превью в индексе работ, velocity-marquee, лёгкий scroll-параллакс.
+- Скролл не джекится. `prefers-reduced-motion: reduce` отключает preloader и весь слой: контент виден сразу.
+
+### Редакционные детали
+
+- По §10: маркеры глав «001 / Название», архивная нумерация работ, figure captions, постерный футер с clipped wordmark, noise overlay ≤ 0.05.
+- Главы нумеруются последовательно: 001 Подход → 002 Кейсы.
+- Светлая инверсия (§10) допустима, но не обязательна; v1 главной — полностью тёмная.

@@ -52,3 +52,35 @@ export const stagger: Variants = {
 
 /** Viewport-конфиг для whileInView */
 export const inView = { once: true, margin: "-80px" } as const;
+
+/* ---------- Кинематографический слой (DESIGN.md §10/§11) ---------- */
+
+/** Cinematic ease — только крупные сцены: 800–1100ms */
+export const CINE_EASE: [number, number, number, number] = [0.65, 0, 0.35, 1];
+
+/** Line-mask reveal: строка выезжает из overflow-hidden маски */
+export const lineMask: Variants = {
+  hidden: { y: "112%" },
+  visible: (i: number = 0) => ({
+    y: "0%",
+    transition: { duration: 1, ease: CINE_EASE, delay: i * 0.09 },
+  }),
+};
+
+/** Clip-reveal медиа: снизу вверх + лёгкий zoom-out внутри */
+export const clipReveal: Variants = {
+  hidden: { clipPath: "inset(100% 0 0 0)" },
+  visible: (i: number = 0) => ({
+    clipPath: "inset(0% 0 0 0)",
+    transition: { duration: 1.1, ease: CINE_EASE, delay: i * 0.09 },
+  }),
+};
+
+/** Простое кинематографичное появление (метаданные, подписи) */
+export const cineFade: Variants = {
+  hidden: { opacity: 0 },
+  visible: (i: number = 0) => ({
+    opacity: 1,
+    transition: { duration: 0.8, ease: CINE_EASE, delay: i * 0.09 },
+  }),
+};

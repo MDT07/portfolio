@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
-import Hero from "@/components/sections/Hero";
-import Manifesto from "@/components/sections/Manifesto";
-import WorksGrid from "@/components/sections/WorksGrid";
+import PosterHero from "@/components/sections/PosterHero";
+import Marquee from "@/components/sections/Marquee";
+import AboutChapter from "@/components/sections/AboutChapter";
+import WorksIndex from "@/components/sections/WorksIndex";
 import { getDictionary, isLocale } from "@/lib/i18n";
 
 export default async function Home({
@@ -15,9 +16,10 @@ export default async function Home({
 
   return (
     <>
-      <Hero lang={lang} dict={dict} />
-      <Manifesto dict={dict} />
-      <WorksGrid lang={lang} dict={dict} featuredOnly />
+      <PosterHero lang={lang} dict={dict} />
+      <Marquee items={dict.hero.marquee} />
+      <AboutChapter dict={dict} />
+      <WorksIndex lang={lang} dict={dict} />
     </>
   );
 }

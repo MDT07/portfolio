@@ -19,15 +19,19 @@ export const en: Dictionary = {
   },
   hero: {
     label: "Frontend Developer · E-commerce",
-    title: "Interfaces that sell and run like clockwork",
+    titleLines: ["Interfaces", "that sell and run", "like clockwork"],
     subtitle:
       "I design and build fast storefronts and web apps: design systems, measurable performance, cinematic delivery — zero visual noise.",
     ctaPrimary: "View works",
     ctaSecondary: "Discuss a project",
-    stats: [
-      { value: "5+", label: "years in development" },
-      { value: "30+", label: "projects shipped" },
-      { value: "100/100", label: "Lighthouse as a norm" },
+    scroll: "Scroll",
+    marquee: [
+      "Frontend",
+      "E-commerce",
+      "Design Systems",
+      "Performance",
+      "TypeScript",
+      "Accessibility",
     ],
   },
   manifesto: {

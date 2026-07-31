@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono, Prata } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { notFound } from "next/navigation";
 import "../globals.css";
 import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+import PosterFooter from "@/components/layout/PosterFooter";
 import SmoothScroll from "@/components/providers/SmoothScroll";
 import { getDictionary, isLocale, locales } from "@/lib/i18n";
 import { siteConfig } from "@/lib/config";
@@ -16,6 +16,12 @@ const inter = Inter({
 
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-mono",
+  subsets: ["latin", "cyrillic"],
+});
+
+const prata = Prata({
+  weight: "400",
+  variable: "--font-prata",
   subsets: ["latin", "cyrillic"],
 });
 
@@ -62,7 +68,7 @@ export default async function RootLayout({
       lang={lang}
       data-theme="dark"
       suppressHydrationWarning
-      className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${jetbrainsMono.variable} ${prata.variable} h-full antialiased`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
@@ -71,7 +77,7 @@ export default async function RootLayout({
         <SmoothScroll>
           <Header lang={lang} dict={dict} />
           <main className="flex-1">{children}</main>
-          <Footer lang={lang} dict={dict} />
+          <PosterFooter lang={lang} dict={dict} />
         </SmoothScroll>
         <Analytics />
       </body>

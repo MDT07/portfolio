@@ -17,15 +17,19 @@ export const ru = {
   },
   hero: {
     label: "Frontend Developer · E-commerce",
-    title: "Интерфейсы, которые продают и работают как часы",
+    titleLines: ["Интерфейсы,", "которые продают", "и работают как часы"],
     subtitle:
       "Проектирую и собираю быстрые витрины и веб-приложения: дизайн-системы, измеримая производительность, кинематографичная подача — без визуального шума.",
     ctaPrimary: "Смотреть работы",
     ctaSecondary: "Обсудить проект",
-    stats: [
-      { value: "5+", label: "лет в разработке" },
-      { value: "30+", label: "проектов запущено" },
-      { value: "100/100", label: "Lighthouse как норма" },
+    scroll: "Скролл",
+    marquee: [
+      "Frontend",
+      "E-commerce",
+      "Design Systems",
+      "Performance",
+      "TypeScript",
+      "Accessibility",
     ],
   },
   manifesto: {

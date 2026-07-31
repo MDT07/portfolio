@@ -7,6 +7,7 @@
  * переопределение переменных переключает тему без пересборки.
  */
 @theme {
+  --font-display: var(--font-prata), Georgia, serif;
   --color-surface-0: #0a0a0a;
   --color-surface-1: #111111;
   --color-surface-2: #1a1a1a;
