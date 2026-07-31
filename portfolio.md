@@ -6,12 +6,14 @@
 
 **Стиль:** строгий реализм. Инженерная точность, модульная сетка, монохромная база с одним сигнальным акцентом. Никакой декоративности — каждый элемент обоснован функцией. Ближе к Vercel и Linear по духу: precision, clarity, restraint.
 
+**Главная** — editorial-постер уровня Awwwards внутри той же строгости (DESIGN.md §11): display-serif Prata, нумерованные главы, прелоадер, line-mask заголовки, velocity-marquee, hover-превью работ, постерный футер. Контент: «Принципы и подход» + работы.
+
 **Референсы по духу:**
 - [Vercel](https://vercel.com) — чёрно-белая точность, Geist, нулевой шум
 - [Linear](https://linear.app) — ультраминимализм, один акцент, идеальный ритм
 - [GeoLibre](https://github.com/opengeos/GeoLibre) — технический уровень: React + TypeScript, чистая архитектура
 
-**Дизайн-система:** формат [DESIGN.md](https://github.com/VoltAgent/awesome-design-md) (Google Stitch spec) — единый источник правды для токенов.
+**Дизайн-система:** формат [DESIGN.md](https://github.com/VoltAgent/awesome-design-md) (Google Stitch spec) — единый источник правды для токенов. §10 — кинематографический слой демо-шаблонов, §11 — editorial-слой главной.
 
 ---
 
@@ -22,13 +24,13 @@
 | Фреймворк | Next.js (App Router) | 16 | SSG, routing, image optimization, proxy (ex-middleware) |
 | Язык | TypeScript | 5 | Типобезопасность |
 | Стили | Tailwind CSS | 4 | Токены из DESIGN.md → utility classes |
-| Анимации | Framer Motion | 12 | Scroll-driven, page transitions (template.tsx) |
+| Анимации | Framer Motion | 12 | Scroll-driven, page transitions (template.tsx), кинематографика §11 |
 | Smooth scroll | Lenis | 1 | Тактильный скролл (components/providers/SmoothScroll) |
 | Контент | MDX (next-mdx-remote/rsc + gray-matter) | — | Кейсы, локализация `<slug>.en.mdx` |
 | i18n | Собственная (app/[lang] + proxy.ts) | — | RU на корне, EN под /en |
 | Мониторинг | Sentry (@sentry/nextjs) | — | Опционально, env-gated (без DSN отключён) |
 | Аналитика | Vercel Analytics | — | Нативно |
-| Шрифт | Inter + JetBrains Mono | — | Sans для UI, mono для кода/меток |
+| Шрифты | Inter + JetBrains Mono + Prata | — | Sans для UI, mono для меток, Prata — display-serif §11 |
 | Деплой | Vercel | — | Нативно для Next.js |
 
 ---
@@ -51,11 +53,11 @@ portfolio/
 ├── .env.example                  # Sentry DSN (заглушка)
 │
 ├── app/
-│   ├── globals.css               # Токены @theme + light-вариант [data-theme]
+│   ├── globals.css               # Токены @theme + --font-display + light-вариант [data-theme]
 │   ├── [lang]/                   # Локализованное дерево (ru, en)
-│   │   ├── layout.tsx            # html, шрифты, anti-FOUC тема, Header/Footer, Analytics
+│   │   ├── layout.tsx            # html, шрифты, anti-FOUC тема, Header/PosterFooter, Analytics
 │   │   ├── template.tsx          # Кинематографичный вход страницы (300ms)
-│   │   ├── page.tsx              # Главная: Hero + Manifesto + WorksGrid
+│   │   ├── page.tsx              # Главная: PosterHero + Marquee + AboutChapter + WorksIndex (§11)
 │   │   └── works/
 │   │       ├── page.tsx          # Каталог кейсов (grid)
 │   │       └── [slug]/page.tsx   # Детальная кейса (MDX + демо)
@@ -64,10 +66,12 @@ portfolio/
 │   └── opengraph-image.png       # 1200×630, брендированная
 │
 ├── components/
-│   ├── ui/                       # Примитивы: Button, Card, Tag, Reveal,
+│   ├── ui/                       # Примитивы: Button, Card, Tag, Reveal, MaskText,
 │   │                             #   ThemeToggle, LangSwitcher
-│   ├── layout/                   # Header (nav + theme + lang), Footer, Container
-│   ├── sections/                 # Hero, Manifesto, WorksGrid
+│   ├── layout/                   # Header (nav + theme + lang), PosterFooter (§11), Container
+│   ├── sections/                 # Главная §11: PosterHero, Marquee, AboutChapter,
+│   │                             #   WorksIndex + WorksIndexClient (hover-превью)
+│   │                             # Каталог /works: WorksGrid
 │   ├── interactive/              # Клиентские виджеты для MDX и страниц:
 │   │                             #   Counter, BeforeAfter, ProcessSteps,
 │   │                             #   DemoViewer (iframe fullscreen), Gallery
@@ -89,7 +93,7 @@ portfolio/
 │   ├── i18n.ts                   # locales, getDictionary, withLocale, stripLocale
 │   ├── dictionaries/             # ru.ts, en.ts (DeepString-тип Dictionary)
 │   ├── mdx.ts                    # Загрузчик MDX (works, локали)
-│   ├── animations.ts             # Framer Motion пресеты (150–400ms)
+│   ├── animations.ts             # Framer Motion пресеты (150–400ms + кинематографика §10/§11)
 │   └── utils.ts                  # cn()
 │
 └── public/
@@ -132,7 +136,7 @@ portfolio/
 
 | Путь | Страница | Тип |
 |------|----------|-----|
-| `/` (и `/en`) | Главная — «Обо мне» + избранные работы | SSG |
+| `/` (и `/en`) | Главная — editorial-постер: подход + работы | SSG |
 | `/works` | Каталог кейсов | SSG |
 | `/works/[slug]` | Детальная кейса | SSG (generateStaticParams) |
 | `/templates/*` | Live-демо шаблонов | Статика из public/ |

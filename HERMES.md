@@ -6,7 +6,7 @@
 
 ## Проект
 
-Web-портфолио разработчика. Строгий реализм, монохром + один акцент, модульная сетка. Next.js 15 + TypeScript + Tailwind CSS 4. Дизайн-токены — в `DESIGN.md`. Архитектура — в `portfolio.md`.
+Web-портфолио разработчика. Строгий реализм, монохром + один акцент, модульная сетка. Главная — editorial-постер (serif Prata, кинематографика). Next.js 16 + TypeScript + Tailwind CSS 4. Дизайн-токены — в `DESIGN.md` (§10 — шаблоны, §11 — editorial-слой главной). Архитектура — в `portfolio.md`.
 
 ---
 
@@ -90,6 +90,39 @@ mcp__context7__query-docs → query: "scroll-driven animations with useScroll"
 
 ---
 
+## ui-ux-pro-max (Hermes skill, вызов из Kimi CLI)
+
+Скилл установлен в Hermes, но вызывается из Kimi CLI напрямую через скрипты — без запуска Hermes-сессии:
+
+```bash
+# Домены: style, color, chart, landing, product, ux, typography, icons, gsap, react, web, google-fonts
+python3 ~/.hermes/skills/ui-ux-pro-max/scripts/search.py -d google-fonts -n 6 "editorial display serif cyrillic"
+python3 ~/.hermes/skills/ui-ux-pro-max/scripts/search.py -d style "strict engineering realism"
+python3 ~/.hermes/skills/ui-ux-pro-max/scripts/search.py -d typography "display serif pairing"
+```
+
+Используется для: выбора шрифтов (поле `Subsets` — фильтр по кириллице обязателен), палитр, лендинг-паттернов, motion-референсов. Prata для editorial-слоя §11 выбрана именно таким запросом.
+
+---
+
+## CDP-верификация (visual QA из Kimi CLI)
+
+Headless Chrome + CDP — обязательная проверка визуала перед коммитом изменений секций/стилей.
+
+1. Поднять сервер: `npm run dev` (сайт) или `python3 -m http.server` в `templates/<slug>/` (демо).
+2. Full-page скриншот через `captureBeyondViewport` (скрипт `/tmp/shot-next.py` — эталонный harness).
+3. Прочитать скриншот (ReadMediaFile) на desktop 1440 и mobile 375; консоль — пустой.
+
+Подводные камни (наблюдены в проекте):
+
+- **Старый CSS из кэша**: CDP-профиль переиспользуется → `Network.setCacheDisabled` обязателен, иначе скриншот врёт.
+- **`whileInView` ниже сгиба**: перед захватом — автопрокрутка вниз/вверх, иначе секции остаются в hidden-состоянии.
+- **IntersectionObserver за трансформированным элементом ненадёжен**: наблюдать за статичной обёрткой (`useInView` + `animate`), не за span, сдвинутым на 112% (случай MaskText).
+- **Кнопка Next.js dev tools (чёрный круг «N»)** — артефакт dev-режима, в проде её нет; не принимать за баг.
+- Точные замеры — CDP-пробой (`getComputedStyle`, `measureText`) и пиксельным анализом PNG (PIL), не на глаз по превью.
+
+---
+
 ## Workflow для Hermes agent
 
 ### Создание нового шаблона (кейса)
@@ -162,3 +195,5 @@ any shadow beyond the elevation system, any radius > 8px.
 4. **Server Components по умолчанию.** `"use client"` — только при необходимости
 5. **Фото — только реальные** (Unsplash, Pexels). Никаких AI-генераций для кейсов
 6. **Каждый элемент обоснован.** Если не можешь объяснить зачем — не добавляй
+7. **Шаблоны независимы по бренду.** `templates/<slug>/` не наследуют айдентику dev.developer (шрифты, акцент, настроение): у PRIMARY TERRA, NORDE, METRIC — свои бренды. Общее — только дисциплина §1/§7 и кинематографика §10
+8. **Visual QA перед коммитом.** Изменение секций/стилей — CDP-скриншот desktop + mobile, чистая консоль, зелёный `npm run build`
