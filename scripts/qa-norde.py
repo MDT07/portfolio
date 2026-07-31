@@ -112,6 +112,10 @@ try:
             js(f"window.scrollTo(0, {a['y']})")
             time.sleep(1.2)
             shot_view(a["n"])
+            if a["n"] == "ch02":  # кадр внутри pinned-дрейфа лукбука
+                js(f"window.scrollTo(0, {a['y']} + Math.round(window.innerHeight * 1.5))")
+                time.sleep(1.6)
+                shot_view("ch02-drift")
     if errors:
         print("CONSOLE ISSUES:")
         for e in dict.fromkeys(errors):

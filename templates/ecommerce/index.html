@@ -133,7 +133,8 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 .lookbook-head{display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:56px}
 .lookbook-progress{flex:0 0 200px; height:1px; background:var(--dark-line); position:relative}
 .lookbook-progress i{position:absolute; inset:0; background:var(--brass); transform:scaleX(0); transform-origin:left}
-.lookbook-viewport{overflow:hidden}
+.lookbook-viewport{overflow-x:auto; scrollbar-width:none; -ms-overflow-style:none}
+.lookbook-viewport::-webkit-scrollbar{display:none}
 .lookbook-track{display:flex; gap:40px; will-change:transform}
 .look{flex:0 0 min(58vw,560px)}
 .look-media{aspect-ratio:4/5; overflow:hidden; border:1px solid var(--dark-line)}
@@ -966,6 +967,40 @@ function checkout() {
   toast(`Акт приёма n°${actNo} подписан`);
 }
 
+/* ================= LOOKBOOK (02) ================= */
+const lookTrack = $('#lookTrack');
+const pluralUnits = n => n === 1 ? 'единица' : (n >= 2 && n <= 4 ? 'единицы' : 'единиц');
+
+function renderLooks() {
+  lookTrack.innerHTML = LOOKS.map(l => {
+    const prods = l.items.map(byId).filter(Boolean);
+    const items = prods.map(p => `${p.name} (${p.unit})`).join(' · ');
+    return `
+    <figure class="look" data-look="${l.n}">
+      <div class="look-media"><img src="${l.img}" alt="${l.title}" loading="lazy"></div>
+      <figcaption>
+        <p class="mono"><b>Look n°${l.n}</b></p>
+        <p class="look-items mono">${items}</p>
+        <button class="btn btn-ghost look-add" type="button" data-look="${l.n}">Образ в корзину</button>
+      </figcaption>
+    </figure>`;
+  }).join('');
+}
+
+lookTrack.addEventListener('click', e => {
+  const btn = e.target.closest('.look-add');
+  if (!btn) return;
+  const look = LOOKS.find(l => l.n === +btn.dataset.look);
+  if (!look) return;
+  look.items.forEach(id => {
+    const p = byId(id);
+    const sizes = SIZES[p.cat];
+    addToCart(id, sizes[Math.floor(sizes.length / 2)]);
+  });
+  openDrawer();
+  toast(`Look n°${look.n} → Корзина (${look.items.length} ${pluralUnits(look.items.length)})`);
+});
+
 /* ================= ESC / HEADER ================= */
 document.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
@@ -981,6 +1016,7 @@ onScroll();
 /* ================= INIT ================= */
 renderCatalog();
 renderCart();
+renderLooks();
 
 /* ================= MOTION (Task 5) ================= */
 const motionOK = !reducedMotion && window.gsap && window.ScrollTrigger && window.Lenis;
@@ -1079,6 +1115,27 @@ if (motionOK) {
       scrollTrigger: { trigger: w.parentElement, start: 'top 78%', once: true }
     });
   });
+
+  /* --- глава 02: pinned лукбук-дрейф --- */
+  {
+    const viewport = lookTrack.parentElement;
+    viewport.style.overflow = 'hidden';
+    const dist = () => Math.max(0, lookTrack.scrollWidth - viewport.clientWidth);
+    const setSkew = gsap.quickSetter(lookTrack, 'skewX', 'deg');
+    gsap.to(lookTrack, {
+      x: () => -dist(), ease: 'none',
+      scrollTrigger: {
+        trigger: '[data-chapter="02"]', start: 'top top',
+        end: () => '+=' + (dist() + innerHeight * 0.6),
+        pin: true, scrub: 1, invalidateOnRefresh: true,
+        onUpdate: st => {
+          $('#lookProgress').style.transform = `scaleX(${st.progress})`;
+          setSkew(-gsap.utils.clamp(-4, 4, st.getVelocity() / 250));
+        },
+        onScrubComplete: () => gsap.to(lookTrack, { skewX: 0, duration: 0.4, ease: 'power2.out' })
+      }
+    });
+  }
 
   /* --- velocity-marquee --- */
   $$('.marquee-inner').forEach(inner => {
