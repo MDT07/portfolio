@@ -91,6 +91,11 @@ try:
 
     CHECKS = json.load(open(os.path.join(ROOT, "scripts/qa-norde-checks.json")))
     for c in CHECKS:
+        mode = c.get("mode")  # "rm" — только reduced-motion, "no-rm" — только обычный прогон
+        if mode == "rm" and not RM:
+            continue
+        if mode == "no-rm" and RM:
+            continue
         check(c["name"], c["js"], c.get("expect", True))
     if SHOT:
         # сброс UI-состояния после функциональных проверок (drawer с актом, toast)

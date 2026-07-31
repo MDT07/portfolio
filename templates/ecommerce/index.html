@@ -348,9 +348,11 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 }
 #preloader.on{display:flex}
 #preloader span{font:500 64px/1 var(--font-mono); color:var(--ink)}
-.mask-line{display:block; overflow:hidden}
-.mask-line>span{display:block; transform:translateY(115%)}
-.wipe{position:absolute; inset:0; z-index:5; pointer-events:none}
+.mask-line{display:inline-block; overflow:hidden; vertical-align:bottom}
+.mask-line>span{display:inline-block}
+/* начальное состояние yPercent:115 задаёт только gsap — CSS-transform здесь конфликтует с кэшем gsap */
+.wipe{position:absolute; inset:0; z-index:5; pointer-events:none; background:var(--paper)}
+.wipe--dark{background:var(--dark)}
 [data-clip]{overflow:hidden}
 [data-clip] img{will-change:transform}
 
@@ -437,6 +439,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 
   <!-- ================= 02 ЛУКБУК ================= -->
   <section class="chapter chapter--dark" data-chapter="02">
+    <div class="wipe" aria-hidden="true"></div>
     <div class="container">
       <div class="lookbook-head">
         <div>
@@ -461,6 +464,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 
   <!-- ================= 03 PLANCHE ================= -->
   <section class="chapter chapter--dark" data-chapter="03">
+    <div class="wipe" aria-hidden="true"></div>
     <div class="container">
       <p class="mono chapter-index"><b>03</b> / Planche</p>
       <h2 data-mask>Кеды Court Low в четырёх ракурсах</h2>
@@ -494,6 +498,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 
   <!-- ================= 04 АРХИВ ЕДИНИЦ ================= -->
   <section class="chapter" data-chapter="04">
+    <div class="wipe wipe--dark" aria-hidden="true"></div>
     <div class="container">
       <p class="mono chapter-index"><b>04</b> / Архив единиц</p>
       <h2 data-mask>Картотека</h2>
@@ -594,6 +599,10 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 <!-- ================= TOAST ================= -->
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+
 <script type="module">
 'use strict';
 
@@ -679,6 +688,11 @@ const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
 const fmt = n => new Intl.NumberFormat('ru-RU').format(n) + ' ₽';
 const byId = id => PRODUCTS.find(p => p.id === id) || null;
 const cartKey = (id, size) => id + '::' + size;
+/* прокрутка через Lenis, если он активен */
+const scrollToEl = el => {
+  if (window.__lenis) window.__lenis.scrollTo(el, { offset: -72 });
+  else el.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth' });
+};
 
 /* ================= TOAST ================= */
 const toastEl = $('#toast');
@@ -752,7 +766,7 @@ filtersWrap.addEventListener('click', e => {
 });
 $$('[data-goto-filter]').forEach(a => a.addEventListener('click', () => {
   setFilter(a.dataset.gotoFilter);
-  $('#filters').scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth' });
+  scrollToEl($('#filters'));
 }));
 
 /* ================= QUICK VIEW ================= */
@@ -892,7 +906,7 @@ function renderCart() {
 drawerItems.addEventListener('click', e => {
   if (e.target.closest('[data-goto-catalog]')) {
     closeDrawer();
-    $('#filters').scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth' });
+    scrollToEl($('#filters'));
     return;
   }
   const btn = e.target.closest('[data-act]');
@@ -967,6 +981,113 @@ onScroll();
 /* ================= INIT ================= */
 renderCatalog();
 renderCart();
+
+/* ================= MOTION (Task 5) ================= */
+const motionOK = !reducedMotion && window.gsap && window.ScrollTrigger && window.Lenis;
+if (motionOK) {
+  gsap.registerPlugin(ScrollTrigger);
+  const lenis = new Lenis({ lerp: 0.11 });
+  window.__lenis = lenis;
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add(t => lenis.raf(t * 1000));
+  gsap.ticker.lagSmoothing(0);
+
+  /* --- сплит заголовков на слова (mask-line > span) --- */
+  function splitWords(el) {
+    const words = [];
+    const process = node => {
+      if (node.nodeType === 3) {
+        const frag = document.createDocumentFragment();
+        node.textContent.split(/(\s+)/).forEach(part => {
+          if (!part) return;
+          if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(' ')); return; }
+          const line = document.createElement('span');
+          line.className = 'mask-line';
+          line.setAttribute('aria-hidden', 'true');
+          const inner = document.createElement('span');
+          inner.textContent = part;
+          line.appendChild(inner);
+          frag.appendChild(line);
+          words.push(inner);
+        });
+        node.replaceWith(frag);
+      } else if (node.nodeType === 1) {
+        Array.from(node.childNodes).forEach(process);
+      }
+    };
+    const label = el.textContent.trim();
+    Array.from(el.childNodes).forEach(process);
+    el.setAttribute('aria-label', label);
+    return words;
+  }
+
+  let heroWords = null;
+  $$('[data-mask]').forEach(el => {
+    const words = splitWords(el);
+    if (!words.length) return;
+    gsap.set(words, { yPercent: 115 });
+    if (el.closest('.hero')) { heroWords = words; return; }
+    gsap.to(words, {
+      yPercent: 0, duration: 1.1, ease: 'power3.out', stagger: 0.07,
+      scrollTrigger: { trigger: el, start: 'top 82%', once: true }
+    });
+  });
+  const heroIntro = () => {
+    if (heroWords) gsap.to(heroWords, { yPercent: 0, duration: 1.2, ease: 'power3.out', stagger: 0.07, delay: 0.1 });
+  };
+
+  /* --- preloader: один раз за сессию --- */
+  const pre = $('#preloader');
+  if (pre && sessionStorage.getItem('norde-loaded') !== '1') {
+    pre.classList.add('on');
+    document.body.style.overflow = 'hidden';
+    lenis.stop();
+    const counter = { v: 0 };
+    gsap.to(counter, {
+      v: 100, duration: 1.6, ease: 'power2.inOut',
+      onUpdate: () => { $('#preCount').textContent = Math.round(counter.v); },
+      onComplete: () => {
+        sessionStorage.setItem('norde-loaded', '1');
+        gsap.to(pre, {
+          yPercent: -100, duration: 0.9, ease: 'power3.inOut',
+          onComplete: () => {
+            pre.classList.remove('on');
+            gsap.set(pre, { yPercent: 0 });
+            document.body.style.overflow = '';
+            lenis.start();
+          }
+        });
+        heroIntro();
+      }
+    });
+  } else {
+    heroIntro();
+  }
+
+  /* --- clip-reveal для [data-clip] --- */
+  $$('[data-clip]').forEach(el => {
+    const img = $('img', el);
+    const tl = gsap.timeline({ scrollTrigger: { trigger: el, start: 'top 85%', once: true } });
+    tl.fromTo(el, { clipPath: 'inset(100% 0 0 0)' }, { clipPath: 'inset(0% 0 0 0)', duration: 1, ease: 'power3.inOut' });
+    if (img) tl.fromTo(img, { scale: 1.12 }, { scale: 1, duration: 1, ease: 'power3.inOut' }, 0);
+  });
+
+  /* --- curtain-wipe в начале глав 02/03/04 --- */
+  $$('.wipe').forEach(w => {
+    gsap.to(w, {
+      yPercent: -101, duration: 1, ease: 'power3.inOut',
+      scrollTrigger: { trigger: w.parentElement, start: 'top 78%', once: true }
+    });
+  });
+
+  /* --- velocity-marquee --- */
+  $$('.marquee-inner').forEach(inner => {
+    const tween = gsap.to(inner, { xPercent: -50, ease: 'none', duration: 18, repeat: -1 });
+    let target = 1;
+    lenis.on('scroll', ({ velocity }) => { target = Math.min(1 + Math.abs(velocity) / 10, 4); });
+    gsap.ticker.add(() => { target += (1 - target) * 0.04; tween.timeScale(target); });
+  });
+}
 </script>
 
 </body>

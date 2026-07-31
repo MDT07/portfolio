@@ -18,5 +18,12 @@
   {"name": "qty +1", "js": "(document.querySelector('[data-act=inc]').click(), document.querySelector('.cart-item .qty span').textContent)", "expect": "2"},
   {"name": "доставка бесплатно от 10000", "js": "document.querySelector('#drawerFoot').textContent.includes('Бесплатно')"},
   {"name": "оформление → Акт приёма", "js": "(document.querySelector('#checkoutBtn').click(), document.querySelector('#drawer').textContent.includes('Акт приёма'))"},
-  {"name": "корзина очищена после акта", "js": "document.querySelector('#cartCount').classList.contains('hidden')"}
+  {"name": "корзина очищена после акта", "js": "document.querySelector('#cartCount').classList.contains('hidden')"},
+  {"name": "GSAP/Lenis подключены", "mode": "no-rm", "js": "typeof gsap !== 'undefined' && typeof Lenis !== 'undefined'"},
+  {"name": "preloader отработал, sessionStorage выставлен", "mode": "no-rm", "js": "sessionStorage.getItem('norde-loaded') === '1'"},
+  {"name": "hero-title разбит на слова", "mode": "no-rm", "js": "document.querySelectorAll('.hero-title .mask-line > span').length >= 5"},
+  {"name": "hero-title виден после интро", "mode": "no-rm", "js": "(function(){var m = new DOMMatrix(getComputedStyle(document.querySelector('.hero-title .mask-line > span')).transform); return Math.abs(m.m42) < 1})()"},
+  {"name": "RM: preloader не показан", "mode": "rm", "js": "getComputedStyle(document.querySelector('#preloader')).display", "expect": "none"},
+  {"name": "RM: заголовок hero виден сразу", "mode": "rm", "js": "getComputedStyle(document.querySelector('.hero-title')).opacity", "expect": "1"},
+  {"name": "RM: без сплита заголовков", "mode": "rm", "js": "document.querySelectorAll('.mask-line').length", "expect": 0}
 ]
