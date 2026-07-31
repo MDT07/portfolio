@@ -219,7 +219,7 @@ Uppercase только для `Label` и `Caption` в mono. Body и заголо
 - Один акцентный цвет на экране
 - Mono-шрифт для меток, дат, тегов, кода
 - Тонкие borders (1px) вместо теней для разделения
-- Анимации 150–300ms, `ease` или `ease-out`
+- Анимации UI 150–300ms, `ease` или `ease-out`; кинематографика demo-шаблонов — по §10
 - Skeleton-загрузка вместо спиннеров
 
 ### Don't
@@ -229,7 +229,7 @@ Uppercase только для `Label` и `Caption` в mono. Body и заголо
 - Больше 3 уровней типографической иерархии на одном экране
 - Декоративные иконки без функции
 - Uppercase для body-текста
-- Анимации дольше 400ms
+- Анимации дольше 400ms вне кинематографического слоя (§10)
 
 ## 8. Responsive Behavior
 
@@ -260,3 +260,31 @@ Accent:     #0070F3
 ### Ready-to-use prompt
 
 > Build a page using strict engineering realism. Dark background #0A0A0A, cards on #111111 with 1px #242424 borders, text #EDEDED. Single accent #0070F3 for CTAs and links only. Inter for UI, JetBrains Mono for labels and metadata. 6px border-radius on interactive elements, 8px on cards. No gradients, no decorative shadows, no rounded corners beyond 8px. Generous whitespace between sections (96px+), compact within components. Every element must justify its existence.
+
+## 10. Cinematic Layer (только demo-шаблоны)
+
+Применяется исключительно к self-contained демо в `templates/<slug>/`. Основной сайт (`app/`, `components/`) остаётся на правилах §4 и §7. Цель слоя — award-уровень подачи без нарушения базовых принципов: монохром, один акцент, ноль декора.
+
+### Motion
+
+- UI-микроинтеракции (hover, focus, tabs): по-прежнему 150–300ms.
+- Кинематографика: 800–1100ms, ease `cubic-bezier(0.65, 0, 0.35, 1)`. Анимируются только `transform`, `opacity`, `clip-path`.
+- Техники: clip-path reveal медиа (`inset(100% 0 0 0) → inset(0)` + inner `scale 1.12 → 1`), line/word-mask reveal заголовков (overflow-hidden строки, stagger 60–90ms), curtain-wipe между главами, scroll-scrubbed параллакс через rAF (только transform), velocity-marquee.
+- Скролл не джекится: нормальный document flow, без scroll-hijacking и fake-scroll.
+- `prefers-reduced-motion: reduce` отключает весь слой без исключений: контент виден сразу, rAF-циклы не запускаются.
+
+### Chapter inversion (светлая глава)
+
+- Одна, максимум две светлые главы на страницу. Токены: фон `paper` `#EDEDED`, текст `ink` `#0A0A0A`, вторичный текст `rgba(10,10,10,0.62)`, borders `rgba(10,10,10,0.14)`.
+- Акцент `#0070F3` — только крупные метки и индексы; текстовые акценты на paper — `accent-hover` `#0060DF` (контраст).
+- Инверсия — ритмический бит между тёмными главами, не тема оформления.
+
+### Редакционные детали
+
+- Архивная нумерация сущностей: «Проект n0.047» — mono 11px, `text-tertiary`.
+- Figure captions у медиа: «Fig. 02 — TERRA NORD, Москва» — mono 11px.
+- Маркеры глав: «001 / Название» — mono uppercase + hairline 1px.
+- Постерный футер: wordmark во всю ширину, частично уходит за нижний край (clipped).
+- Зернистость: SVG-noise overlay, opacity ≤ 0.05, fixed, `pointer-events: none` — кинематографическая текстура, не декор.
+- Live-data штрихи: часы/координаты в mono, обновление не чаще 1 раза в секунду.
+- Display-типографика шаблонов: fluid `clamp()` до 10–14vw, uppercase допустим только в hero-headline и постерном футере.
