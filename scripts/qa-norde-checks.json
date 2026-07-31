@@ -29,5 +29,9 @@
   {"name": "6 образов в ленте", "js": "document.querySelectorAll('.look').length", "expect": 6},
   {"name": "состав лука mono", "js": "document.querySelector('.look .look-items').textContent.includes('Unit n°')"},
   {"name": "«Образ в корзину» добавляет 2 товара", "js": "((n0=document.querySelector('#cartCount').textContent), document.querySelector('.look-add').click(), +document.querySelector('#cartCount').textContent - +n0)", "expect": 2},
-  {"name": "глава 02 тёмная", "js": "document.querySelector('[data-chapter=\"02\"]').classList.contains('chapter--dark')"}
+  {"name": "глава 02 тёмная", "js": "document.querySelector('[data-chapter=\"02\"]').classList.contains('chapter--dark')"},
+  {"name": "сцена: canvas или fallback", "js": "!!(document.querySelector('#plancheStage canvas') || document.querySelector('#plancheStage img.planche-fallback'))"},
+  {"name": "4 ракурса в подписях", "js": "document.querySelectorAll('.planche-view').length", "expect": 4},
+  {"name": "3 swatch", "js": "document.querySelectorAll('.swatch').length", "expect": 3},
+  {"name": "спеки mono присутствуют", "js": "document.querySelector('#plancheSpecs').textContent.includes('Подошва')"}
 ]

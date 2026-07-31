@@ -169,12 +169,12 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 #plancheSpecs li:first-child{border-top:0; padding-top:0}
 #plancheSpecs li b{color:var(--dark-ink); font-weight:500}
 #plancheStage{
-  position:relative; min-height:min(80vh,760px);
+  position:relative; min-height:min(60vh,560px);
   border:1px solid var(--dark-line);
   display:flex; align-items:center; justify-content:center;
 }
 #plancheStage canvas{display:block}
-#plancheLoader{position:absolute; color:var(--dark-ink-2)}
+#plancheLoader{position:absolute; color:var(--dark-ink-2); display:none}  /* показывается только из JS при загрузке сцены */
 .planche-fallback{width:100%; height:100%; object-fit:cover; position:absolute; inset:0}
 .planche-views{display:flex; flex-direction:column; gap:16px}
 .planche-view{color:var(--dark-ink-2); transition:color .3s; position:relative; padding-left:20px}
@@ -1143,6 +1143,160 @@ if (motionOK) {
     let target = 1;
     lenis.on('scroll', ({ velocity }) => { target = Math.min(1 + Math.abs(velocity) / 10, 4); });
     gsap.ticker.add(() => { target += (1 - target) * 0.04; tween.timeScale(target); });
+  });
+}
+
+/* ================= PLANCHE (03) — Three.js ================= */
+const plancheStage = $('#plancheStage');
+const plancheLoaderEl = $('#plancheLoader');
+
+function showPlancheFallback() {
+  /* фото уже в разметке — это и есть fallback; просто прячем лоадер */
+  plancheLoaderEl.style.display = 'none';
+}
+
+if (motionOK && plancheStage && window.WebGLRenderingContext) {
+  const io3 = new IntersectionObserver(async entries => {
+    if (!entries[0].isIntersecting) return;
+    io3.disconnect();
+    plancheLoaderEl.style.display = 'block';
+    try {
+      const THREE = await import('three');
+      const { GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js');
+      const { DRACOLoader } = await import('three/addons/loaders/DRACOLoader.js');
+      initPlanche(THREE, GLTFLoader, DRACOLoader);
+    } catch (e) {
+      showPlancheFallback();
+    }
+  }, { rootMargin: '600px' });
+  io3.observe(plancheStage);
+}
+
+function initPlanche(THREE, GLTFLoader, DRACOLoader) {
+  const w = plancheStage.clientWidth, h = Math.min(innerHeight * 0.6, 560);
+  let renderer;
+  try {
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+  } catch (e) {
+    showPlancheFallback();
+    return;
+  }
+  renderer.setSize(w, h);
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  plancheStage.appendChild(renderer.domElement);
+
+  const scene = new THREE.Scene();
+  scene.add(new THREE.HemisphereLight(0xEDE9E4, 0x161412, 1.4));
+  const key = new THREE.DirectionalLight(0xffffff, 1.2);
+  key.position.set(3, 5, 2);
+  scene.add(key);
+  const camera = new THREE.PerspectiveCamera(34, w / h, 0.1, 100);
+
+  const STOPS = [
+    { pos: [0.2, 0.45, 2.2], tgt: [0, 0.15, 0],    label: 'Vue latérale' },
+    { pos: [0.3, 2.4, 0.35], tgt: [0, 0, 0],       label: 'Vue de dessus' },
+    { pos: [0.95, 0.35, 0.95], tgt: [0.25, 0.2, 0], label: 'Détail couture' },
+    { pos: [1.7, 1.0, 1.7],  tgt: [0, 0.1, 0],     label: 'Vue 3/4' }
+  ];
+  const views = $$('.planche-view');
+  const pos = new THREE.Vector3(...STOPS[0].pos);
+  const tgt = new THREE.Vector3(...STOPS[0].tgt);
+  const drift = { x: 0, y: 0, tx: 0, ty: 0 };
+  let model = null, gltfRef = null, inView = false;
+
+  const draco = new DRACOLoader().setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/libs/draco/');
+  const loader = new GLTFLoader().setDRACOLoader(draco);
+  loader.load(
+    'https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/Models/MaterialsVariantsShoe/glTF-Binary/MaterialsVariantsShoe.glb',
+    gltf => {
+      gltfRef = gltf;
+      model = gltf.scene;
+      /* нормализация: центр в origin, габарит ~1.6 */
+      const box = new THREE.Box3().setFromObject(model);
+      const size = box.getSize(new THREE.Vector3()).length() || 1;
+      const center = box.getCenter(new THREE.Vector3());
+      model.position.sub(center);
+      model.scale.setScalar(1.6 / size);
+      scene.add(model);
+      showPlancheFallback();  // скрыть лоадер
+      const fb = $('.planche-fallback', plancheStage);
+      if (fb) fb.remove();
+      renderer.render(scene, camera);  // первый кадр до скролла
+    },
+    xhr => {
+      plancheLoaderEl.textContent = 'Chargement… ' + (xhr.total ? Math.round(xhr.loaded / xhr.total * 100) + '%' : '…');
+    },
+    () => showPlancheFallback()
+  );
+
+  /* swatch: KHR_materials_variants, иначе — тинт материала */
+  $$('.swatch').forEach((btn, i, all) => btn.addEventListener('click', async () => {
+    all.forEach(b => b.classList.toggle('active', b === btn));
+    if (!model) return;
+    const variants = (gltfRef && gltfRef.userData && gltfRef.userData.variants) || [];
+    try {
+      if (variants.length && gltfRef.functions && gltfRef.functions.selectVariant) {
+        await gltfRef.functions.selectVariant(model, i % variants.length);
+      } else {
+        model.traverse(o => { if (o.isMesh && o.material && o.material.color) o.material.color.set(btn.dataset.c); });
+      }
+    } catch (e) { /* вариант не применился — оставляем как есть */ }
+  }));
+
+  /* видимость главы → пауза render-цикла */
+  ScrollTrigger.create({
+    trigger: '[data-chapter="03"]', start: 'top bottom', end: 'bottom top',
+    onToggle: st => { inView = st.isActive; }
+  });
+
+  /* pinned scroll-камера по 4 ракурсам */
+  ScrollTrigger.create({
+    trigger: '[data-chapter="03"]', start: 'top top', end: '+=300%',
+    pin: true, scrub: 1,
+    onUpdate: st => {
+      const seg = Math.min(st.progress * (STOPS.length - 1), STOPS.length - 1.001);
+      const i = Math.floor(seg), f = seg - i;
+      const s = f * f * (3 - 2 * f);  // smoothstep
+      const A = STOPS[i], B = STOPS[i + 1];
+      pos.set(
+        A.pos[0] + (B.pos[0] - A.pos[0]) * s,
+        A.pos[1] + (B.pos[1] - A.pos[1]) * s,
+        A.pos[2] + (B.pos[2] - A.pos[2]) * s
+      );
+      tgt.set(
+        A.tgt[0] + (B.tgt[0] - A.tgt[0]) * s,
+        A.tgt[1] + (B.tgt[1] - A.tgt[1]) * s,
+        A.tgt[2] + (B.tgt[2] - A.tgt[2]) * s
+      );
+      const active = Math.round(st.progress * (STOPS.length - 1));
+      views.forEach((v, vi) => v.classList.toggle('active', vi === active));
+    }
+  });
+
+  /* hover-drift ±3° */
+  plancheStage.addEventListener('mousemove', e => {
+    const r = plancheStage.getBoundingClientRect();
+    drift.tx = ((e.clientX - r.left) / r.width - 0.5) * 0.05;
+    drift.ty = ((e.clientY - r.top) / r.height - 0.5) * 0.05;
+  });
+  plancheStage.addEventListener('mouseleave', () => { drift.tx = 0; drift.ty = 0; });
+
+  window.addEventListener('resize', () => {
+    const w2 = plancheStage.clientWidth, h2 = Math.min(innerHeight * 0.6, 560);
+    renderer.setSize(w2, h2);
+    camera.aspect = w2 / h2;
+    camera.updateProjectionMatrix();
+  });
+
+  gsap.ticker.add(() => {
+    if (!model || !inView) return;
+    drift.x += (drift.tx - drift.x) * 0.06;
+    drift.y += (drift.ty - drift.y) * 0.06;
+    camera.position.copy(pos);
+    camera.position.x += drift.x * 2;
+    camera.position.y -= drift.y * 2;
+    camera.lookAt(tgt);
+    renderer.render(scene, camera);
   });
 }
 </script>

@@ -110,7 +110,7 @@ try:
           })))""") or "[]"
         for a in json.loads(anchors):
             js(f"window.scrollTo(0, {a['y']})")
-            time.sleep(1.2)
+            time.sleep(5 if a["n"] == "ch03" else 1.2)  # ch03: three.js + GLB по сети
             shot_view(a["n"])
             if a["n"] == "ch02":  # кадр внутри pinned-дрейфа лукбука
                 js(f"window.scrollTo(0, {a['y']} + Math.round(window.innerHeight * 1.5))")

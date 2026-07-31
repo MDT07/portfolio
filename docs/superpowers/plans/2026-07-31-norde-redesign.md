@@ -597,7 +597,7 @@ function initPlanche(THREE, GLTFLoader, DRACOLoader) {
   const loader = new GLTFLoader().setDRACOLoader(draco);
   const loaderEl = document.querySelector('#plancheLoader');
   loader.load(
-    'https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/models/MaterialsVariantsShoe/glTF-Binary/MaterialsVariantsShoe.glb',
+    'https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Assets@main/Models/MaterialsVariantsShoe/glTF-Binary/MaterialsVariantsShoe.glb',
     (gltf) => {
       scene.add(gltf.scene);
       loaderEl.style.display = 'none';
@@ -608,7 +608,7 @@ function initPlanche(THREE, GLTFLoader, DRACOLoader) {
   );
   // Камера: 4 стопа {pos, target, label}
   const STOPS = [
-    { pos: [2.6, 0.5, 0.2], tgt: [0, 0.15, 0], label: 'Vue latérale' },
+    { pos: [0.2, 0.5, 2.6], tgt: [0, 0.15, 0], label: 'Vue latérale' },
     { pos: [0.3, 2.8, 0.4], tgt: [0, 0, 0],   label: 'Vue de dessus' },
     { pos: [1.1, 0.4, 1.1], tgt: [0.25, 0.2, 0], label: 'Détail couture' },
     { pos: [2.0, 1.2, 2.0], tgt: [0, 0.1, 0],  label: 'Vue 3/4' }
