@@ -16,9 +16,6 @@ export const siteConfig = {
   githubHandle: "dev-developer",
   githubUrl: "https://github.com/dev-developer",
   linkedinUrl: "https://www.linkedin.com/in/dev-developer",
-
-  /** Formspree endpoint для формы контактов (заглушка) */
-  formspreeEndpoint: "https://formspree.io/f/FORM_ID",
 } as const;
 
 export type SiteConfig = typeof siteConfig;

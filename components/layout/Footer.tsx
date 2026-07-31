@@ -18,11 +18,8 @@ export default function Footer({ lang, dict }: FooterProps) {
   ];
 
   const sitemap = [
-    { path: "/about", label: dict.nav.about },
-    { path: "/skills", label: dict.nav.skills },
+    { path: "/", label: dict.nav.about },
     { path: "/works", label: dict.nav.works },
-    { path: "/blog", label: dict.nav.blog },
-    { path: "/contact", label: dict.nav.contact },
   ];
 
   return (

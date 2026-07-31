@@ -2,20 +2,13 @@ import type { Dictionary } from "./ru";
 
 export const en: Dictionary = {
   nav: {
-    home: "Home",
     about: "About",
-    skills: "Skills",
     works: "Works",
-    blog: "Blog",
-    contact: "Contact",
   },
   common: {
     openDemo: "Open demo",
     allWorks: "All works",
     backToWorks: "← All works",
-    backToBlog: "← All articles",
-    readArticle: "Read",
-    minRead: "min read",
     year: "Year",
     role: "Role",
     stack: "Stack",
@@ -147,71 +140,8 @@ export const en: Dictionary = {
       "I reply within one business day. A 30-minute call — and you have an estimate, timeline, and plan.",
     button: "Get in touch",
   },
-  skills: {
-    label: "Skills",
-    title: "Technologies and tools",
-    subtitle: "The stack I use daily for production work.",
-    groups: [
-      {
-        domain: "Frontend",
-        items: [
-          "React",
-          "Next.js",
-          "TypeScript",
-          "Tailwind CSS",
-          "Framer Motion",
-          "CSS 3D / View Transitions",
-        ],
-      },
-      {
-        domain: "E-commerce",
-        items: [
-          "Catalogs & filters",
-          "Product pages",
-          "Checkout",
-          "Storefront SEO",
-          "Web Vitals",
-          "A/B testing",
-        ],
-      },
-      {
-        domain: "Backend & Data",
-        items: ["Node.js", "PostgreSQL", "REST API", "GraphQL", "Prisma", "Redis"],
-      },
-      {
-        domain: "Tools",
-        items: ["Figma", "Design Systems", "Docker", "Vercel", "Git", "Accessibility"],
-      },
-    ],
-  },
-  contact: {
-    label: "Contact",
-    title: "Let's discuss your project",
-    subtitle: "Tell me about the task — I'll propose a solution, timeline, and cost.",
-    availability: "Open for new projects · I reply within one business day",
-    emailLabel: "Email",
-    telegramLabel: "Telegram",
-    githubLabel: "GitHub",
-    form: {
-      name: "Your name",
-      email: "Email",
-      message: "Describe your project",
-      submit: "Send",
-      sending: "Sending…",
-      successTitle: "Message sent",
-      successText: "I'll reply within one business day.",
-      errorTitle: "Failed to send",
-      errorText: "Please try again or email me directly.",
-    },
-  },
   footer: {
     tagline: "Engineering approach to web development",
     rights: "Made with precision",
-  },
-  blog: {
-    label: "Blog",
-    title: "Engineering notes",
-    subtitle: "Breakdowns of decisions, patterns and performance work from real projects.",
-    empty: "No articles yet — coming soon.",
   },
 };

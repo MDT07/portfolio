@@ -28,12 +28,8 @@ export default function Header({ lang, dict }: HeaderProps) {
   }, []);
 
   const links = [
-    { path: "/", label: dict.nav.home },
-    { path: "/about", label: dict.nav.about },
-    { path: "/skills", label: dict.nav.skills },
+    { path: "/", label: dict.nav.about },
     { path: "/works", label: dict.nav.works },
-    { path: "/blog", label: dict.nav.blog },
-    { path: "/contact", label: dict.nav.contact },
   ];
 
   const isActive = (path: string) =>

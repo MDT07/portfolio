@@ -23,22 +23,9 @@ export interface WorkFrontmatter {
   featured?: boolean;
 }
 
-export interface PostFrontmatter {
-  title: string;
-  description: string;
-  date: string;
-  tags: string[];
-  readingTime: number;
-}
-
 export interface WorkEntry {
   slug: string;
   frontmatter: WorkFrontmatter;
-}
-
-export interface PostEntry {
-  slug: string;
-  frontmatter: PostFrontmatter;
 }
 
 /* ---------- Низкий уровень ---------- */
@@ -93,34 +80,6 @@ export async function getWork(slug: string, lang: Locale) {
   if (!file) return null;
   const source = fs.readFileSync(file, "utf8");
   const { content, frontmatter } = await compileMDX<WorkFrontmatter>({
-    source,
-    components: mdxComponents,
-    options: { parseFrontmatter: true },
-  });
-  return { content, frontmatter, slug };
-}
-
-/* ---------- Публичное API: блог ---------- */
-
-export function getPostSlugs(): string[] {
-  return listSlugs("blog");
-}
-
-export function getAllPosts(lang: Locale): PostEntry[] {
-  return getPostSlugs()
-    .map((slug) => {
-      const frontmatter = readFrontmatter<PostFrontmatter>("blog", slug, lang);
-      return frontmatter ? { slug, frontmatter } : null;
-    })
-    .filter((p): p is PostEntry => p !== null)
-    .sort((a, b) => b.frontmatter.date.localeCompare(a.frontmatter.date));
-}
-
-export async function getPost(slug: string, lang: Locale) {
-  const file = localizedFile("blog", slug, lang);
-  if (!file) return null;
-  const source = fs.readFileSync(file, "utf8");
-  const { content, frontmatter } = await compileMDX<PostFrontmatter>({
     source,
     components: mdxComponents,
     options: { parseFrontmatter: true },

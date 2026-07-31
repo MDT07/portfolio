@@ -1,19 +1,12 @@
 export const ru = {
   nav: {
-    home: "Главная",
     about: "Обо мне",
-    skills: "Скиллы",
     works: "Работы",
-    blog: "Блог",
-    contact: "Контакты",
   },
   common: {
     openDemo: "Открыть демо",
     allWorks: "Все работы",
     backToWorks: "← Все работы",
-    backToBlog: "← Все статьи",
-    readArticle: "Читать",
-    minRead: "мин чтения",
     year: "Год",
     role: "Роль",
     stack: "Стек",
@@ -145,72 +138,9 @@ export const ru = {
       "Отвечаю в течение рабочего дня. Созвон 30 минут — и у вас оценка, сроки и план.",
     button: "Связаться",
   },
-  skills: {
-    label: "Скиллы",
-    title: "Технологии и инструменты",
-    subtitle: "Стек, который я использую ежедневно для production-решений.",
-    groups: [
-      {
-        domain: "Frontend",
-        items: [
-          "React",
-          "Next.js",
-          "TypeScript",
-          "Tailwind CSS",
-          "Framer Motion",
-          "CSS 3D / View Transitions",
-        ],
-      },
-      {
-        domain: "E-commerce",
-        items: [
-          "Каталоги и фильтры",
-          "Карточка товара",
-          "Чекаут",
-          "SEO для магазинов",
-          "Web Vitals",
-          "A/B-тесты",
-        ],
-      },
-      {
-        domain: "Backend & Data",
-        items: ["Node.js", "PostgreSQL", "REST API", "GraphQL", "Prisma", "Redis"],
-      },
-      {
-        domain: "Инструменты",
-        items: ["Figma", "Design Systems", "Docker", "Vercel", "Git", "Accessibility"],
-      },
-    ],
-  },
-  contact: {
-    label: "Контакты",
-    title: "Обсудим ваш проект",
-    subtitle: "Расскажите о задаче — предложу решение, сроки и стоимость.",
-    availability: "Открыт для новых проектов · Отвечаю в течение рабочего дня",
-    emailLabel: "Email",
-    telegramLabel: "Telegram",
-    githubLabel: "GitHub",
-    form: {
-      name: "Ваше имя",
-      email: "Email",
-      message: "Опишите ваш проект",
-      submit: "Отправить",
-      sending: "Отправка…",
-      successTitle: "Сообщение отправлено",
-      successText: "Отвечу в течение рабочего дня.",
-      errorTitle: "Не удалось отправить",
-      errorText: "Попробуйте ещё раз или напишите напрямую на email.",
-    },
-  },
   footer: {
     tagline: "Инженерный подход к веб-разработке",
     rights: "Сделано с точностью",
-  },
-  blog: {
-    label: "Блог",
-    title: "Заметки о разработке",
-    subtitle: "Разборы решений, паттернов и производительности из реальных проектов.",
-    empty: "Статей пока нет — скоро появятся.",
   },
 } as const;
 

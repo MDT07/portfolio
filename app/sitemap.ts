@@ -1,15 +1,14 @@
 import type { MetadataRoute } from "next";
 import { siteConfig } from "@/lib/config";
 import { locales, withLocale } from "@/lib/i18n";
-import { getWorkSlugs, getPostSlugs } from "@/lib/mdx";
+import { getWorkSlugs } from "@/lib/mdx";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = siteConfig.url;
-  const staticPages = ["", "/about", "/skills", "/works", "/blog", "/contact"];
+  const staticPages = ["", "/works"];
   const workPages = getWorkSlugs().map((slug) => `/works/${slug}`);
-  const postPages = getPostSlugs().map((slug) => `/blog/${slug}`);
 
-  const all = [...staticPages, ...workPages, ...postPages];
+  const all = [...staticPages, ...workPages];
 
   return locales.flatMap((lang) =>
     all.map((path) => ({

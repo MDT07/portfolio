@@ -24,7 +24,7 @@
 | Стили | Tailwind CSS | 4 | Токены из DESIGN.md → utility classes |
 | Анимации | Framer Motion | 12 | Scroll-driven, page transitions (template.tsx) |
 | Smooth scroll | Lenis | 1 | Тактильный скролл (components/providers/SmoothScroll) |
-| Контент | MDX (next-mdx-remote/rsc + gray-matter) | — | Кейсы и блог, локализация `<slug>.en.mdx` |
+| Контент | MDX (next-mdx-remote/rsc + gray-matter) | — | Кейсы, локализация `<slug>.en.mdx` |
 | i18n | Собственная (app/[lang] + proxy.ts) | — | RU на корне, EN под /en |
 | Мониторинг | Sentry (@sentry/nextjs) | — | Опционально, env-gated (без DSN отключён) |
 | Аналитика | Vercel Analytics | — | Нативно |
@@ -48,23 +48,17 @@ portfolio/
 ├── instrumentation-client.ts     # Sentry client init
 ├── sentry.server.config.ts
 ├── sentry.edge.config.ts
-├── .env.example                  # Sentry DSN, Formspree (заглушки)
+├── .env.example                  # Sentry DSN (заглушка)
 │
 ├── app/
 │   ├── globals.css               # Токены @theme + light-вариант [data-theme]
 │   ├── [lang]/                   # Локализованное дерево (ru, en)
 │   │   ├── layout.tsx            # html, шрифты, anti-FOUC тема, Header/Footer, Analytics
 │   │   ├── template.tsx          # Кинематографичный вход страницы (300ms)
-│   │   ├── page.tsx              # Главная: Hero + Manifesto + WorksGrid + CTA
-│   │   ├── about/page.tsx        # Био, портрет (dot-matrix), услуги, процесс
-│   │   ├── skills/page.tsx       # Скиллы по доменам
-│   │   ├── works/
-│   │   │   ├── page.tsx          # Каталог кейсов (grid)
-│   │   │   └── [slug]/page.tsx   # Детальная кейса (MDX + демо)
-│   │   ├── blog/
-│   │   │   ├── page.tsx          # Список статей
-│   │   │   └── [slug]/page.tsx   # Статья (MDX)
-│   │   └── contact/page.tsx      # Контакты + Formspree-форма
+│   │   ├── page.tsx              # Главная: Hero + Manifesto + WorksGrid
+│   │   └── works/
+│   │       ├── page.tsx          # Каталог кейсов (grid)
+│   │       └── [slug]/page.tsx   # Детальная кейса (MDX + демо)
 │   ├── sitemap.ts                # Все маршруты × локали + hreflang
 │   ├── robots.ts
 │   └── opengraph-image.png       # 1200×630, брендированная
@@ -73,7 +67,7 @@ portfolio/
 │   ├── ui/                       # Примитивы: Button, Card, Tag, Reveal,
 │   │                             #   ThemeToggle, LangSwitcher
 │   ├── layout/                   # Header (nav + theme + lang), Footer, Container
-│   ├── sections/                 # Hero, Manifesto, WorksGrid, ContactForm, CtaSection
+│   ├── sections/                 # Hero, Manifesto, WorksGrid
 │   ├── interactive/              # Клиентские виджеты для MDX и страниц:
 │   │                             #   Counter, BeforeAfter, ProcessSteps,
 │   │                             #   DemoViewer (iframe fullscreen), Gallery
@@ -81,9 +75,9 @@ portfolio/
 │   └── providers/SmoothScroll.tsx # Lenis (off при prefers-reduced-motion)
 │
 ├── content/
-│   ├── works/                    # Кейсы: development (Primary Terra),
-│   │                             #   ecommerce (NORDE), saas-dashboard (METRIC)
-│   └── blog/                     # Статьи; EN-версии — <slug>.en.mdx
+│   └── works/                    # Кейсы: development (Primary Terra),
+│                                 #   ecommerce (NORDE), saas-dashboard (METRIC);
+│                                 #   EN-версии — <slug>.en.mdx
 │
 ├── templates/                    # Исходники самодостаточных демо-шаблонов
 │   ├── development/              # PRIMARY TERRA — девелопер полного цикла
@@ -91,10 +85,10 @@ portfolio/
 │   └── saas-dashboard/           # METRIC — продуктовая аналитика
 │
 ├── lib/
-│   ├── config.ts                 # siteConfig: бренд, контакты, Formspree endpoint
+│   ├── config.ts                 # siteConfig: бренд, контакты
 │   ├── i18n.ts                   # locales, getDictionary, withLocale, stripLocale
 │   ├── dictionaries/             # ru.ts, en.ts (DeepString-тип Dictionary)
-│   ├── mdx.ts                    # Загрузчик MDX (works + blog, локали)
+│   ├── mdx.ts                    # Загрузчик MDX (works, локали)
 │   ├── animations.ts             # Framer Motion пресеты (150–400ms)
 │   └── utils.ts                  # cn()
 │
@@ -122,9 +116,7 @@ portfolio/
 
 ### Контент
 - Каждый кейс = один MDX в `content/works/` (+ `<slug>.en.mdx`) + live-исходники в `templates/<slug>/`, дублированные в `public/templates/<slug>/`
-- Статьи блога — MDX в `content/blog/` с тем же правилом локализации
 - Frontmatter works: `title`, `description`, `tags`, `year`, `role`, `stack`, `cover`, `demo`, `featured`
-- Frontmatter blog: `title`, `description`, `date`, `tags`, `readingTime`
 
 ### i18n
 - RU — дефолт на корневых путях (proxy rewrite → `/ru`), EN — под префиксом `/en`
@@ -140,17 +132,12 @@ portfolio/
 
 | Путь | Страница | Тип |
 |------|----------|-----|
-| `/` (и `/en`) | Главная | SSG |
-| `/about` | О разработчике | SSG |
-| `/skills` | Скиллы | SSG |
+| `/` (и `/en`) | Главная — «Обо мне» + избранные работы | SSG |
 | `/works` | Каталог кейсов | SSG |
 | `/works/[slug]` | Детальная кейса | SSG (generateStaticParams) |
-| `/blog` | Список статей | SSG |
-| `/blog/[slug]` | Статья | SSG (generateStaticParams) |
-| `/contact` | Контакты | SSG |
 | `/templates/*` | Live-демо шаблонов | Статика из public/ |
 
-Все страницы статические, обе локали пререндерятся. Бэкенда нет — форма через Formspree (client-side POST, endpoint в `lib/config.ts`), мониторинг — Sentry при наличии DSN в env.
+Все страницы статические, обе локали пререндерятся. Бэкенда нет — контакт через mailto (email в `lib/config.ts`), мониторинг — Sentry при наличии DSN в env.
 
 ---
 

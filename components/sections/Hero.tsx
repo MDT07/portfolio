@@ -1,6 +1,7 @@
 import Container from "@/components/layout/Container";
 import Button from "@/components/ui/Button";
 import Reveal from "@/components/ui/Reveal";
+import { siteConfig } from "@/lib/config";
 import { withLocale, type Locale } from "@/lib/i18n";
 import type { Dictionary } from "@/lib/dictionaries/ru";
 
@@ -37,7 +38,7 @@ export default function Hero({ lang, dict }: HeroProps) {
               {dict.hero.ctaPrimary}
             </Button>
             <Button
-              href={withLocale(lang, "/contact")}
+              href={`mailto:${siteConfig.email}`}
               variant="secondary"
               size="lg"
             >
