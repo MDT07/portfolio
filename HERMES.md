@@ -4,6 +4,18 @@
 
 ---
 
+## Knowledge Graph (сначала граф)
+
+Перед любым веб-исследованием по дизайну (шрифты, стили, палитры, motion, UX) или инструментам — запрос в локальный граф знаний (~3450 заметок, все скиллы Hermes/ClawHub/Kimi/Claude + датасеты ui-ux-pro-max):
+
+```bash
+python3 ~/Desktop/knowledge-graph/generators/kg.py "<запрос>" [-n 10] [--type font|skill|style|palette]
+```
+
+Первоисточник для деталей — в поле `source` заметки. Браузер: http://localhost:8080 (`npx quartz build --serve --port 8080` из `~/Desktop/knowledge-graph/quartz`) или https://mdt07.github.io/knowledge-graph. Подробности — `~/Desktop/knowledge-graph/README.md`.
+
+---
+
 ## Проект
 
 Web-портфолио разработчика. Строгий реализм, монохром + один акцент, модульная сетка. Главная — editorial-постер (serif Prata, кинематографика). Next.js 16 + TypeScript + Tailwind CSS 4. Дизайн-токены — в `DESIGN.md` (§10 — шаблоны, §11 — editorial-слой главной). Архитектура — в `portfolio.md`.
