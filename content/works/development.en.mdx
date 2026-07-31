@@ -1,0 +1,43 @@
+---
+title: "Primary Terra"
+description: "A full-cycle developer website with its own brand identity: editorial typography, a MapLibre GL project map, modal project cards, and a validated contact form. Self-contained HTML, no build step."
+tags: ["HTML", "CSS", "JavaScript", "MapLibre", "Responsive"]
+year: "2026"
+role: "Design & Development"
+stack: ["HTML5", "CSS3", "Vanilla JS", "MapLibre GL"]
+client: "Primary Terra"
+status: "Production"
+cover: "/images/works/development-cover.png"
+demo: "/templates/development/index.html"
+featured: true
+---
+
+## Problem
+
+A property developer needs a website that sells the value of its assets, not a boilerplate "about us" page. Off-the-shelf solutions all look the same and can't stand comparison with market leaders: weak typography, stock-photo "success," zero brand character.
+
+## Solution
+
+A one-page website with its own identity, deliberately detached from the portfolio's design system: a light bone base, a terracotta accent, editorial serif typography, and chapters 001–007 with archival numbering and figure captions. Cinematic delivery — a preloader with a counter, clip-reveal photos, line-mask headings, a marquee strip — while fully respecting `prefers-reduced-motion`. A completely self-contained HTML file: opens in a browser with no build step or server.
+
+## What's inside
+
+- **Preloader** — a 0→100 counter with a serif numeral and progress bar, dissolving into the hero
+- **Hero** — serif headline with line-mask reveal, site photo with clip-reveal and a "FIG. 01" caption, HQ coordinates, scroll indicator
+- **Marquee** — an infinite ticker with branded diamond markers
+- **001 About** — "Numbers instead of promises": animated counters (18 years, 47 projects, 1.2M m², 98% on time)
+- **002 Projects** — a filterable index of 6 projects (residential / commercial / infrastructure), a cursor-following preview, and a `<dialog>` project modal with key parameters
+- **003 Map** — MapLibre GL on CARTO Positron: branded `terra-pin` markers, city tabs, an object list with fly-to, popups linking to the modal; graceful fallback when WebGL or network is unavailable
+- **004 Approach** (dark chapter) — a 6-item technology accordion (BIM, energy efficiency, modular construction…) with a KPI panel
+- **005 Process** — "From land plot to keys": the full-cycle step scheme
+- **006 Journal** — news from the sites, photo cards
+- **007 Contact** — a form with floating labels, JS validation (name / email / message / consent), error highlighting, and a success state
+- **Poster footer** — a giant wordmark bleeding off the bottom edge
+
+## Architecture and stack
+
+A single self-contained `index.html`: semantic markup, tokens via CSS custom properties, and all interactivity in dependency-free vanilla JS (MapLibre is the only CDN module). Lenis smooth scrolling, a custom cursor on `pointer:fine`, an SVG grain overlay. Map initialization is wrapped in try/catch: if WebGL is unavailable, the rest of the JS keeps working and the map area shows a clear fallback message.
+
+## Result
+
+A full-fledged brand site with Awwwards-level delivery that can be handed to a client as-is or used as a foundation: color and typography tokens transfer to any design system, and the JS modules (catalog, map, form) can be wired to a real backend.
