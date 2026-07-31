@@ -210,7 +210,9 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 }
 .product:hover{background:var(--paper-2)}
 .product-unit{color:var(--ink-3); padding:14px 16px 0}
-.product-media{position:relative; overflow:hidden; aspect-ratio:4/5; margin:12px 16px 0}
+.product-media{position:relative; overflow:hidden; aspect-ratio:4/5; margin:12px 16px 0;
+  clip-path:inset(0 0 100% 0); transition:clip-path .9s var(--ease-cine)}
+.product-media.is-in{clip-path:inset(0 0 0 0)}
 .product-media img{width:100%; height:100%; object-fit:cover; transition:transform .5s var(--ease-cine)}
 .product:hover .product-media img{transform:scale(1.04)}
 .product-quick{
@@ -355,6 +357,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
   *,*::before,*::after{animation:none !important; transition:none !important}
   #preloader{display:none}
   .mask-line>span{transform:none}
+  .product-media{clip-path:none !important}
   html{scroll-behavior:auto}
 }
 
@@ -590,7 +593,370 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script type="module">
-/* Task 3+: данные, каталог, корзина, motion, лукбук, planche */
+'use strict';
+
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ================= DATA ================= */
+const CATS = { odezhda: 'Одежда', obuv: 'Обувь', aksessuary: 'Аксессуары', dom: 'Дом' };
+const SIZES = {
+  odezhda: ['XS', 'S', 'M', 'L', 'XL'],
+  obuv: ['40', '41', '42', '43', '44'],
+  aksessuary: ['One size'],
+  dom: ['One size']
+};
+const FREE_DELIVERY = 10000, DELIVERY_COST = 490;
+
+const PRODUCTS = [
+  {
+    id: 1, cat: 'odezhda', name: 'Пальто из шерсти', price: 24900, unit: 'Unit n°041',
+    img: 'https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=800&q=80',
+    desc: 'Двубортное пальто из итальянской шерсти с добавлением кашемира. Прямой силуэт, скрытая застёжка, подкладка из вискозы. Садится поверх объёмного свитера.',
+    meta: 'Состав: <span>80% шерсть, 20% кашемир</span><br>Уход: <span>химчистка</span><br>Артикул: <span>NR-0101</span>'
+  },
+  {
+    id: 2, cat: 'odezhda', name: 'Футболка Heavyweight', price: 3900, unit: 'Unit n°042',
+    img: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80',
+    desc: 'Плотная футболка из органического хлопка 240 г/м². Слегка свободный крой, усиленный ворот, не скатывается и не вытягивается после стирок.',
+    meta: 'Состав: <span>100% органический хлопок</span><br>Уход: <span>стирка 30°</span><br>Артикул: <span>NR-0102</span>'
+  },
+  {
+    id: 3, cat: 'obuv', name: 'Кеды Court Low', price: 14900, unit: 'Unit n°043',
+    img: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800&q=80',
+    desc: 'Минималистичные кеды из гладкой телятины на прошитой маргомной подошве. Съёмная стелька из пробки, никаких логотипов снаружи.',
+    meta: 'Верх: <span>натуральная кожа</span><br>Подошва: <span>каучук Margom</span><br>Артикул: <span>NR-0201</span>'
+  },
+  {
+    id: 4, cat: 'obuv', name: 'Кроссовки Retro Runner', price: 11900, unit: 'Unit n°044',
+    img: 'https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=800&q=80',
+    desc: 'Ретро-силуэт из комбинации замши и дышащей сетки. Амортизирующая подошва EVA, светоотражающие элементы на пятке.',
+    meta: 'Верх: <span>замша, сетка</span><br>Подошва: <span>EVA</span><br>Артикул: <span>NR-0202</span>'
+  },
+  {
+    id: 5, cat: 'aksessuary', name: 'Рюкзак Canvas 20L', price: 8900, unit: 'Unit n°045',
+    img: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&q=80',
+    desc: 'Рюкзак из плотного хлопкового канваса с кожаной фурнитурой. Мягкое отделение для ноутбука 15″, водоотталкивающая пропитка.',
+    meta: 'Материал: <span>канвас 18 oz, кожа</span><br>Объём: <span>20 л</span><br>Артикул: <span>NR-0301</span>'
+  },
+  {
+    id: 6, cat: 'aksessuary', name: 'Часы Minimal 36', price: 16900, unit: 'Unit n°046',
+    img: 'https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=800&q=80',
+    desc: 'Кварцевые часы с корпусом из матовой стали 36 мм и ремешком из натуральной кожи. Сапфировое стекло, влагозащита 5 ATM.',
+    meta: 'Корпус: <span>сталь 316L, 36 мм</span><br>Механизм: <span>Miyota quartz</span><br>Артикул: <span>NR-0302</span>'
+  },
+  {
+    id: 7, cat: 'dom', name: 'Кресло Rattan Lounge', price: 32900, unit: 'Unit n°047',
+    img: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&q=80',
+    desc: 'Кресло из ротанга ручного плетения на каркасе из массива бука. Подушка из льняной ткани в комплекте, съёмный чехол.',
+    meta: 'Каркас: <span>массив бука</span><br>Плетение: <span>натуральный ротанг</span><br>Артикул: <span>NR-0401</span>'
+  },
+  {
+    id: 8, cat: 'dom', name: 'Диван Modular 2-Seat', price: 89900, unit: 'Unit n°048',
+    img: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&q=80',
+    desc: 'Двухместный модульный диван со съёмными чехлами из букле. Наполнитель — пух и высокоэластичная пена HR, ножки из массива дуба.',
+    meta: 'Обивка: <span>букле, 74% шерсть</span><br>Наполнитель: <span>пух / пена HR</span><br>Артикул: <span>NR-0402</span>'
+  }
+];
+
+/* LOOKS для главы 02 (рендер — Task 6) */
+const LOOKS = [
+  { n: 1, title: 'Look n°1 — Город',  items: [1, 3],    img: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1200&q=80' },
+  { n: 2, title: 'Look n°2 — Студия', items: [2, 4],    img: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=1200&q=80' },
+  { n: 3, title: 'Look n°3 — Дом',    items: [7, 8],    img: 'https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?w=1200&q=80' },
+  { n: 4, title: 'Look n°4 — Путь',   items: [5, 2, 4], img: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1200&q=80' },
+  { n: 5, title: 'Look n°5 — Вечер',  items: [1, 6],    img: 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1200&q=80' },
+  { n: 6, title: 'Look n°6 — Свет',   items: [3, 5],    img: 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=1200&q=80' }
+];
+
+/* ================= STATE ================= */
+const state = { filter: 'all', cart: [], qvId: null, qvSize: null };
+
+/* ================= HELPERS ================= */
+const $ = (sel, root) => (root || document).querySelector(sel);
+const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
+const fmt = n => new Intl.NumberFormat('ru-RU').format(n) + ' ₽';
+const byId = id => PRODUCTS.find(p => p.id === id) || null;
+const cartKey = (id, size) => id + '::' + size;
+
+/* ================= TOAST ================= */
+const toastEl = $('#toast');
+let toastTimer = null;
+function toast(msg) {
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2400);
+}
+
+/* ================= CATALOG ================= */
+const grid = $('#catalogGrid');
+
+const mediaIO = 'IntersectionObserver' in window
+  ? new IntersectionObserver(entries => {
+      entries.forEach(en => {
+        if (en.isIntersecting) { en.target.classList.add('is-in'); mediaIO.unobserve(en.target); }
+      });
+    }, { threshold: 0.15 })
+  : null;
+
+function renderCatalog() {
+  const items = PRODUCTS.filter(p => state.filter === 'all' || p.cat === state.filter);
+  grid.innerHTML = items.map(p => `
+    <article class="product" data-id="${p.id}" tabindex="0" role="button" aria-label="${p.name} — быстрый просмотр">
+      <div class="product-media">
+        <img src="${p.img}" alt="${p.name}" loading="lazy">
+        <button class="product-quick" type="button" data-id="${p.id}">Быстрый просмотр</button>
+      </div>
+      <div class="product-info">
+        <span class="product-unit mono">${p.unit} — ${CATS[p.cat]}</span>
+        <h3>${p.name}</h3>
+        <div class="product-price mono">${fmt(p.price)}</div>
+      </div>
+    </article>`).join('');
+  $$('.product-media', grid).forEach(m => mediaIO ? mediaIO.observe(m) : m.classList.add('is-in'));
+}
+
+grid.addEventListener('click', e => {
+  const card = e.target.closest('.product');
+  if (card) openQuickView(parseInt(card.dataset.id, 10));
+});
+grid.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const card = e.target.closest('.product');
+  if (!card) return;
+  e.preventDefault();
+  openQuickView(parseInt(card.dataset.id, 10));
+});
+
+/* ================= FILTERS ================= */
+const filtersWrap = $('#filters');
+function setFilter(cat) {
+  state.filter = cat;
+  $$('.filter-btn', filtersWrap).forEach(b =>
+    b.classList.toggle('active', b.dataset.filter === cat));
+  renderCatalog();
+}
+filtersWrap.addEventListener('click', e => {
+  const btn = e.target.closest('.filter-btn');
+  if (btn) setFilter(btn.dataset.filter);
+});
+$$('[data-goto-filter]').forEach(a => a.addEventListener('click', () => {
+  setFilter(a.dataset.gotoFilter);
+  $('#filters').scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth' });
+}));
+
+/* ================= QUICK VIEW ================= */
+const modal = $('#modal');
+
+function openQuickView(id) {
+  const p = byId(id);
+  if (!p) return;
+  state.qvId = id;
+  const sizes = SIZES[p.cat];
+  state.qvSize = sizes[Math.floor(sizes.length / 2)];
+
+  $('#qvImg').src = p.img;
+  $('#qvImg').alt = p.name;
+  $('#qvCat').textContent = CATS[p.cat];
+  $('#qvUnit').textContent = p.unit;
+  $('#qvName').textContent = p.name;
+  $('#qvPrice').textContent = fmt(p.price);
+  $('#qvDesc').textContent = p.desc;
+  $('#qvMeta').innerHTML = p.meta;
+  $('#qvSizes').innerHTML = sizes.map(s =>
+    `<button class="size-btn${s === state.qvSize ? ' active' : ''}" type="button" data-size="${s}">${s}</button>`
+  ).join('');
+
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeQuickView() {
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden', 'true');
+  if (!drawer.classList.contains('open')) document.body.style.overflow = '';
+  state.qvId = null;
+}
+
+modal.addEventListener('click', e => {
+  if (e.target.closest('[data-close-modal]')) closeQuickView();
+});
+$('#qvSizes').addEventListener('click', e => {
+  const btn = e.target.closest('.size-btn');
+  if (!btn) return;
+  state.qvSize = btn.dataset.size;
+  $$('.size-btn', $('#qvSizes')).forEach(b => b.classList.toggle('active', b === btn));
+});
+$('#qvAdd').addEventListener('click', () => {
+  if (state.qvId == null) return;
+  const p = byId(state.qvId);
+  addToCart(state.qvId, state.qvSize);
+  closeQuickView();
+  openDrawer();
+  toast(`${p.unit} → Корзина`);
+});
+
+/* ================= CART ================= */
+const drawer = $('#drawer');
+const overlay = $('#overlay');
+const drawerItems = $('#drawerItems');
+const drawerFoot = $('#drawerFoot');
+const cartCountEl = $('#cartCount');
+
+function addToCart(id, size) {
+  const key = cartKey(id, size);
+  const found = state.cart.find(item => cartKey(item.id, item.size) === key);
+  if (found) found.qty += 1;
+  else state.cart.push({ id, size, qty: 1 });
+  renderCart();
+  pulseCounter();
+}
+
+function cartTotals() {
+  let count = 0, subtotal = 0;
+  state.cart.forEach(item => {
+    const p = byId(item.id);
+    count += item.qty;
+    subtotal += p.price * item.qty;
+  });
+  const delivery = subtotal === 0 ? 0 : (subtotal >= FREE_DELIVERY ? 0 : DELIVERY_COST);
+  return { count, subtotal, delivery, total: subtotal + delivery };
+}
+
+function pulseCounter() {
+  cartCountEl.classList.add('pulse');
+  setTimeout(() => cartCountEl.classList.remove('pulse'), 220);
+}
+
+function renderCart() {
+  const t = cartTotals();
+  cartCountEl.textContent = t.count;
+  cartCountEl.classList.toggle('hidden', t.count === 0);
+  $('#drawerCount').textContent = t.count > 0 ? '/ ' + t.count : '';
+
+  if (state.cart.length === 0) {
+    drawerItems.innerHTML = `
+      <div class="drawer-empty">
+        <p class="mono">Корзина пуста</p>
+        <p>Добавьте что-нибудь из картотеки —<br>например, Unit n°041.</p>
+        <button class="btn btn-ghost" type="button" data-goto-catalog>Перейти в картотеку</button>
+      </div>`;
+    drawerFoot.innerHTML = '';
+    return;
+  }
+
+  drawerItems.innerHTML = state.cart.map(item => {
+    const p = byId(item.id);
+    const key = cartKey(item.id, item.size);
+    return `
+      <div class="cart-item" data-key="${key}">
+        <img src="${p.img}" alt="${p.name}">
+        <div>
+          <div class="cart-item-top">
+            <p class="cart-item-name">${p.name}</p>
+            <button class="cart-item-remove" type="button" data-act="del" data-key="${key}" aria-label="Удалить">×</button>
+          </div>
+          <p class="cart-item-size mono">${p.unit} · Размер ${item.size}</p>
+          <div class="cart-item-row">
+            <span class="qty">
+              <button type="button" data-act="dec" data-key="${key}" aria-label="Меньше">−</button>
+              <span>${item.qty}</span>
+              <button type="button" data-act="inc" data-key="${key}" aria-label="Больше">+</button>
+            </span>
+            <span class="cart-item-price mono">${fmt(p.price * item.qty)}</span>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  drawerFoot.innerHTML = `
+    <div class="drawer-row"><span>Подытог</span><span class="mono">${fmt(t.subtotal)}</span></div>
+    <div class="drawer-row"><span>Доставка</span><span class="mono">${t.delivery === 0 ? 'Бесплатно' : fmt(t.delivery)}</span></div>
+    <div class="drawer-row total"><span>Итого</span><span class="mono">${fmt(t.total)}</span></div>
+    <button class="btn btn-primary btn-block" type="button" id="checkoutBtn">Оформить приём</button>
+    <p class="drawer-note">Бесплатная доставка от ${fmt(FREE_DELIVERY)}. Оплата картой или при получении.</p>`;
+  $('#checkoutBtn').addEventListener('click', checkout);
+}
+
+drawerItems.addEventListener('click', e => {
+  if (e.target.closest('[data-goto-catalog]')) {
+    closeDrawer();
+    $('#filters').scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth' });
+    return;
+  }
+  const btn = e.target.closest('[data-act]');
+  if (!btn) return;
+  const idx = state.cart.findIndex(item => cartKey(item.id, item.size) === btn.dataset.key);
+  if (idx === -1) return;
+  const act = btn.dataset.act;
+  if (act === 'inc') state.cart[idx].qty += 1;
+  if (act === 'dec') state.cart[idx].qty -= 1;
+  if (act === 'del' || state.cart[idx].qty <= 0) state.cart.splice(idx, 1);
+  renderCart();
+});
+
+function openDrawer() {
+  drawer.classList.add('open');
+  overlay.classList.add('open');
+  drawer.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+function closeDrawer() {
+  drawer.classList.remove('open');
+  overlay.classList.remove('open');
+  drawer.setAttribute('aria-hidden', 'true');
+  if (!modal.classList.contains('open')) document.body.style.overflow = '';
+}
+
+$('#cartBtn').addEventListener('click', openDrawer);
+document.addEventListener('click', e => {
+  if (e.target.closest('[data-close-drawer]')) closeDrawer();
+});
+
+/* ================= CHECKOUT → АКТ ПРИЁМА ================= */
+function checkout() {
+  const t = cartTotals();
+  const actNo = Math.floor(1000 + Math.random() * 9000);
+  const rows = state.cart.map(item => {
+    const p = byId(item.id);
+    return `<li><span class="mono">${p.unit} × ${item.qty}</span><span>${p.name} — размер ${item.size}</span><span class="mono">${fmt(p.price * item.qty)}</span></li>`;
+  }).join('');
+
+  drawerItems.innerHTML = `
+    <div class="act">
+      <p class="mono act-no">Акт приёма n°${actNo}</p>
+      <ul class="act-list">${rows}</ul>
+    </div>`;
+  drawerFoot.innerHTML = `
+    <div class="drawer-row"><span>Доставка</span><span class="mono">${t.delivery === 0 ? 'Бесплатно' : fmt(t.delivery)}</span></div>
+    <div class="drawer-row total"><span>Итого</span><span class="mono">${fmt(t.total)}</span></div>
+    <button class="btn btn-primary btn-block" type="button" id="actCloseBtn">Закрыть акт</button>
+    <p class="drawer-note">Подпись курьера подтверждает приём. Чек отправлен на почту.</p>`;
+  $('#actCloseBtn').addEventListener('click', () => { closeDrawer(); renderCart(); });
+
+  state.cart = [];
+  cartCountEl.textContent = '0';
+  cartCountEl.classList.add('hidden');
+  $('#drawerCount').textContent = '';
+  toast(`Акт приёма n°${actNo} подписан`);
+}
+
+/* ================= ESC / HEADER ================= */
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if (modal.classList.contains('open')) closeQuickView();
+  else if (drawer.classList.contains('open')) closeDrawer();
+});
+
+const header = $('#header');
+const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 8);
+window.addEventListener('scroll', onScroll, { passive: true });
+onScroll();
+
+/* ================= INIT ================= */
+renderCatalog();
+renderCart();
 </script>
 
 </body>

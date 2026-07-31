@@ -6,5 +6,17 @@
   {"name": "Manrope подключён", "js": "document.fonts.check('16px Manrope')"},
   {"name": "2 тёмные инверсии", "js": "document.querySelectorAll('.chapter--dark').length", "expect": 2},
   {"name": "постерный футер wordmark", "js": "!!document.querySelector('.footer-wordmark')"},
-  {"name": "зерно присутствует", "js": "!!document.querySelector('.grain')"}
+  {"name": "зерно присутствует", "js": "!!document.querySelector('.grain')"},
+  {"name": "каталог: 8 карточек картотеки", "js": "document.querySelectorAll('.product').length", "expect": 8},
+  {"name": "инвентарный номер на карточке", "js": "document.querySelector('.product .product-unit').textContent.includes('Unit n°')"},
+  {"name": "фильтр obuv → 2 товара", "js": "(document.querySelector('[data-filter=obuv]').click(), document.querySelectorAll('.product').length)", "expect": 2},
+  {"name": "фильтр all → 8 товаров", "js": "(document.querySelector('[data-filter=all]').click(), document.querySelectorAll('.product').length)", "expect": 8},
+  {"name": "quick-view открывается с planche-разметкой", "js": "(document.querySelector('.product').click(), document.querySelector('#modal').classList.contains('open') && document.querySelector('#qvUnit').textContent.includes('Unit'))"},
+  {"name": "выбор размера", "js": "(document.querySelectorAll('.size-btn')[2].click(), document.querySelectorAll('.size-btn')[2].classList.contains('active'))"},
+  {"name": "в корзину → drawer открыт", "js": "(document.querySelector('#qvAdd').click(), document.querySelector('#drawer').classList.contains('open'))"},
+  {"name": "счётчик корзины = 1", "js": "document.querySelector('#cartCount').textContent", "expect": "1"},
+  {"name": "qty +1", "js": "(document.querySelector('[data-act=inc]').click(), document.querySelector('.cart-item .qty span').textContent)", "expect": "2"},
+  {"name": "доставка бесплатно от 10000", "js": "document.querySelector('#drawerFoot').textContent.includes('Бесплатно')"},
+  {"name": "оформление → Акт приёма", "js": "(document.querySelector('#checkoutBtn').click(), document.querySelector('#drawer').textContent.includes('Акт приёма'))"},
+  {"name": "корзина очищена после акта", "js": "document.querySelector('#cartCount').classList.contains('hidden')"}
 ]
