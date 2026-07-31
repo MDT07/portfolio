@@ -1,8 +1,10 @@
 [
   {"name": "страница загрузилась", "js": "document.readyState === 'complete'"},
-  {"name": "каталог отрендерен (8 карточек)", "js": "document.querySelectorAll('.product').length", "expect": 8},
-  {"name": "фильтр obuv оставляет 2 товара", "js": "(document.querySelector('[data-filter=obuv]').click(), document.querySelectorAll('.product').length)", "expect": 2},
-  {"name": "quick-view открывается", "js": "(document.querySelector('.product').click(), document.querySelector('#modal').classList.contains('open'))"},
-  {"name": "добавление в корзину", "js": "(document.querySelector('#qvAdd').click(), !document.querySelector('#cartCount').classList.contains('hidden'))"},
-  {"name": "итого корзины > 0", "js": "document.querySelector('#drawerFoot').textContent.includes('₽')"}
+  {"name": "6 глав с маркерами", "js": "document.querySelectorAll('[data-chapter]').length", "expect": 6},
+  {"name": "токен paper применён", "js": "getComputedStyle(document.body).backgroundColor", "expect": "rgb(250, 250, 249)"},
+  {"name": "Playfair подключён", "js": "document.fonts.check('16px \"Playfair Display\"')"},
+  {"name": "Manrope подключён", "js": "document.fonts.check('16px Manrope')"},
+  {"name": "2 тёмные инверсии", "js": "document.querySelectorAll('.chapter--dark').length", "expect": 2},
+  {"name": "постерный футер wordmark", "js": "!!document.querySelector('.footer-wordmark')"},
+  {"name": "зерно присутствует", "js": "!!document.querySelector('.grain')"}
 ]

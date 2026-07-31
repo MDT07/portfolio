@@ -13,6 +13,11 @@ RM = "--rm" in sys.argv
 MOBILE = "--mobile" in sys.argv
 WIDTH = 390 if MOBILE else 1440
 
+# зачистка осиротевших процессов прошлых прогонов (иначе CDP цепляется к старой вкладке)
+subprocess.run(["pkill", "-f", "remote-debugging-port=9336"], capture_output=True)
+subprocess.run(["pkill", "-f", "http.server 8082"], capture_output=True)
+time.sleep(0.6)
+
 server = subprocess.Popen([sys.executable, "-m", "http.server", "8082"], cwd=TMPL,
                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 proc = subprocess.Popen([CHROME, "--headless", "--disable-gpu", "--hide-scrollbars",
@@ -70,29 +75,36 @@ try:
         if not ok:
             failures.append(name)
 
-    def shot(name):
+    def shot(name, y0):
         h = js("document.documentElement.scrollHeight") or 900
-        h = min(h, 6000)
+        y0 = 0 if h <= 6000 else max(0, min(y0, h - 6000))
+        ch = min(h - y0, 6000)
         data = cmd("Page.captureScreenshot", {"format": "png", "captureBeyondViewport": True,
-            "clip": {"x": 0, "y": 0, "width": WIDTH, "height": h, "scale": 1}})["data"]
+            "clip": {"x": 0, "y": y0, "width": WIDTH, "height": ch, "scale": 1}})["data"]
         out = f"/tmp/norde-qa-{name}.png"
         open(out, "wb").write(base64.b64decode(data))
         print("  shot:", out)
 
     cmd("Page.enable"); cmd("Runtime.enable"); cmd("Network.enable")
+    cmd("Network.setCacheDisabled", {"cacheDisabled": True})  # профиль переиспользуется — без этого отдаёт устаревший HTML
     if RM:
         cmd("Emulation.setEmulatedMedia", {"features": [{"name": "prefers-reduced-motion", "value": "reduce"}]})
     cmd("Emulation.setDeviceMetricsOverride", {"width": WIDTH, "height": 900, "deviceScaleFactor": 1, "mobile": MOBILE})
+    cmd("Page.navigate", {"url": BASE + "/"})
     time.sleep(7)  # шрифты + CDN + прелоадер
 
     CHECKS = json.load(open(os.path.join(ROOT, "scripts/qa-norde-checks.json")))
     for c in CHECKS:
         check(c["name"], c["js"], c.get("expect", True))
     if SHOT:
-        for name, y in [("top", 0), ("mid", 0.5), ("end", 1.0)]:
-            js(f"window.scrollTo(0, document.documentElement.scrollHeight * {y})")
-            time.sleep(1.2)
-            shot(name)
+        # headless не растризует текст в зоне текущего вьюпорта при captureBeyondViewport —
+        # поэтому «full» снимаем, удерживая скролл в середине (верх страницы вне экрана)
+        js("window.scrollTo(0, document.documentElement.scrollHeight * 0.5)")
+        time.sleep(1.4)
+        shot("full", 0)
+        js("window.scrollTo(0, document.documentElement.scrollHeight)")
+        time.sleep(1.4)
+        shot("tail", js("document.documentElement.scrollHeight") or 0)
     if errors:
         print("CONSOLE ISSUES:")
         for e in dict.fromkeys(errors):
