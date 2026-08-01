@@ -1268,6 +1268,39 @@ if (motionOK) {
     });
   }
 
+  /* --- глава 03, акт 1: exploded-анатомия (explode → hold → assemble) --- */
+  {
+    const plates = $$('.anatomy-plate');
+    const caps = $$('.anatomy-caps li');
+    if (plates.length === 4) {
+      const off = () => innerHeight * 0.34;
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: '#anatomy', start: 'top top', end: '+=250%',
+          pin: true, scrub: 0.6, anticipatePin: true, invalidateOnRefresh: true
+        }
+      });
+      tl.to(plates[0], { y: () => -off() * 1.35, ease: 'none' }, 0)
+        .to(plates[1], { y: () => -off() * 0.45, ease: 'none' }, 0)
+        .to(plates[2], { y: () => off() * 0.45, ease: 'none' }, 0)
+        .to(plates[3], { y: () => off() * 1.35, ease: 'none' }, 0)
+        .fromTo(caps, { autoAlpha: 0, y: 18 }, { autoAlpha: 1, y: 0, stagger: 0.05, duration: 0.18, ease: 'none' }, 0.10)
+        .to({}, { duration: 0.28 })  // hold: разобранное состояние
+        .to(caps, { autoAlpha: 0, y: -14, duration: 0.14, ease: 'none' })
+        .to(plates, { y: 0, duration: 0.34, ease: 'none' }, '<');
+    }
+    /* scramble спек при первом входе в анатомию */
+    ScrollTrigger.create({
+      trigger: '#anatomy', start: 'top 60%', once: true,
+      onEnter: () => $$('.anatomy-caps .scramble').forEach(el => scrambleText(el, el.dataset.final, 900))
+    });
+    /* scramble спек студии при входе */
+    ScrollTrigger.create({
+      trigger: '#studio', start: 'top 70%', once: true,
+      onEnter: () => $$('.studio-specs .scramble').forEach(el => scrambleText(el, el.dataset.final, 900))
+    });
+  }
+
   /* --- velocity-marquee --- */
   $$('.marquee-inner').forEach(inner => {
     const tween = gsap.to(inner, { xPercent: -50, ease: 'none', duration: 18, repeat: -1 });
