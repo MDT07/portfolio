@@ -221,6 +221,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 }
 .swatch:hover{transform:scale(1.15)}
 .swatch.active{outline:1px solid var(--brass); outline-offset:3px}
+.swatch-name{align-self:center; color:var(--dark-ink-2); letter-spacing:.06em; text-transform:uppercase}
 
 /* ================= CATALOG (04) ================= */
 .filters{display:flex; gap:12px; flex-wrap:wrap; margin-bottom:48px}
@@ -505,24 +506,25 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
     <span class="chapter-numeral" aria-hidden="true">03</span>
     <div class="container">
       <p class="mono chapter-index"><b>03</b> / Planche</p>
-      <h2 data-mask>Кеды Court Low в четырёх ракурсах</h2>
+      <h2 data-mask>Archive Runner в четырёх ракурсах</h2>
       <div class="planche-grid">
         <aside>
           <ol id="plancheSpecs" class="mono">
-            <li>Подошва — <b>каучук Margom</b></li>
-            <li>Верх — <b>телятина</b></li>
-            <li>Вес — <b>320 г</b></li>
-            <li>Артикул — <b>NR-0201</b></li>
+            <li>Верх — <b>переработанный текстиль</b></li>
+            <li>Подошва — <b>пена EVA</b></li>
+            <li>Вес — <b>290 г</b></li>
+            <li>Артикул — <b>NR-0202</b></li>
           </ol>
           <div class="swatches">
-            <button class="swatch active" type="button" data-c="#1C1917" style="--c:#1C1917" aria-label="Цвет: чернила"></button>
-            <button class="swatch" type="button" data-c="#A16207" style="--c:#A16207" aria-label="Цвет: латунь"></button>
-            <button class="swatch" type="button" data-c="#EDE9E4" style="--c:#EDE9E4" aria-label="Цвет: бумага"></button>
+            <button class="swatch active" type="button" data-c="#2E4A5B" style="--c:#2E4A5B" aria-label="Вариант 1"></button>
+            <button class="swatch" type="button" data-c="#C9A227" style="--c:#C9A227" aria-label="Вариант 2"></button>
+            <button class="swatch" type="button" data-c="#1C1917" style="--c:#1C1917" aria-label="Вариант 3"></button>
+            <span class="mono swatch-name" id="swatchName"></span>
           </div>
         </aside>
         <div id="plancheStage">
           <p class="mono" id="plancheLoader">Chargement…</p>
-          <img class="planche-fallback" src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=1200&q=80" alt="Кеды Court Low — Planche n°2" loading="lazy">
+          <img class="planche-fallback" src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=1200&q=80" alt="Archive Runner — Planche n°2" loading="lazy">
         </div>
         <nav class="planche-views mono" aria-label="Ракурсы">
           <span class="planche-view active">Vue latérale</span>
@@ -1275,17 +1277,18 @@ function initPlanche(THREE, GLTFLoader, DRACOLoader) {
     gltf => {
       gltfRef = gltf;
       model = gltf.scene;
-      /* нормализация: центр в origin, габарит ~1.6 */
+      /* нормализация: центр в origin, габарит ~2.0 */
       const box = new THREE.Box3().setFromObject(model);
       const size = box.getSize(new THREE.Vector3()).length() || 1;
       const center = box.getCenter(new THREE.Vector3());
       model.position.sub(center);
-      model.scale.setScalar(1.6 / size);
+      model.scale.setScalar(2.0 / size);
       scene.add(model);
       showPlancheFallback();  // скрыть лоадер
       const fb = $('.planche-fallback', plancheStage);
       if (fb) fb.remove();
       renderer.render(scene, camera);  // первый кадр до скролла
+      setSwatchName(0);
     },
     xhr => {
       plancheLoaderEl.textContent = 'Chargement… ' + (xhr.total ? Math.round(xhr.loaded / xhr.total * 100) + '%' : '…');
@@ -1293,9 +1296,17 @@ function initPlanche(THREE, GLTFLoader, DRACOLoader) {
     () => showPlancheFallback()
   );
 
-  /* swatch: KHR_materials_variants, иначе — тинт материала */
-  $$('.swatch').forEach((btn, i, all) => btn.addEventListener('click', async () => {
+  /* swatch: KHR_materials_variants (имена — из самого GLB), иначе — тинт */
+  const swatchBtns = $$('.swatch');
+  const swatchName = $('#swatchName');
+  const setSwatchName = i => {
+    const names = (gltfRef && gltfRef.userData && gltfRef.userData.variants) || [];
+    if (swatchName) swatchName.textContent = names[i] || '';
+    swatchBtns.forEach((b, bi) => b.setAttribute('aria-label', 'Вариант: ' + (names[bi] || bi + 1)));
+  };
+  swatchBtns.forEach((btn, i, all) => btn.addEventListener('click', async () => {
     all.forEach(b => b.classList.toggle('active', b === btn));
+    setSwatchName(i);
     if (!model) return;
     const variants = (gltfRef && gltfRef.userData && gltfRef.userData.variants) || [];
     try {
@@ -1316,7 +1327,7 @@ function initPlanche(THREE, GLTFLoader, DRACOLoader) {
   /* pinned scroll-камера по 4 ракурсам */
   ScrollTrigger.create({
     trigger: '[data-chapter="03"]', start: 'top top', end: '+=300%',
-    pin: true, scrub: 1,
+    pin: true, scrub: 0.6, anticipatePin: true,
     onUpdate: st => {
       const seg = Math.min(st.progress * (STOPS.length - 1), STOPS.length - 1.001);
       const i = Math.floor(seg), f = seg - i;
