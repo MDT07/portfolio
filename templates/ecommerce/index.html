@@ -374,6 +374,46 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 .material-card p{font-size:14px; color:var(--ink-2)}
 .material-used{color:var(--ink-3); margin-top:auto; padding-top:10px}
 
+/* ================= JOURNAL (Прил. Б) ================= */
+.journal-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:40px}
+.journal-card{display:flex; flex-direction:column; gap:12px}
+.journal-media{aspect-ratio:16/10; overflow:hidden; margin-bottom:6px}
+.journal-media img{width:100%; height:100%; object-fit:cover;
+  filter:grayscale(1) sepia(.22) contrast(1.06) brightness(1.02);
+  transition:filter 1s var(--ease-cine)}
+.journal-card.is-color .journal-media img{filter:none}
+.journal-meta{color:var(--chapter-accent)}
+.journal-card h3{font-size:26px; line-height:1.15}
+.journal-lead{font-size:15px; color:var(--ink-2)}
+.journal-read{
+  align-self:flex-start; margin-top:auto; padding-top:10px;
+  font:500 11px/1 var(--font-mono); text-transform:uppercase; letter-spacing:.06em;
+  color:var(--ink-2);
+}
+.journal-read:hover{color:var(--chapter-accent); text-decoration:underline; text-underline-offset:4px}
+.journal-overlay{
+  position:fixed; inset:0; z-index:210; display:none;
+  background:rgba(22,20,18,.55); overflow:auto;
+}
+.journal-overlay.open{display:block}
+.journal-paper{
+  max-width:760px; margin:6vh auto; background:var(--paper);
+  padding:72px 64px 64px; position:relative;
+}
+.journal-paper h3{font-size:clamp(2rem,4vw,3.2rem); margin:18px 0 32px; max-width:18ch}
+.journal-meta{color:var(--chapter-accent)}
+.journal-text p{margin-bottom:22px; font-size:17px; line-height:1.7; color:var(--ink)}
+.journal-text p:first-of-type::first-letter{
+  font:400 3.2em/0.8 var(--font-display); color:var(--chapter-accent);
+  float:left; padding:2px 10px 0 0;
+}
+.journal-close{position:absolute; top:24px; right:28px; color:var(--ink-3); letter-spacing:.06em; text-transform:uppercase}
+.journal-close:hover{color:var(--ink)}
+@media (max-width:720px){
+  .journal-grid{grid-template-columns:1fr; gap:48px}
+  .journal-paper{margin:0; min-height:100vh; padding:64px 24px 48px}
+}
+
 /* ================= TERMS (05) ================= */
 .terms{}
 .terms td{padding:26px 0; border-top:1px solid var(--line); vertical-align:baseline}
@@ -774,6 +814,16 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
     <span>Единицы хранения — Unit n°041–048 — Картотека —&nbsp;</span><span>Единицы хранения — Unit n°041–048 — Картотека —&nbsp;</span>
   </div></div>
 
+  <!-- ================= ПРИЛ. Б — ЖУРНАЛ ================= -->
+  <section class="chapter" data-chapter="journal" data-accent="#475569">
+    <span class="chapter-numeral" aria-hidden="true">Б</span>
+    <div class="container">
+      <p class="mono chapter-index"><b>Прил. Б</b> / Журнал</p>
+      <h2 data-mask>Записки архивариуса</h2>
+      <div class="journal-grid" id="journalGrid"></div>
+    </div>
+  </section>
+
   <!-- ================= 05 УСЛОВИЯ АРХИВА ================= -->
   <section class="chapter" data-chapter="05" data-accent="#A16207">
     <span class="chapter-numeral" aria-hidden="true">05</span>
@@ -790,6 +840,16 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
   </section>
 
 </main>
+
+<!-- ================= JOURNAL OVERLAY ================= -->
+<div class="journal-overlay" id="journalOverlay" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Статья журнала">
+  <div class="journal-paper">
+    <button class="journal-close mono" type="button" id="journalClose">Закрыть ×</button>
+    <p class="mono journal-meta" id="joMeta"></p>
+    <h3 id="joTitle"></h3>
+    <div class="journal-text" id="joText"></div>
+  </div>
+</div>
 
 <!-- ================= FOOTER ================= -->
 <footer class="footer" id="footer">
@@ -957,6 +1017,46 @@ const LOOKS = [
   { n: 4, title: 'Look n°4 — Путь',   items: [5, 2, 4], img: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1200&q=80' },
   { n: 5, title: 'Look n°5 — Вечер',  items: [1, 6],    img: 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1200&q=80' },
   { n: 6, title: 'Look n°6 — Утро',   items: [3, 5],    img: 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=1200&q=80' }
+];
+
+/* ARTICLES для Прил. Б (рендер — журнал) */
+const ARTICLES = [
+  {
+    id: 1, rubric: 'Гид по стилю', date: '12.07.2026',
+    title: 'Как носить архив: три правила слоёв',
+    lead: 'Слои — это не про холод. Это про то, как вещи разговаривают друг с другом.',
+    img: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&q=80',
+    text: [
+      'Первое правило: толщина уходит вниз. Самая тонкая вещь — у тела, самая плотная — снаружи. Футболка 240 г/м² под рубашкой под пальто читается как одна линия, а не как капуста. Если хотя бы один слой нарушает порядок, силуэт ломается.',
+      'Второе правило: одна фактура на выход. Букле, ротанг, гладкая кожа — выбирайте что-то одно и дайте этому быть главным. Архив собран так, что любая вещь может быть той самой фактурой. Остальные — тихий фон из хлопка и шерсти.',
+      'Третье правило: цвет держится на нейтралях, характер — на пропорциях. Удлинённое пальто поверх короткой футболки, широкий рюкзак поверх узкого силуэта. Контраст длин работает сильнее любого принта.',
+      'Проверяйте себя просто: сфотографируйте образ и уберите цвет из фото. Если силуэт читается в чёрно-белом — всё собрано правильно. Именно поэтому архивные съёмки мы печатаем в дуотоне.'
+    ]
+  },
+  {
+    id: 2, rubric: 'Уход', date: '28.07.2026',
+    title: 'Уход за шерстью: меньше стирок, больше воздуха',
+    lead: 'Шерсть устроена как крыша: чешуйки волокна сами сбрасывают грязь. Ей нужно не стирать, а проветривать.',
+    img: 'https://images.unsplash.com/photo-1545173168-9f1947eebb7f?w=800&q=80',
+    text: [
+      'Главная ошибка владельца шерстяного пальто — стирать его как футболку. Каждая стирка размывает натуральный ланолин, и волокно тускнеет. Норма для пальто, которое носят каждый день, — одна химчистка в сезон.',
+      'Между носками — воздух. Оставьте пальто на плечиках на балконе или у открытого окна на два часа: запахи уходят, ворс распрямляется. Влага от дождя уходит так же — сначала сушка при комнатной температуре, потом мягкая щётка против ворса.',
+      'Пятна — только точечно. Прохладная вода, капля шерстного средства, промакивать, не тереть. Трение сваливает волокно в войлок, и это уже не чинится.',
+      'На лето — чехол из хлопка, не из пластика. Пластик запирает влагу, и к осени вы получаете запах шкафа. Хлопок дышит, моль не любит лаванду: один мешочек в кармане решает вопрос лучше нафталина.'
+    ]
+  },
+  {
+    id: 3, rubric: 'Производство', date: '09.08.2026',
+    title: 'Почему мы производим малыми партиями',
+    lead: 'Восемь единиц, партия по сорок штук, пополнение — когда закончится. Это не маркетинг, это арифметика ответственности.',
+    img: 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=800&q=80',
+    text: [
+      'Большая партия дешевле на единицу — и дороже на совести. Чтобы продать тысячу пальто, нужно спрогнозировать спрос, а прогноз всегда ошибается в большую сторону. Остатки едут на распродажу, потом в переработку, чаще — просто на склад. Мы решили не играть в эту игру.',
+      'Партия в сорок штук позволяет держать качество руками. Каждое пальто проходит один стол контроля, а не конвейер выборочной проверки. Если шов уходит волной — партия останавливается, а не списывается процентом брака.',
+      'Малые партии — это ещё и честный разговор о времени. Когда размера нет, мы не прячем это за «скоро в продаже»: пишем срок. Пошив под заказ — три недели. Это медленно, и мы считаем, что медленно — нормально.',
+      'Архив пополняется, когда единица действительно закончилась. Не сезонная смена коллекций, а естественная ротация: ушёл один силуэт — пришёл следующий номер. Так архив остаётся архивом, а не витриной новинок.'
+    ]
+  }
 ];
 
 /* ================= STATE ================= */
@@ -1487,10 +1587,59 @@ $('#lsItems').addEventListener('click', e => {
   toast(`${p.unit} → Корзина`);
 });
 
+/* ================= JOURNAL (Прил. Б) ================= */
+const journalOverlay = $('#journalOverlay');
+let lastReadBtn = null;
+
+function renderJournal() {
+  $('#journalGrid').innerHTML = ARTICLES.map(a => `
+    <article class="journal-card">
+      <figure class="journal-media"><img src="${a.img}" alt="${a.title}" loading="lazy"></figure>
+      <p class="mono journal-meta">${a.rubric} · ${a.date}</p>
+      <h3>${a.title}</h3>
+      <p class="journal-lead">${a.lead}</p>
+      <button class="journal-read mono" type="button" data-article="${a.id}">Читать →</button>
+    </article>`).join('');
+}
+
+function openArticle(id, btn) {
+  const a = ARTICLES.find(x => x.id === id);
+  if (!a) return;
+  lastReadBtn = btn || null;
+  $('#joMeta').textContent = `${a.rubric} · ${a.date}`;
+  $('#joTitle').textContent = a.title;
+  $('#joText').innerHTML = a.text.map(p => `<p>${p}</p>`).join('');
+  journalOverlay.classList.add('open');
+  journalOverlay.setAttribute('aria-hidden', 'false');
+  journalOverlay.scrollTop = 0;
+  if (window.__lenis) window.__lenis.stop();
+  document.body.style.overflow = 'hidden';
+}
+
+function closeArticle() {
+  journalOverlay.classList.remove('open');
+  journalOverlay.setAttribute('aria-hidden', 'true');
+  if (window.__lenis) window.__lenis.start();
+  document.body.style.overflow = '';
+  if (lastReadBtn) lastReadBtn.focus();
+}
+
+$('#journalGrid').addEventListener('click', e => {
+  const btn = e.target.closest('.journal-read');
+  if (btn) openArticle(+btn.dataset.article, btn);
+});
+$('#journalClose').addEventListener('click', closeArticle);
+journalOverlay.addEventListener('click', e => {
+  if (e.target === journalOverlay) closeArticle();
+});
+
+renderJournal();
+
 /* ================= ESC / HEADER ================= */
 document.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
   if (lookStage.classList.contains('open')) closeLookStage();
+  else if (journalOverlay.classList.contains('open')) closeArticle();
   else if (modal.classList.contains('open')) closeQuickView();
   else if (drawer.classList.contains('open')) closeDrawer();
 });
