@@ -1086,7 +1086,8 @@ renderLooks();
 const motionOK = !reducedMotion && window.gsap && window.ScrollTrigger && window.Lenis;
 if (motionOK) {
   gsap.registerPlugin(ScrollTrigger);
-  const lenis = new Lenis({ lerp: 0.11 });
+  ScrollTrigger.config({ ignoreMobileResize: true });
+  const lenis = new Lenis({ lerp: 0.12 });
   window.__lenis = lenis;
   lenis.on('scroll', ScrollTrigger.update);
   gsap.ticker.add(t => lenis.raf(t * 1000));
@@ -1167,7 +1168,7 @@ if (motionOK) {
   /* --- clip-reveal для [data-clip] --- */
   $$('[data-clip]').forEach(el => {
     const img = $('img', el);
-    const tl = gsap.timeline({ scrollTrigger: { trigger: el, start: 'top 85%', once: true } });
+    const tl = gsap.timeline({ scrollTrigger: { trigger: el, start: 'top 90%', once: true } });
     tl.fromTo(el, { clipPath: 'inset(100% 0 0 0)' }, { clipPath: 'inset(0% 0 0 0)', duration: 1, ease: 'power3.inOut' });
     if (img) tl.fromTo(img, { scale: 1.12 }, { scale: 1, duration: 1, ease: 'power3.inOut' }, 0);
   });
