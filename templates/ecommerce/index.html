@@ -173,6 +173,38 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 }
 .look-interlude .li-no{font:400 clamp(2.4rem,4vw,3.6rem)/1 var(--font-display); color:var(--chapter-accent)}
 .look-interlude p:last-child{font-size:15px; line-height:1.6}
+
+/* ================= LOOK STAGE (детальный просмотр образа) ================= */
+.look-stage{
+  position:absolute; inset:0; z-index:6; display:none;
+  grid-template-columns:55% 45%; background:var(--dark);
+}
+.look-stage.open{display:grid}
+.look-stage-media{overflow:hidden}
+.look-stage-media img{width:100%; height:100%; object-fit:cover}
+.look-stage-panel{
+  padding:96px 48px 48px; display:flex; flex-direction:column; gap:22px;
+  align-items:flex-start; overflow:auto;
+}
+.ls-title{font-size:clamp(1.8rem,3vw,2.8rem)}
+.ls-items{list-style:none; width:100%; display:flex; flex-direction:column}
+.ls-items li{
+  display:flex; align-items:baseline; gap:14px; padding:14px 0;
+  border-top:1px solid var(--dark-line);
+}
+.ls-items .mono{color:var(--dark-ink-2)}
+.ls-name{flex:1; font-size:16px}
+.ls-add{
+  color:var(--chapter-accent); font-size:11px; letter-spacing:.06em;
+  text-transform:uppercase; padding:6px 0;
+}
+.ls-add:hover{text-decoration:underline; text-underline-offset:4px}
+.look-stage-close{color:var(--dark-ink-2); letter-spacing:.06em; text-transform:uppercase; margin-top:auto}
+.look-stage-close:hover{color:var(--dark-ink)}
+@media (max-width:720px){
+  .look-stage.open{grid-template-columns:1fr; grid-template-rows:42% 58%}
+  .look-stage-panel{padding:24px 20px 32px; gap:16px}
+}
 .btn{
   display:inline-flex; align-items:center; justify-content:center; gap:8px;
   padding:14px 28px; border:1px solid var(--ink); border-radius:3px;
@@ -552,6 +584,18 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
         <figure class="look"><div class="look-media"><img src="https://images.unsplash.com/photo-1445205170230-053b83016050?w=1200&q=80" alt="Look n°2 — Студия" loading="eager"></div><figcaption><p class="mono"><b>Look n°2</b> — Студия</p></figcaption></figure>
       </div>
     </div>
+
+    <!-- detail-стейдж образа: overlay внутри pinned-секции, не ломает ScrollTrigger -->
+    <div class="look-stage" id="lookStage" aria-hidden="true">
+      <div class="look-stage-media" id="lookStageMedia"><img id="lsImg" src="" alt=""></div>
+      <aside class="look-stage-panel">
+        <p class="mono chapter-index"><b id="lsNo">02</b> / Образ</p>
+        <h3 class="ls-title" id="lsTitle"></h3>
+        <ul class="ls-items" id="lsItems"></ul>
+        <button class="btn btn-primary" type="button" id="lsAddAll" data-magnetic>Образ в корзину</button>
+        <button class="look-stage-close mono" type="button" id="lsClose">Закрыть ×</button>
+      </aside>
+    </div>
   </section>
 
   <!-- ================= 03 PLANCHE ================= -->
@@ -816,6 +860,43 @@ function scrambleText(el, finalText, dur = 800) {
       SCRAMBLE_CHARS[Math.random() * SCRAMBLE_CHARS.length | 0]);
     if (p < 1) requestAnimationFrame(tick); else el.textContent = finalText;
   })(t0);
+}
+/* FLIP-перелёт клона из srcImg в dstEl (и обратно) — паттерн перелёта образа → каталог */
+function flyClone(srcImg, dstEl, onDone) {
+  if (!window.gsap || reducedMotion || !srcImg || !dstEl) { if (onDone) onDone(); return; }
+  const r1 = srcImg.getBoundingClientRect();
+  const r2 = dstEl.getBoundingClientRect();
+  if (!r1.width || !r2.width) { if (onDone) onDone(); return; }
+  const clone = srcImg.cloneNode();
+  Object.assign(clone.style, {
+    position: 'fixed', left: r1.left + 'px', top: r1.top + 'px',
+    width: r1.width + 'px', height: r1.height + 'px',
+    objectFit: 'cover', zIndex: 95, pointerEvents: 'none', margin: '0', filter: 'none'
+  });
+  document.body.appendChild(clone);
+  gsap.to(clone, {
+    x: r2.left - r1.left, y: r2.top - r1.top,
+    scaleX: r2.width / r1.width, scaleY: r2.height / r1.height,
+    transformOrigin: '0 0', duration: 0.8, ease: 'power3.inOut',
+    onComplete: () => { clone.remove(); if (onDone) onDone(); }
+  });
+}
+/* микро-перелёт точки в счётчик корзины */
+function flyToCart(fromEl) {
+  if (!window.gsap || reducedMotion || !fromEl) return;
+  const r1 = fromEl.getBoundingClientRect();
+  const r2 = cartCountEl.getBoundingClientRect();
+  const d = document.createElement('i');
+  Object.assign(d.style, {
+    position: 'fixed', left: (r1.left + r1.width / 2) + 'px', top: r1.top + 'px',
+    width: '10px', height: '10px', borderRadius: '50%', background: 'var(--brass)',
+    zIndex: 400, pointerEvents: 'none'
+  });
+  document.body.appendChild(d);
+  gsap.to(d, {
+    x: (r2.left + r2.width / 2) - (r1.left + r1.width / 2), y: r2.top - r1.top,
+    scale: .4, duration: .6, ease: 'power2.in', onComplete: () => d.remove()
+  });
 }
 const cartKey = (id, size) => id + '::' + size;
 /* прокрутка через Lenis, если он активен */
@@ -1148,10 +1229,88 @@ lookTrack.addEventListener('click', e => {
   toast(`Look n°${look.n} → Корзина (${look.items.length} ${pluralUnits(look.items.length)})`);
 });
 
+/* --- detail-стейдж --- */
+const lookStage = $('#lookStage');
+const lsImg = $('#lsImg');
+let stageLook = null;
+
+function openLookStage(n) {
+  const look = LOOKS.find(l => l.n === n);
+  if (!look) return;
+  stageLook = look;
+  const prods = look.items.map(byId).filter(Boolean);
+  $('#lsNo').textContent = '02.' + look.n;
+  $('#lsTitle').textContent = look.title;
+  lsImg.src = look.img;
+  lsImg.alt = look.title;
+  $('#lsItems').innerHTML = prods.map(p => `
+    <li>
+      <span class="mono">${p.unit}</span>
+      <span class="ls-name">${p.name}</span>
+      <span class="mono">${fmt(p.price)}</span>
+      <button class="ls-add mono" type="button" data-id="${p.id}">+ в корзину</button>
+    </li>`).join('');
+
+  const srcImg = $(`.look[data-look="${look.n}"] .look-media img`);
+  lsImg.style.visibility = 'hidden';
+  lookStage.classList.add('open');
+  lookStage.setAttribute('aria-hidden', 'false');
+  if (window.__lenis) window.__lenis.stop();
+  document.body.style.overflow = 'hidden';
+  flyClone(srcImg, $('#lookStageMedia'), () => { lsImg.style.visibility = ''; });
+}
+
+function closeLookStage() {
+  const srcImg = stageLook ? $(`.look[data-look="${stageLook.n}"] .look-media img`) : null;
+  const finish = () => {
+    lookStage.classList.remove('open');
+    lookStage.setAttribute('aria-hidden', 'true');
+    if (window.__lenis) window.__lenis.start();
+    document.body.style.overflow = '';
+    stageLook = null;
+  };
+  if (srcImg && lookStage.classList.contains('open')) {
+    lsImg.style.visibility = 'hidden';
+    flyClone(lsImg, srcImg, finish);
+  } else finish();
+}
+
+lookTrack.addEventListener('click', e => {
+  const media = e.target.closest('.look-media');
+  if (media) openLookStage(+media.closest('.look').dataset.look);
+});
+lookTrack.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const media = e.target.closest('.look-media');
+  if (!media) return;
+  e.preventDefault();
+  openLookStage(+media.closest('.look').dataset.look);
+});
+$('#lsClose').addEventListener('click', closeLookStage);
+$('#lsAddAll').addEventListener('click', () => {
+  if (!stageLook) return;
+  stageLook.items.forEach(id => {
+    const p = byId(id);
+    const sizes = SIZES[p.cat];
+    addToCart(id, sizes[Math.floor(sizes.length / 2)]);
+  });
+  toast(`Look n°${stageLook.n} → Корзина (${stageLook.items.length} ${pluralUnits(stageLook.items.length)})`);
+});
+$('#lsItems').addEventListener('click', e => {
+  const btn = e.target.closest('.ls-add');
+  if (!btn) return;
+  const p = byId(+btn.dataset.id);
+  const sizes = SIZES[p.cat];
+  addToCart(p.id, sizes[Math.floor(sizes.length / 2)]);
+  flyToCart(btn);
+  toast(`${p.unit} → Корзина`);
+});
+
 /* ================= ESC / HEADER ================= */
 document.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
-  if (modal.classList.contains('open')) closeQuickView();
+  if (lookStage.classList.contains('open')) closeLookStage();
+  else if (modal.classList.contains('open')) closeQuickView();
   else if (drawer.classList.contains('open')) closeDrawer();
 });
 

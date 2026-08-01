@@ -41,7 +41,7 @@
   {"name": "состав лука mono", "js": "document.querySelector('.look .look-items').textContent.includes('Unit n°')"},
   {"name": "detail-стейдж открывается", "js": "(document.querySelector('.look .look-media').click(), document.querySelector('#lookStage').classList.contains('open'))"},
   {"name": "стейдж: «Образ в корзину» добавляет 2 товара", "js": "(() => { const n0=+document.querySelector('#cartCount').textContent||0; document.querySelector('#lsAddAll').click(); return (+document.querySelector('#cartCount').textContent)-n0; })()", "expect": 2},
-  {"name": "detail-стейдж закрывается по Esc", "js": "(document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true})), !document.querySelector('#lookStage').classList.contains('open'))"},
+  {"name": "detail-стейдж закрывается по Esc", "js": "(async () => { document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true})); await new Promise(r=>setTimeout(r,1000)); return !document.querySelector('#lookStage').classList.contains('open'); })()"},
   {"name": "глава 02 тёмная", "js": "document.querySelector('[data-chapter=\"02\"]').classList.contains('chapter--dark')"},
   {"name": "3D и planche удалены", "js": "!document.querySelector('script[type=importmap]') && !document.querySelector('#plancheStage') && !document.querySelector('canvas')"},
   {"name": "анатомия: 4 плашки", "js": "document.querySelectorAll('.anatomy-plate').length", "expect": 4},
