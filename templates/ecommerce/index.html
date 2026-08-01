@@ -239,20 +239,26 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 /* ================= CATALOG (04) ================= */
 .filters{display:flex; gap:12px; flex-wrap:wrap; margin-bottom:48px}
 .filter-btn{
-  padding:10px 20px; border:1px solid var(--line); border-radius:3px;
+  position:relative; padding:10px 4px;
   font:500 11px/1 var(--font-mono); text-transform:uppercase; letter-spacing:.06em;
-  color:var(--ink-2); transition:border-color .2s, color .2s;
+  color:var(--ink-3); transition:color .2s;
 }
-.filter-btn:hover{border-color:var(--ink); color:var(--ink)}
-.filter-btn.active{border-color:var(--brass); color:var(--brass)}
+.filter-btn::after{
+  content:""; position:absolute; left:50%; bottom:0; width:4px; height:4px;
+  border-radius:50%; background:transparent; transform:translateX(-50%);
+}
+.filter-btn:hover{color:var(--ink)}
+.filter-btn.active{color:var(--brass)}
+.filter-btn.active::after{background:var(--brass)}
 .catalog-grid{
   display:grid; grid-template-columns:repeat(4,1fr); gap:32px;
   background:transparent;
 }
 .product{
   background:var(--paper); display:flex; flex-direction:column;
-  cursor:pointer;
+  cursor:pointer; transition:transform .35s var(--ease-cine);
 }
+.product:hover{transform:translateY(-4px)}
 .product-unit{color:var(--ink-3); padding:14px 16px 0}
 .product-media{position:relative; overflow:hidden; aspect-ratio:4/5; margin:12px 16px 0;
   clip-path:inset(0 0 100% 0); transition:clip-path .9s var(--ease-cine)}
@@ -774,7 +780,7 @@ const mediaIO = 'IntersectionObserver' in window
         if (m) m.classList.add('is-in');
         mediaIO.unobserve(en.target);
       });
-    }, { threshold: 0.15 })
+    }, { threshold: 0.15, rootMargin: '0px 0px 200px 0px' })
   : null;
 
 function renderCatalog() {
@@ -1216,7 +1222,8 @@ if (motionOK) {
       Object.assign(clone.style, {
         position: 'fixed', left: r1.left + 'px', top: r1.top + 'px',
         width: r1.width + 'px', height: r1.height + 'px',
-        objectFit: 'cover', zIndex: 90, pointerEvents: 'none', margin: '0'
+        objectFit: 'cover', zIndex: 90, pointerEvents: 'none', margin: '0',
+        filter: 'grayscale(1) sepia(.22) contrast(1.06) brightness(1.02)'
       });
       document.body.appendChild(clone);
       gsap.to(clone, {
