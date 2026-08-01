@@ -422,6 +422,22 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 .terms .t-name{width:280px; font:400 24px/1.2 var(--font-display)}
 .terms .t-desc{color:var(--ink-2); font-size:15px; max-width:56ch}
 
+/* ================= CLUB (05.5) ================= */
+.club{margin-top:120px; max-width:640px; display:flex; flex-direction:column; gap:18px; align-items:flex-start}
+.club h3{font-size:clamp(1.8rem,3.4vw,2.8rem); max-width:20ch}
+.club-sub{color:var(--ink-2); font-size:16px; max-width:48ch}
+.club-form{display:flex; gap:12px; width:100%; max-width:520px}
+.club-input{
+  flex:1; padding:14px 16px; border:0; border-bottom:1px solid var(--line);
+  background:transparent; font:400 15px/1 var(--font-ui); color:var(--ink);
+}
+.club-input:focus{outline:none; border-bottom-color:var(--brass)}
+.club-input::placeholder{color:var(--ink-3)}
+.club-msg{min-height:16px; color:var(--ink-2)}
+.club-msg.err{color:var(--error)}
+.club-msg.ok{color:var(--brass)}
+@media (max-width:720px){ .club-form{flex-direction:column; align-items:stretch} .club{margin-top:80px} }
+
 /* ================= FOOTER ================= */
 .footer{padding-top:80px; overflow:hidden}
 .footer-wordmark{
@@ -836,6 +852,17 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
         <tr><td class="t-no">У. 5.3</td><td class="t-name">Гарантия</td><td class="t-desc">Два года на швы и фурнитуру. Если что-то сломалось от носки — чиним или меняем.</td></tr>
         <tr><td class="t-no">У. 5.4</td><td class="t-name">Оплата</td><td class="t-desc">Картой онлайн или при получении. Чек приходит на почту сразу после акта приёма.</td></tr>
       </table>
+
+      <div class="club" id="club">
+        <p class="mono chapter-index"><b>05.5</b> / Архивный клуб</p>
+        <h3>Раньше всех — к новым единицам</h3>
+        <p class="club-sub">Раз в месяц: дата пополнения архива и доступ за 48 часов до всех. Без спама, отписаться — одно письмо.</p>
+        <form class="club-form" id="clubForm" novalidate>
+          <input class="club-input" id="clubEmail" type="email" placeholder="pochta@primer.ru" autocomplete="email" aria-label="Электронная почта">
+          <button class="btn btn-primary club-btn" id="clubBtn" type="submit" data-magnetic>Вступить</button>
+        </form>
+        <p class="mono club-msg" id="clubMsg" role="status" aria-live="polite"></p>
+      </div>
     </div>
   </section>
 
@@ -1648,6 +1675,44 @@ const header = $('#header');
 const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 8);
 window.addEventListener('scroll', onScroll, { passive: true });
 onScroll();
+
+/* ================= CLUB (05.5) ================= */
+const clubForm = $('#clubForm');
+const clubMsg = $('#clubMsg');
+const clubBtn = $('#clubBtn');
+
+function clubDone(no) {
+  clubBtn.disabled = true;
+  clubBtn.textContent = 'Вы в списке';
+  clubMsg.className = 'mono club-msg ok';
+  clubMsg.textContent = `Вы в списке — № ${no}. Ждите письма в день пополнения.`;
+}
+
+if (sessionStorage.getItem('norde-club-no')) {
+  clubDone(sessionStorage.getItem('norde-club-no'));
+}
+
+clubForm.addEventListener('submit', e => {
+  e.preventDefault();
+  if (sessionStorage.getItem('norde-club-no')) return;
+  const email = $('#clubEmail').value.trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+    clubMsg.className = 'mono club-msg err';
+    clubMsg.textContent = 'Проверьте адрес — например, pochta@primer.ru';
+    return;
+  }
+  clubBtn.disabled = true;
+  clubBtn.textContent = 'Отправляем…';
+  clubMsg.className = 'mono club-msg';
+  clubMsg.textContent = '';
+  setTimeout(() => {
+    const no = String(100 + Math.floor(Math.random() * 100));
+    sessionStorage.setItem('norde-club-no', no);
+    scrambleText(clubMsg, `Вы в списке — № ${no}. Ждите письма в день пополнения.`, 700);
+    clubMsg.className = 'mono club-msg ok';
+    clubBtn.textContent = 'Вы в списке';
+  }, 700);
+});
 
 /* ================= INIT ================= */
 renderCatalog();
