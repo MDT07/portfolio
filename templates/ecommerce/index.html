@@ -293,7 +293,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 .studio-note{color:var(--dark-ink-2); font-size:15px; max-width:36ch}
 
 /* ================= CATALOG (04) ================= */
-.filters{display:flex; gap:12px; flex-wrap:wrap; margin-bottom:48px}
+.filters{display:flex; gap:12px; flex-wrap:wrap; margin-bottom:24px}
 .filter-btn{
   position:relative; padding:10px 4px;
   font:500 11px/1 var(--font-mono); text-transform:uppercase; letter-spacing:.06em;
@@ -306,21 +306,37 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 .filter-btn:hover{color:var(--ink)}
 .filter-btn.active{color:var(--chapter-accent)}
 .filter-btn.active::after{background:var(--chapter-accent)}
+.sort-row{
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  flex-wrap:wrap; margin-bottom:48px;
+}
+.sort-label{color:var(--ink-3)}
+.sort-label b{color:var(--ink); font-weight:500}
+.sort-btns{display:flex; gap:14px; flex-wrap:wrap}
+.sort-btn{
+  padding:8px 2px; font:500 11px/1 var(--font-mono); text-transform:uppercase;
+  letter-spacing:.06em; color:var(--ink-3); transition:color .2s;
+}
+.sort-btn:hover{color:var(--ink)}
+.sort-btn.active{color:var(--chapter-accent); text-decoration:underline; text-underline-offset:5px}
 .catalog-grid{
   display:grid; grid-template-columns:repeat(4,1fr); gap:32px;
   background:transparent;
 }
-.product{
-  background:var(--paper); display:flex; flex-direction:column;
-  cursor:pointer; transition:transform .35s var(--ease-cine);
-}
-.product:hover{transform:translateY(-4px)}
+.product{background:var(--paper); display:flex; flex-direction:column; cursor:pointer}
 .product-unit{color:var(--ink-3); padding:14px 16px 0}
 .product-media{position:relative; overflow:hidden; aspect-ratio:4/5; margin:12px 16px 0;
   clip-path:inset(0 0 100% 0); transition:clip-path .9s var(--ease-cine)}
 .product-media.is-in{clip-path:inset(0 0 0 0)}
-.product-media img{width:100%; height:100%; object-fit:cover}
-.product:hover .product-media img{transform:scale(1.04)}
+/* зум — единственный владелец transform у img: CSS, без translateY карточки и без gsap */
+.product-media img{width:100%; height:100%; object-fit:cover;
+  transition:filter .6s var(--ease-cine), transform .8s cubic-bezier(.22,1,.36,1)}
+.product:hover .product-media img{transform:scale(1.06)}
+.product-stock{
+  position:absolute; top:10px; left:10px; padding:6px 10px;
+  background:var(--paper); color:var(--chapter-accent);
+  font-size:10px; letter-spacing:.08em;
+}
 .product-quick{
   position:absolute; left:50%; bottom:12px; transform:translate(-50%,8px);
   padding:10px 18px; background:rgba(250,250,249,.92); color:var(--ink);
@@ -329,10 +345,21 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
   pointer-events:none;
 }
 .product:hover .product-quick, .product:focus-visible .product-quick{opacity:1; transform:translate(-50%,0)}
-.product-info{padding:16px; display:flex; flex-direction:column; gap:6px}
+.product-info{padding:16px 16px 8px; display:flex; flex-direction:column; gap:6px}
 .product-info .tag{font:500 10px/1 var(--font-mono); text-transform:uppercase; letter-spacing:.08em; color:var(--brass)}
 .product-info h3{font-size:19px; line-height:1.25}
+.product-material{font-size:13px; color:var(--ink-2)}
+.product-row{display:flex; align-items:center; justify-content:space-between; margin-top:4px}
 .product-price{font:500 12px/1 var(--font-mono); letter-spacing:.04em}
+.product-dots{display:flex; gap:6px}
+.product-dots i{width:10px; height:10px; border-radius:50%; background:var(--c); border:1px solid var(--line)}
+.product-add{
+  align-self:flex-start; margin:4px 16px 16px; padding:8px 0;
+  font:500 11px/1 var(--font-mono); text-transform:uppercase; letter-spacing:.06em;
+  color:var(--ink-2); transition:color .2s;
+}
+.product-add:hover{color:var(--chapter-accent); text-decoration:underline; text-underline-offset:4px}
+.catalog-note{margin-top:64px; max-width:52ch; color:var(--ink-2); font-size:15px}
 
 /* ================= TERMS (05) ================= */
 .terms{}
@@ -371,6 +398,11 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 .modal.open .modal-card{transform:translateY(0)}
 .modal-media{overflow:hidden; aspect-ratio:4/5}
 .modal-media img{width:100%; height:100%; object-fit:cover}
+.modal-thumbs{position:absolute; left:12px; bottom:12px; display:flex; gap:8px}
+.modal-thumb{width:56px; height:70px; overflow:hidden; border:1px solid var(--line); opacity:.65; transition:opacity .2s, border-color .2s}
+.modal-thumb img{width:100%; height:100%; object-fit:cover}
+.modal-thumb.is-active{opacity:1; border-color:var(--brass)}
+.modal-media{position:relative}
 .modal-body{padding:40px; display:flex; flex-direction:column; gap:16px}
 .modal-close{position:absolute; top:20px; right:24px; font-size:28px; line-height:1; color:var(--paper)}
 .modal-card .tag{font:500 10px/1 var(--font-mono); text-transform:uppercase; letter-spacing:.08em; color:var(--brass)}
@@ -669,7 +701,17 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
         <button class="filter-btn" type="button" data-filter="aksessuary">Аксессуары</button>
         <button class="filter-btn" type="button" data-filter="dom">Дом</button>
       </div>
+      <div class="sort-row mono" id="sortRow">
+        <span class="sort-label">Показано <b id="shownCount" aria-live="polite">8</b> из 8</span>
+        <div class="sort-btns" role="group" aria-label="Сортировка">
+          <button class="sort-btn active" type="button" data-sort="featured" aria-pressed="true">Как в архиве</button>
+          <button class="sort-btn" type="button" data-sort="price-asc" aria-pressed="false">Цена ↑</button>
+          <button class="sort-btn" type="button" data-sort="price-desc" aria-pressed="false">Цена ↓</button>
+          <button class="sort-btn" type="button" data-sort="new" aria-pressed="false">Новизна</button>
+        </div>
+      </div>
       <div class="catalog-grid" id="catalogGrid"></div>
+      <p class="catalog-note">Все единицы производятся малыми партиями. Если вашего размера нет — напишите, пошьём под заказ за три недели.</p>
     </div>
   </section>
 
@@ -732,7 +774,13 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 <div class="modal" id="modal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Быстрый просмотр товара">
   <div class="modal-card">
     <button class="modal-close" type="button" data-close-modal aria-label="Закрыть">×</button>
-    <div class="modal-media"><img id="qvImg" src="" alt=""></div>
+    <div class="modal-media">
+      <img id="qvImg" src="" alt="">
+      <div class="modal-thumbs">
+        <button class="modal-thumb is-active" type="button" data-thumb="0" aria-label="Фото 1"><img id="qvThumb0" src="" alt=""></button>
+        <button class="modal-thumb" type="button" data-thumb="1" aria-label="Фото 2"><img id="qvThumb1" src="" alt=""></button>
+      </div>
+    </div>
     <div class="modal-body">
       <span class="tag mono" id="qvCat"></span>
       <span class="mono" id="qvUnit"></span>
@@ -783,48 +831,64 @@ const PRODUCTS = [
   {
     id: 1, cat: 'odezhda', name: 'Пальто из шерсти', price: 24900, unit: 'Unit n°041',
     img: 'https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=800&q=80',
+    img2: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=800&q=80',
+    material: 'шерсть / кашемир', colors: ['#3B3A36', '#7A7163'], stock: 3, added: 8,
     desc: 'Двубортное пальто из итальянской шерсти с добавлением кашемира. Прямой силуэт, скрытая застёжка, подкладка из вискозы. Садится поверх объёмного свитера.',
     meta: 'Состав: <span>80% шерсть, 20% кашемир</span><br>Уход: <span>химчистка</span><br>Артикул: <span>NR-0101</span>'
   },
   {
     id: 2, cat: 'odezhda', name: 'Футболка Heavyweight', price: 3900, unit: 'Unit n°042',
     img: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80',
+    img2: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=800&q=80',
+    material: 'органический хлопок 240 г/м²', colors: ['#EDE9E4', '#1C1917', '#5B7553'], stock: null, added: 5,
     desc: 'Плотная футболка из органического хлопка 240 г/м². Слегка свободный крой, усиленный ворот, не скатывается и не вытягивается после стирок.',
     meta: 'Состав: <span>100% органический хлопок</span><br>Уход: <span>стирка 30°</span><br>Артикул: <span>NR-0102</span>'
   },
   {
     id: 3, cat: 'obuv', name: 'Кеды Court Low', price: 14900, unit: 'Unit n°043',
     img: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800&q=80',
+    img2: 'https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=800&q=80',
+    material: 'телятина / каучук Margom', colors: ['#2E4A5B', '#EDE9E4'], stock: null, added: 6,
     desc: 'Минималистичные кеды из гладкой телятины на прошитой маргомной подошве. Съёмная стелька из пробки, никаких логотипов снаружи.',
     meta: 'Верх: <span>натуральная кожа</span><br>Подошва: <span>каучук Margom</span><br>Артикул: <span>NR-0201</span>'
   },
   {
     id: 4, cat: 'obuv', name: 'Кроссовки Retro Runner', price: 11900, unit: 'Unit n°044',
     img: 'https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=800&q=80',
+    img2: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=800&q=80',
+    material: 'переработанный текстиль / EVA', colors: ['#2E4A5B', '#C9A227', '#1C1917'], stock: 2, added: 7,
     desc: 'Ретро-силуэт из комбинации замши и дышащей сетки. Амортизирующая подошва EVA, светоотражающие элементы на пятке.',
     meta: 'Верх: <span>замша, сетка</span><br>Подошва: <span>EVA</span><br>Артикул: <span>NR-0202</span>'
   },
   {
     id: 5, cat: 'aksessuary', name: 'Рюкзак Canvas 20L', price: 8900, unit: 'Unit n°045',
     img: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&q=80',
+    img2: 'https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?w=800&q=80',
+    material: 'канвас 18 oz / кожа', colors: ['#5B5248', '#1C1917'], stock: null, added: 3,
     desc: 'Рюкзак из плотного хлопкового канваса с кожаной фурнитурой. Мягкое отделение для ноутбука 15″, водоотталкивающая пропитка.',
     meta: 'Материал: <span>канвас 18 oz, кожа</span><br>Объём: <span>20 л</span><br>Артикул: <span>NR-0301</span>'
   },
   {
     id: 6, cat: 'aksessuary', name: 'Часы Minimal 36', price: 16900, unit: 'Unit n°046',
     img: 'https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=800&q=80',
+    img2: 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=800&q=80',
+    material: 'сталь 316L / кожа', colors: ['#8B8B8B', '#1C1917'], stock: 1, added: 4,
     desc: 'Кварцевые часы с корпусом из матовой стали 36 мм и ремешком из натуральной кожи. Сапфировое стекло, влагозащита 5 ATM.',
     meta: 'Корпус: <span>сталь 316L, 36 мм</span><br>Механизм: <span>Miyota quartz</span><br>Артикул: <span>NR-0302</span>'
   },
   {
     id: 7, cat: 'dom', name: 'Кресло Rattan Lounge', price: 32900, unit: 'Unit n°047',
     img: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&q=80',
+    img2: 'https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?w=800&q=80',
+    material: 'бук / ротанг / лён', colors: ['#A98F6B', '#3B3A36'], stock: null, added: 2,
     desc: 'Кресло из ротанга ручного плетения на каркасе из массива бука. Подушка из льняной ткани в комплекте, съёмный чехол.',
     meta: 'Каркас: <span>массив бука</span><br>Плетение: <span>натуральный ротанг</span><br>Артикул: <span>NR-0401</span>'
   },
   {
     id: 8, cat: 'dom', name: 'Диван Modular 2-Seat', price: 89900, unit: 'Unit n°048',
     img: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&q=80',
+    img2: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=800&q=80',
+    material: 'букле 74% шерсть / дуб', colors: ['#D8D2C8', '#5B5248'], stock: null, added: 1,
     desc: 'Двухместный модульный диван со съёмными чехлами из букле. Наполнитель — пух и высокоэластичная пена HR, ножки из массива дуба.',
     meta: 'Обивка: <span>букле, 74% шерсть</span><br>Наполнитель: <span>пух / пена HR</span><br>Артикул: <span>NR-0402</span>'
   }
@@ -841,13 +905,19 @@ const LOOKS = [
 ];
 
 /* ================= STATE ================= */
-const state = { filter: 'all', cart: [], qvId: null, qvSize: null };
+const state = { filter: 'all', sort: 'featured', cart: [], qvId: null, qvSize: null };
 
 /* ================= HELPERS ================= */
 const $ = (sel, root) => (root || document).querySelector(sel);
 const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
 const fmt = n => new Intl.NumberFormat('ru-RU').format(n) + ' ₽';
 const byId = id => PRODUCTS.find(p => p.id === id) || null;
+const SORTS = {
+  'featured':  (a, b) => a.id - b.id,
+  'price-asc': (a, b) => a.price - b.price,
+  'price-desc':(a, b) => b.price - a.price,
+  'new':       (a, b) => b.added - a.added
+};
 /* scramble-перебор: цифры/буквы «расшифровываются» в финальный текст */
 const SCRAMBLE_CHARS = '0123456789—·ABCDEF';
 function scrambleText(el, finalText, dur = 800) {
@@ -930,18 +1000,27 @@ const mediaIO = 'IntersectionObserver' in window
   : null;
 
 function renderCatalog() {
-  const items = PRODUCTS.filter(p => state.filter === 'all' || p.cat === state.filter);
+  const items = PRODUCTS
+    .filter(p => state.filter === 'all' || p.cat === state.filter)
+    .sort(SORTS[state.sort] || SORTS.featured);
+  $('#shownCount').textContent = items.length;
   grid.innerHTML = items.map(p => `
     <article class="product" data-id="${p.id}" tabindex="0" role="button" aria-label="${p.name} — быстрый просмотр">
-      <div class="product-media">
+      <div class="product-media" data-cursor="Быстрый просмотр">
         <img src="${p.img}" alt="${p.name}" loading="lazy">
+        ${p.stock != null && p.stock <= 3 ? `<span class="product-stock mono">Осталось ${p.stock}</span>` : ''}
         <button class="product-quick" type="button" data-id="${p.id}">Быстрый просмотр</button>
       </div>
       <div class="product-info">
         <span class="product-unit mono">${p.unit} — ${CATS[p.cat]}</span>
         <h3>${p.name}</h3>
-        <div class="product-price mono">${fmt(p.price)}</div>
+        <p class="product-material">${p.material}</p>
+        <div class="product-row">
+          <div class="product-price mono">${fmt(p.price)}</div>
+          <div class="product-dots">${p.colors.map(c => `<i style="--c:${c}"></i>`).join('')}</div>
+        </div>
       </div>
+      <button class="product-add mono" type="button" data-add="${p.id}">+ в корзину</button>
     </article>`).join('');
   /* наблюдаем карточку, а не сам media-блок: его clip-path обнуляет intersectionRatio */
   $$('.product', grid).forEach(card => {
@@ -951,12 +1030,38 @@ function renderCatalog() {
   });
 }
 
+/* перестановка/фильтрация с ручным FLIP: ушедшие позиции → новые */
+function updateCatalog() {
+  const first = new Map($$('.product', grid).map(c => [c.dataset.id, c.getBoundingClientRect()]));
+  renderCatalog();
+  if (reducedMotion || !window.gsap) return;
+  $$('.product', grid).forEach((c, i) => {
+    const f = first.get(c.dataset.id);
+    const l = c.getBoundingClientRect();
+    if (f && (Math.round(f.left) !== Math.round(l.left) || Math.round(f.top) !== Math.round(l.top))) {
+      gsap.fromTo(c, { x: f.left - l.left, y: f.top - l.top }, { x: 0, y: 0, duration: .5, ease: 'power3.out' });
+    } else if (!f) {
+      gsap.fromTo(c, { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: .45, delay: i * 0.03, ease: 'power2.out' });
+    }
+  });
+}
+
 grid.addEventListener('click', e => {
+  const addBtn = e.target.closest('[data-add]');
+  if (addBtn) {
+    const p = byId(+addBtn.dataset.add);
+    const sizes = SIZES[p.cat];
+    addToCart(p.id, sizes[Math.floor(sizes.length / 2)]);
+    flyToCart(addBtn);
+    toast(`${p.unit} → Корзина`);
+    return;
+  }
   const card = e.target.closest('.product');
   if (card) openQuickView(parseInt(card.dataset.id, 10));
 });
 grid.addEventListener('keydown', e => {
   if (e.key !== 'Enter' && e.key !== ' ') return;
+  if (e.target.closest('button')) return;  /* у нативных кнопок своё поведение */
   const card = e.target.closest('.product');
   if (!card) return;
   e.preventDefault();
@@ -969,12 +1074,21 @@ function setFilter(cat) {
   state.filter = cat;
   $$('.filter-btn', filtersWrap).forEach(b =>
     b.classList.toggle('active', b.dataset.filter === cat));
-  renderCatalog();
+  updateCatalog();
 }
 filtersWrap.addEventListener('click', e => {
   const btn = e.target.closest('.filter-btn');
   if (btn) setFilter(btn.dataset.filter);
 });
+$('#sortRow') && $$('.sort-btn').forEach(b => b.addEventListener('click', () => {
+  state.sort = b.dataset.sort;
+  $$('.sort-btn').forEach(x => {
+    const on = x === b;
+    x.classList.toggle('active', on);
+    x.setAttribute('aria-pressed', String(on));
+  });
+  updateCatalog();
+}));
 $$('[data-goto-filter]').forEach(a => a.addEventListener('click', () => {
   setFilter(a.dataset.gotoFilter);
   scrollToEl($('#filters'));
@@ -992,6 +1106,12 @@ function openQuickView(id) {
 
   $('#qvImg').src = p.img;
   $('#qvImg').alt = p.name;
+  $('#qvImg').dataset.cur = p.img;
+  $('#qvThumb0').src = p.img;
+  const t1 = $('.modal-thumb[data-thumb="1"]');
+  if (p.img2) { $('#qvThumb1').src = p.img2; t1.style.display = ''; }
+  else t1.style.display = 'none';
+  $$('.modal-thumb').forEach(t => t.classList.toggle('is-active', t.dataset.thumb === '0'));
   $('#qvCat').textContent = CATS[p.cat];
   $('#qvUnit').textContent = p.unit;
   $('#qvName').textContent = p.name;
@@ -1023,6 +1143,12 @@ $('#qvSizes').addEventListener('click', e => {
   state.qvSize = btn.dataset.size;
   $$('.size-btn', $('#qvSizes')).forEach(b => b.classList.toggle('active', b === btn));
 });
+$$('.modal-thumb').forEach(t => t.addEventListener('click', () => {
+  const src = t.dataset.thumb === '0' ? byId(state.qvId).img : byId(state.qvId).img2;
+  if (!src) return;
+  $('#qvImg').src = src;
+  $$('.modal-thumb').forEach(x => x.classList.toggle('is-active', x === t));
+}));
 $('#qvAdd').addEventListener('click', () => {
   if (state.qvId == null) return;
   const p = byId(state.qvId);
