@@ -93,13 +93,17 @@ try:
     time.sleep(7)  # шрифты + CDN + прелоадер
 
     CHECKS = json.load(open(os.path.join(ROOT, "scripts/qa-norde-checks.json")))
-    for c in CHECKS:
-        mode = c.get("mode")  # "rm" — только reduced-motion, "no-rm" — только обычный прогон
-        if mode == "rm" and not RM:
-            continue
-        if mode == "no-rm" and RM:
-            continue
-        check(c["name"], c["js"], c.get("expect", True))
+
+    def run_checks(checks):
+        for c in checks:
+            mode = c.get("mode")  # "rm" — только reduced-motion, "no-rm" — только обычный прогон
+            if mode == "rm" and not RM:
+                continue
+            if mode == "no-rm" and RM:
+                continue
+            check(c["name"], c["js"], c.get("expect", True))
+
+    run_checks([c for c in CHECKS if not c.get("end")])
     if SHOT:
         # сброс UI-состояния после функциональных проверок (drawer с актом, toast)
         js("document.querySelector('.drawer-close')?.click(); document.body.style.overflow=''")
@@ -147,6 +151,24 @@ try:
                     print(("  PASS " if ok else "  FAIL ") + "дрейф: пин покрывает вьюпорт, трек сдвинут, образы загружены (DOM-уровень)")
                     if not ok:
                         failures.append("ch02-drift-dom")
+    ENDC = [c for c in CHECKS if c.get("end")]
+    if ENDC:
+        # прогон по странице, чтобы lazy-контент догрузился до end-чеков
+        # (скролл через Lenis, если он активен — window.scrollTo Lenis перезапишет)
+        js("""
+          (async () => {
+            const h = document.body.scrollHeight;
+            for (let y = 0; y <= h; y += Math.round(innerHeight * 0.7)) {
+              if (window.__lenis) window.__lenis.scrollTo(y, { immediate: true });
+              else window.scrollTo(0, y);
+              await new Promise(r => setTimeout(r, 150));
+            }
+            if (window.__lenis) window.__lenis.scrollTo(h, { immediate: true });
+            else window.scrollTo(0, h);
+          })()
+        """)
+        time.sleep(3)
+        run_checks(ENDC)
     if errors:
         print("CONSOLE ISSUES:")
         for e in dict.fromkeys(errors):
