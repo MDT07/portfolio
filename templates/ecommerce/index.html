@@ -95,19 +95,27 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 @keyframes pulse{50%{transform:scale(1.35)}}
 
 /* ================= HERO (00) ================= */
-.hero{min-height:92vh; display:flex; align-items:center; padding-top:120px}
-.hero .container{width:100%}
+.hero{min-height:100svh; display:flex; align-items:center; padding:120px 0 96px}
+.hero .container{position:relative; z-index:1; width:100%}
+.hero-media{
+  position:absolute; top:0; right:0; bottom:0; width:55%; margin:0; z-index:0;
+}
+.hero-media::after{  /* напыление бумаги: заголовок заходит на фото и читается */
+  content:""; position:absolute; inset:0;
+  background:linear-gradient(90deg, var(--paper) 0%, transparent 45%);
+}
+.hero-media img{width:100%; height:100%; object-fit:cover}
+.hero-meta-v{
+  position:absolute; right:18px; top:50%; transform:translateY(-50%); z-index:1;
+  writing-mode:vertical-rl; font:500 11px/1 var(--font-mono);
+  letter-spacing:.18em; color:var(--ink-3);
+}
 .hero-title{
-  font-size:clamp(3rem,9vw,8rem); line-height:.98; font-weight:400;
-  max-width:12ch; margin:24px 0 32px;
+  font-size:clamp(3rem,8vw,7.2rem); line-height:.98; font-weight:400;
+  max-width:11ch; margin:24px 0 32px;
 }
 .hero-title em{font-style:italic; color:var(--brass)}
 .hero-sub{max-width:44ch; color:var(--ink-2); font-size:17px}
-.hero-media{
-  margin-top:64px; overflow:hidden;
-  aspect-ratio:21/9;
-}
-.hero-media img{width:100%; height:100%; object-fit:cover}
 .hero-scroll{margin-top:24px; color:var(--ink-3)}
 
 /* ================= MANIFEST (01) ================= */
@@ -394,9 +402,11 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
   .container{padding:0 20px}
   .chapter{padding:96px 0}
   .chapter-numeral{top:20px; font-size:clamp(5rem,22vw,8rem)}
-  .hero{padding-top:104px; min-height:auto}
+  .hero{min-height:100svh; padding:104px 0 calc(46svh + 48px); align-items:flex-start}
+  .hero-media{top:auto; bottom:0; left:0; width:100%; height:44svh}
+  .hero-media::after{background:linear-gradient(180deg, var(--paper) 0%, transparent 45%)}
+  .hero-meta-v{display:none}
   .hero-title{font-size:clamp(2.6rem,13vw,4rem)}
-  .hero-media{aspect-ratio:4/5}
   .catalog-grid{grid-template-columns:repeat(2,1fr)}
   .terms .t-name{font-size:19px; width:auto; display:block; padding-bottom:6px}
   .terms td{display:block; width:100%}
@@ -428,13 +438,14 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 
   <!-- ================= 00 ОБЛОЖКА ================= -->
   <section class="chapter hero" data-chapter="00">
+    <figure class="hero-media" data-clip>
+      <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1600&q=80" alt="Коллекция NORDE — стеллаж с одеждой" fetchpriority="high">
+    </figure>
+    <p class="mono hero-meta-v" aria-hidden="true">Архив · Выпуск 01 · Осень 2026</p>
     <div class="container">
       <p class="mono chapter-index"><b>00</b> / Обложка</p>
       <h1 class="hero-title" data-mask>Одежда и предметы дома — без <em>лишнего шума</em></h1>
       <p class="hero-sub">Архив-издание скандинавского магазина: восемь единиц хранения, шесть образов и одна planche. Каждая вещь работает каждый день.</p>
-      <figure class="hero-media" data-clip>
-        <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1600&q=80" alt="Коллекция NORDE — стеллаж с одеждой" fetchpriority="high">
-      </figure>
       <p class="mono hero-scroll" aria-hidden="true">Листайте ↓</p>
     </div>
   </section>
