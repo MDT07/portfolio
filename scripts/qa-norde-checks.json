@@ -49,7 +49,7 @@
   {"name": "спеки анатомии присутствуют", "js": "document.querySelector('.anatomy-caps').textContent.includes('Подошва')"},
   {"name": "студия: 3 фото колорвеев", "js": "document.querySelectorAll('.studio-photo').length", "expect": 3},
   {"name": "3 swatch", "js": "document.querySelectorAll('.studio-swatches .swatch').length", "expect": 3},
-  {"name": "студия: свотч меняет колорвей", "js": "(() => { const b=[...document.querySelectorAll('.studio-swatches .swatch')][1]; b.click(); return b.getAttribute('aria-pressed')==='true' && document.querySelector('.studio-photo.is-active').dataset.way==='1' && document.querySelector('#studioName').textContent==='Песок'; })()"},
+  {"name": "студия: свотч меняет колорвей", "js": "(async () => { const b=[...document.querySelectorAll('.studio-swatches .swatch')][1]; b.click(); await new Promise(r=>setTimeout(r,700)); return b.getAttribute('aria-pressed')==='true' && document.querySelector('.studio-photo.is-active').dataset.way==='1' && document.querySelector('#studioName').textContent==='Песок'; })()"},
   {"name": "студия: фон переливается", "js": "(async () => { await new Promise(r=>setTimeout(r,1000)); return getComputedStyle(document.querySelector('#studio')).backgroundColor === 'rgb(43, 37, 27)'; })()"},
   {"name": "нумералы: 01 02 03 А 04 Б 05", "js": "[...document.querySelectorAll('.chapter-numeral')].map(e=>e.textContent.trim()).join(' ')", "expect": "01 02 03 А 04 Б 05"},
   {"name": "пигменты: --chapter-accent и ≥4 data-accent", "js": "(() => { const v=getComputedStyle(document.documentElement).getPropertyValue('--chapter-accent').trim(); const n=new Set([...document.querySelectorAll('[data-accent]')].map(e=>e.dataset.accent)).size; return v!=='' && n>=4; })()"},
