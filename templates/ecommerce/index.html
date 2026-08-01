@@ -8,6 +8,10 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23FAFAF9'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='20' text-anchor='middle' fill='%231C1917'%3EN%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- preload первых трёх образов лукбука: pinned-дрейф не должен догружать кадры -->
+<link rel="preload" as="image" href="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1200&q=80">
+<link rel="preload" as="image" href="https://images.unsplash.com/photo-1445205170230-053b83016050?w=1200&q=80">
+<link rel="preload" as="image" href="https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?w=1200&q=80">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400..900&family=Manrope:wght@400..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script type="importmap">
 { "imports": {
@@ -142,8 +146,8 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 .lookbook-progress i{position:absolute; inset:0; background:var(--brass); transform:scaleX(0); transform-origin:left}
 .lookbook-viewport{overflow-x:auto; scrollbar-width:none; -ms-overflow-style:none}
 .lookbook-viewport::-webkit-scrollbar{display:none}
-.lookbook-track{display:flex; gap:40px; will-change:transform}
-.look{flex:0 0 min(58vw,560px)}
+.lookbook-track{display:flex; gap:48px; will-change:transform}
+.look{flex:0 0 min(62vw,640px)}
 .look-media{aspect-ratio:4/5; overflow:hidden}
 .look-media img{width:100%; height:100%; object-fit:cover}
 .look figcaption{display:flex; flex-direction:column; gap:10px; padding-top:16px}
@@ -485,12 +489,12 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
     <div class="lookbook-viewport">
       <div class="lookbook-track" id="lookTrack">
         <!-- статичный fallback: JS (Task 6) заменит на интерактивные карточки -->
-        <figure class="look"><div class="look-media"><img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1200&q=80" alt="Look n°1 — Город" loading="lazy"></div><figcaption><p class="mono"><b>Look n°1</b> — Город</p></figcaption></figure>
-        <figure class="look"><div class="look-media"><img src="https://images.unsplash.com/photo-1445205170230-053b83016050?w=1200&q=80" alt="Look n°2 — Студия" loading="lazy"></div><figcaption><p class="mono"><b>Look n°2</b> — Студия</p></figcaption></figure>
-        <figure class="look"><div class="look-media"><img src="https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?w=1200&q=80" alt="Look n°3 — Дом" loading="lazy"></div><figcaption><p class="mono"><b>Look n°3</b> — Дом</p></figcaption></figure>
-        <figure class="look"><div class="look-media"><img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1200&q=80" alt="Look n°4 — Путь" loading="lazy"></div><figcaption><p class="mono"><b>Look n°4</b> — Путь</p></figcaption></figure>
-        <figure class="look"><div class="look-media"><img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1200&q=80" alt="Look n°5 — Вечер" loading="lazy"></div><figcaption><p class="mono"><b>Look n°5</b> — Вечер</p></figcaption></figure>
-        <figure class="look"><div class="look-media"><img src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=1200&q=80" alt="Look n°6 — Свет" loading="lazy"></div><figcaption><p class="mono"><b>Look n°6</b> — Свет</p></figcaption></figure>
+        <figure class="look"><div class="look-media"><img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1200&q=80" alt="Look n°1 — Город" loading="eager"></div><figcaption><p class="mono"><b>Look n°1</b> — Город</p></figcaption></figure>
+        <figure class="look"><div class="look-media"><img src="https://images.unsplash.com/photo-1445205170230-053b83016050?w=1200&q=80" alt="Look n°2 — Студия" loading="eager"></div><figcaption><p class="mono"><b>Look n°2</b> — Студия</p></figcaption></figure>
+        <figure class="look"><div class="look-media"><img src="https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?w=1200&q=80" alt="Look n°3 — Дом" loading="eager"></div><figcaption><p class="mono"><b>Look n°3</b> — Дом</p></figcaption></figure>
+        <figure class="look"><div class="look-media"><img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1200&q=80" alt="Look n°4 — Путь" loading="eager"></div><figcaption><p class="mono"><b>Look n°4</b> — Путь</p></figcaption></figure>
+        <figure class="look"><div class="look-media"><img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1200&q=80" alt="Look n°5 — Вечер" loading="eager"></div><figcaption><p class="mono"><b>Look n°5</b> — Вечер</p></figcaption></figure>
+        <figure class="look"><div class="look-media"><img src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=1200&q=80" alt="Look n°6 — Свет" loading="eager"></div><figcaption><p class="mono"><b>Look n°6</b> — Свет</p></figcaption></figure>
       </div>
     </div>
   </section>
@@ -1012,7 +1016,7 @@ function renderLooks() {
     const items = prods.map(p => `${p.name} (${p.unit})`).join(' · ');
     return `
     <figure class="look" data-look="${l.n}">
-      <div class="look-media"><img src="${l.img}" alt="${l.title}" loading="lazy"></div>
+      <div class="look-media"><img src="${l.img}" alt="${l.title}" loading="eager"></div>
       <figcaption>
         <p class="mono"><b>Look n°${l.n}</b></p>
         <p class="look-items mono">${items}</p>
@@ -1162,7 +1166,7 @@ if (motionOK) {
       scrollTrigger: {
         trigger: '[data-chapter="02"]', start: 'top top',
         end: () => '+=' + (dist() + innerHeight * 0.6),
-        pin: true, scrub: 1, invalidateOnRefresh: true,
+        pin: true, scrub: 0.6, anticipatePin: true, invalidateOnRefresh: true,
         onUpdate: st => {
           $('#lookProgress').style.transform = `scaleX(${st.progress})`;
           setSkew(-gsap.utils.clamp(-4, 4, st.getVelocity() / 250));
