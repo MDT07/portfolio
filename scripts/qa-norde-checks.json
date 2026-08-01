@@ -34,5 +34,9 @@
   {"name": "сцена: canvas или fallback", "js": "!!(document.querySelector('#plancheStage canvas') || document.querySelector('#plancheStage img.planche-fallback'))"},
   {"name": "4 ракурса в подписях", "js": "document.querySelectorAll('.planche-view').length", "expect": 4},
   {"name": "3 swatch", "js": "document.querySelectorAll('.swatch').length", "expect": 3},
-  {"name": "спеки mono присутствуют", "js": "document.querySelector('#plancheSpecs').textContent.includes('Подошва')"}
+  {"name": "спеки mono присутствуют", "js": "document.querySelector('#plancheSpecs').textContent.includes('Подошва')"},
+  {"name": "нумералы в главах 01–05", "js": "document.querySelectorAll('.chapter-numeral').length", "expect": 5},
+  {"name": "borderless: глава без border-top", "js": "getComputedStyle(document.querySelector('[data-chapter=\"01\"]')).borderTopWidth", "expect": "0px"},
+  {"name": "дуотон на образах лукбука", "js": "getComputedStyle(document.querySelector('.look img')).filter.includes('grayscale')"},
+  {"name": "образы лукбука eager", "js": "[...document.querySelectorAll('.look img')].every(i => i.loading === 'eager')"}
 ]
