@@ -8,10 +8,9 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23FAFAF9'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='20' text-anchor='middle' fill='%231C1917'%3EN%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<!-- preload первых трёх образов лукбука: pinned-дрейф не должен догружать кадры -->
+<!-- preload первых двух образов лукбука: они видны при входе в pinned-дрейф -->
 <link rel="preload" as="image" href="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1200&q=80">
 <link rel="preload" as="image" href="https://images.unsplash.com/photo-1445205170230-053b83016050?w=1200&q=80">
-<link rel="preload" as="image" href="https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?w=1200&q=80">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400..900&family=Manrope:wght@400..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 /* ================= TOKENS ================= */
@@ -155,12 +154,25 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 .lookbook-viewport{overflow-x:auto; scrollbar-width:none; -ms-overflow-style:none}
 .lookbook-viewport::-webkit-scrollbar{display:none}
 .lookbook-track{display:flex; gap:48px; will-change:transform}
-.look{flex:0 0 min(62vw,640px)}
-.look-media{aspect-ratio:4/5; overflow:hidden}
+.look{flex:0 0 auto; display:flex; flex-direction:column}
+.look-media{position:relative; height:min(72vh,780px); aspect-ratio:3/4; overflow:hidden; cursor:pointer}
 .look-media img{width:100%; height:100%; object-fit:cover}
+.look-view{
+  position:absolute; left:50%; bottom:14px; transform:translate(-50%,8px);
+  padding:10px 18px; background:rgba(22,20,18,.72); color:var(--dark-ink);
+  font:500 10px/1 var(--font-mono); text-transform:uppercase; letter-spacing:.06em;
+  opacity:0; transition:opacity .25s, transform .25s; pointer-events:none;
+}
+.look:hover .look-view, .look-media:focus-visible .look-view{opacity:1; transform:translate(-50%,0)}
 .look figcaption{display:flex; flex-direction:column; gap:10px; padding-top:16px}
 .look .mono{color:var(--dark-ink-2)}
 .look .mono b{color:var(--chapter-accent); font-weight:500}
+.look-interlude{
+  flex:0 0 auto; align-self:center; max-width:24ch; padding:0 4vw;
+  color:var(--dark-ink-2); display:flex; flex-direction:column; gap:14px;
+}
+.look-interlude .li-no{font:400 clamp(2.4rem,4vw,3.6rem)/1 var(--font-display); color:var(--chapter-accent)}
+.look-interlude p:last-child{font-size:15px; line-height:1.6}
 .btn{
   display:inline-flex; align-items:center; justify-content:center; gap:8px;
   padding:14px 28px; border:1px solid var(--ink); border-radius:3px;
@@ -453,7 +465,8 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
   .modal-card{grid-template-columns:1fr; max-height:92vh}
   .modal-media{aspect-ratio:16/10}
   .footer-cols{grid-template-columns:1fr; gap:28px; padding:40px 20px}
-  .look{flex-basis:78vw}
+  .look-media{height:58vh}
+  .look-interlude{max-width:60vw; padding:0 6vw}
   .header-meta{display:none}
   .anatomy-frame{width:74vw}
   .anatomy-caps li{max-width:34vw; font-size:10px}
@@ -534,13 +547,9 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
     </div>
     <div class="lookbook-viewport">
       <div class="lookbook-track" id="lookTrack">
-        <!-- статичный fallback: JS (Task 6) заменит на интерактивные карточки -->
+        <!-- статичный fallback (no-JS витрина): JS (renderLooks) заменит на интерактивные карточки -->
         <figure class="look"><div class="look-media"><img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1200&q=80" alt="Look n°1 — Город" loading="eager"></div><figcaption><p class="mono"><b>Look n°1</b> — Город</p></figcaption></figure>
         <figure class="look"><div class="look-media"><img src="https://images.unsplash.com/photo-1445205170230-053b83016050?w=1200&q=80" alt="Look n°2 — Студия" loading="eager"></div><figcaption><p class="mono"><b>Look n°2</b> — Студия</p></figcaption></figure>
-        <figure class="look"><div class="look-media"><img src="https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?w=1200&q=80" alt="Look n°3 — Дом" loading="eager"></div><figcaption><p class="mono"><b>Look n°3</b> — Дом</p></figcaption></figure>
-        <figure class="look"><div class="look-media"><img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1200&q=80" alt="Look n°4 — Путь" loading="eager"></div><figcaption><p class="mono"><b>Look n°4</b> — Путь</p></figcaption></figure>
-        <figure class="look"><div class="look-media"><img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1200&q=80" alt="Look n°5 — Вечер" loading="eager"></div><figcaption><p class="mono"><b>Look n°5</b> — Вечер</p></figcaption></figure>
-        <figure class="look"><div class="look-media"><img src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=1200&q=80" alt="Look n°6 — Свет" loading="eager"></div><figcaption><p class="mono"><b>Look n°6</b> — Свет</p></figcaption></figure>
       </div>
     </div>
   </section>
@@ -784,7 +793,7 @@ const LOOKS = [
   { n: 3, title: 'Look n°3 — Дом',    items: [7, 8],    img: 'https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?w=1200&q=80' },
   { n: 4, title: 'Look n°4 — Путь',   items: [5, 2, 4], img: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1200&q=80' },
   { n: 5, title: 'Look n°5 — Вечер',  items: [1, 6],    img: 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1200&q=80' },
-  { n: 6, title: 'Look n°6 — Свет',   items: [3, 5],    img: 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=1200&q=80' }
+  { n: 6, title: 'Look n°6 — Утро',   items: [3, 5],    img: 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=1200&q=80' }
 ];
 
 /* ================= STATE ================= */
@@ -1091,13 +1100,31 @@ function checkout() {
 const lookTrack = $('#lookTrack');
 const pluralUnits = n => n === 1 ? 'единица' : (n >= 2 && n <= 4 ? 'единицы' : 'единиц');
 
+const LOOK_MOODS = {
+  2: 'Студия — свет как материал',
+  3: 'Дом — вещи, которые живут дольше нас',
+  4: 'Путь — слои против ветра',
+  5: 'Вечер — архив при лампах',
+  6: 'Утро — первый кофе, последний слой'
+};
+
 function renderLooks() {
-  lookTrack.innerHTML = LOOKS.map(l => {
+  lookTrack.innerHTML = LOOKS.map((l, i) => {
     const prods = l.items.map(byId).filter(Boolean);
     const items = prods.map(p => `${p.name} (${p.unit})`).join(' · ');
-    return `
+    const loading = i < 2 ? 'eager' : 'lazy';
+    const interlude = i === 0 ? '' : `
+    <div class="look-interlude" aria-hidden="true">
+      <span class="li-no">0${l.n}</span>
+      <p class="mono">Look n°${l.n}</p>
+      <p>${LOOK_MOODS[l.n] || ''}</p>
+    </div>`;
+    return interlude + `
     <figure class="look" data-look="${l.n}">
-      <div class="look-media"><img src="${l.img}" alt="${l.title}" loading="eager"></div>
+      <div class="look-media" data-cursor="Смотреть образ" tabindex="0" role="button" aria-label="${l.title} — открыть образ">
+        <img src="${l.img}" alt="${l.title}" loading="${loading}">
+        <span class="look-view">Смотреть образ</span>
+      </div>
       <figcaption>
         <p class="mono"><b>Look n°${l.n}</b></p>
         <p class="look-items mono">${items}</p>
