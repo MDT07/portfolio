@@ -123,13 +123,26 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 .hero-scroll{margin-top:24px; color:var(--ink-3)}
 
 /* ================= MANIFEST (01) ================= */
-.manifest-list{list-style:none; max-width:860px}
-.manifest-list li{
-  display:flex; gap:32px; align-items:baseline;
-  padding:28px 0;
-  font-size:clamp(1.1rem,2vw,1.5rem); font-family:var(--font-display);
+.manifest-grid{display:grid; grid-template-columns:repeat(12,1fr); gap:40px}
+.manifest-head{grid-column:1/6}
+.manifest-body{grid-column:7/13}
+.manifest-quote{
+  font:italic 400 clamp(2rem,4vw,3.4rem)/1.15 var(--font-display);
+  color:var(--brass); max-width:14ch; margin:0 0 64px;
 }
-.manifest-list .mono{color:var(--brass); flex:0 0 64px}
+.manifest-list{list-style:none; display:grid; grid-template-columns:1fr 1fr; gap:56px 48px}
+.manifest-no{display:block; font:400 28px/1 var(--font-display); color:var(--brass); margin-bottom:16px}
+.manifest-list li p{color:var(--ink-2); font-size:16px; line-height:1.55}
+.manifest-list li:first-child p::first-letter{
+  font:400 3.2em/0.8 var(--font-display); color:var(--brass);
+  float:left; padding:2px 10px 0 0;
+}
+@media (max-width:720px){
+  .manifest-grid{grid-template-columns:1fr}
+  .manifest-head, .manifest-body{grid-column:auto}
+  .manifest-quote{margin:0 0 48px}
+  .manifest-list{grid-template-columns:1fr; gap:40px}
+}
 
 /* ================= MARQUEE ================= */
 .marquee{overflow:hidden; padding:14px 0}
@@ -458,15 +471,19 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
   <!-- ================= 01 МАНИФЕСТ ================= -->
   <section class="chapter" data-chapter="01">
     <span class="chapter-numeral" aria-hidden="true">01</span>
-    <div class="container">
-      <p class="mono chapter-index"><b>01</b> / Манифест</p>
-      <h2 data-mask>Правила простые и одинаковые для всех</h2>
-      <ol class="manifest-list">
-        <li><span class="mono">П. 1.1</span> Вещь должна работать каждый день и не надоедать.</li>
-        <li><span class="mono">П. 1.2</span> Никаких акций-ловушек и условий со звёздочкой.</li>
-        <li><span class="mono">П. 1.3</span> Материалы важнее логотипов.</li>
-        <li><span class="mono">П. 1.4</span> Архив пополняется медленно — и это нормально.</li>
-      </ol>
+    <div class="container manifest-grid">
+      <div class="manifest-head">
+        <p class="mono chapter-index"><b>01</b> / Манифест</p>
+        <h2 data-mask>Правила простые и одинаковые для всех</h2>
+      </div>
+      <div class="manifest-body">
+        <p class="manifest-quote" data-mask>Материалы важнее <em>логотипов</em></p>
+        <ol class="manifest-list">
+          <li><span class="manifest-no">П. 1.1</span><p>Вещь должна работать каждый день и не надоедать.</p></li>
+          <li><span class="manifest-no">П. 1.2</span><p>Никаких акций-ловушек и условий со звёздочкой.</p></li>
+          <li><span class="manifest-no">П. 1.3</span><p>Архив пополняется медленно — и это нормально.</p></li>
+        </ol>
+      </div>
     </div>
   </section>
 
