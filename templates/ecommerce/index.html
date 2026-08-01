@@ -363,6 +363,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
   #preloader{display:none}
   .mask-line>span{transform:none}
   .product-media{clip-path:none !important}
+  .wipe{display:none}  /* шторки — motion-декор; без JS-анимации они не должны закрывать главы */
   html{scroll-behavior:auto}
 }
 
@@ -1143,6 +1144,31 @@ if (motionOK) {
     let target = 1;
     lenis.on('scroll', ({ velocity }) => { target = Math.min(1 + Math.abs(velocity) / 10, 4); });
     gsap.ticker.add(() => { target += (1 - target) * 0.04; tween.timeScale(target); });
+  });
+  /* --- FLIP-перелёт: образ из 02 летит в первую карточку 04 --- */
+  ScrollTrigger.create({
+    trigger: '[data-chapter="04"]', start: 'top 70%', once: true,
+    onEnter: () => {
+      const src = $('.look .look-media img');
+      const dst = $('.product .product-media');
+      if (!src || !dst) return;
+      const r1 = src.getBoundingClientRect();
+      const r2 = dst.getBoundingClientRect();
+      if (!r1.width || !r2.width) return;
+      const clone = src.cloneNode();
+      Object.assign(clone.style, {
+        position: 'fixed', left: r1.left + 'px', top: r1.top + 'px',
+        width: r1.width + 'px', height: r1.height + 'px',
+        objectFit: 'cover', zIndex: 90, pointerEvents: 'none', margin: '0'
+      });
+      document.body.appendChild(clone);
+      gsap.to(clone, {
+        x: r2.left - r1.left, y: r2.top - r1.top,
+        scaleX: r2.width / r1.width, scaleY: r2.height / r1.height,
+        transformOrigin: '0 0', duration: 0.9, ease: 'power3.inOut',
+        onComplete: () => clone.remove()
+      });
+    }
   });
 }
 

@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """CDP QA для NORDE. Запуск: python3 scripts/qa-norde.py [--shot] [--rm] [--mobile]
-Коды выхода: 0 — все ассерты зелёные и консоль чистая; 1 — есть красные."""
+Коды выхода: 0 — все ассерты зелёные и консоль чистая; 1 — есть красные.
+NB: скриншот ch02-drift (внутри pinned-секции) в headless может содержать артефакт
+растрирования (фикс-слой визуально обрезан) — баг захвата Chrome, не страницы;
+корректность дрейфа гарантирует DOM-проверка «дрейф: пин покрывает вьюпорт…»."""
 import json, subprocess, time, sys, base64, urllib.request, os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -102,20 +105,48 @@ try:
         js("document.querySelector('.drawer-close')?.click(); document.body.style.overflow=''")
         time.sleep(2.8)  # переждать toast (2.4s)
         # captureBeyondViewport ненадёжен в headless (дыры в растре) —
-        # снимаем по вьюпорту, прокручивая к каждой главе и футеру
-        anchors = js("""JSON.stringify(
-          [...document.querySelectorAll('[data-chapter], .footer')].map(e => ({
-            n: 'ch' + (e.dataset.chapter || 'footer'),
-            y: Math.round(e.getBoundingClientRect().top + window.scrollY)
-          })))""") or "[]"
-        for a in json.loads(anchors):
-            js(f"window.scrollTo(0, {a['y']})")
-            time.sleep(5 if a["n"] == "ch03" else 1.2)  # ch03: three.js + GLB по сети
-            shot_view(a["n"])
-            if a["n"] == "ch02":  # кадр внутри pinned-дрейфа лукбука
-                js(f"window.scrollTo(0, {a['y']} + Math.round(window.innerHeight * 1.5))")
+        # снимаем по вьюпорту, прокручивая к каждой главе и футеру.
+        # Якорь вычисляем СВЕЖИМ перед каждым кадром: после загрузки GLB в ch03
+        # меняются высоты и pin-спейсеры, заранее собранные координаты протухают.
+        names = json.loads(js("""JSON.stringify(
+          [...document.querySelectorAll('[data-chapter], .footer')].map(e =>
+            'ch' + (e.dataset.chapter || 'footer')))""") or "[]")
+        for n in names:
+            if n == "chfooter":
+                js("window.scrollTo(0, document.body.scrollHeight)")
+            else:
+                js(f"""(() => {{
+                  const el = document.querySelector('[data-chapter="{n[2:]}"]');
+                  if (el) window.scrollTo(0, Math.round(el.getBoundingClientRect().top + window.scrollY));
+                }})()""")
+            time.sleep(5 if n == "ch03" else 1.6)  # ch03: three.js + GLB по сети; остальным — догнать scrub
+            pos = js("""JSON.stringify({y: Math.round(window.scrollY),
+              at: (document.elementFromPoint(40, 130)?.closest('[data-chapter], .footer') || {}).dataset?.chapter || '?'})""")
+            print(f"  pos {n}: {pos}")
+            shot_view(n)
+            if n == "ch02":  # кадр внутри pinned-дрейфа лукбука
+                js("window.scrollTo(0, Math.round(window.scrollY + window.innerHeight * 1.5))")
                 time.sleep(1.6)
+                pos = js("""JSON.stringify({y: Math.round(window.scrollY),
+                  at: (document.elementFromPoint(40, 130)?.closest('[data-chapter], .footer') || {}).dataset?.chapter || '?'})""")
+                print(f"  pos ch02-drift: {pos}")
                 shot_view("ch02-drift")
+                # NB: в headless-снимке внутри пина возможен артефакт растрирования
+                # (фикс-слой обрезан ниже ~середины) — это баг захвата кадра, не страницы.
+                # Поэтому состояние дрейфа дополнительно верифицируем по DOM:
+                if not RM:
+                    ok = js("""(() => {
+                      const sec = document.querySelector('[data-chapter="02"]');
+                      const r = sec.getBoundingClientRect();
+                      const pinned = getComputedStyle(sec).position === 'fixed';
+                      const covers = r.top <= 1 && r.bottom >= window.innerHeight - 1;
+                      const imgsOk = [...sec.querySelectorAll('.look img')].every(i => i.complete && i.naturalHeight > 0);
+                      const moved = new DOMMatrixReadOnly(getComputedStyle(sec.querySelector('.lookbook-track')).transform).m41 < -50;
+                      return !!(pinned && covers && imgsOk && moved);
+                    })()""")
+                    print(("  PASS " if ok else "  FAIL ") + "дрейф: пин покрывает вьюпорт, трек сдвинут, образы загружены (DOM-уровень)")
+                    if not ok:
+                        failures.append("ch02-drift-dom")
     if errors:
         print("CONSOLE ISSUES:")
         for e in dict.fromkeys(errors):

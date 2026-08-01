@@ -26,6 +26,7 @@
   {"name": "RM: preloader не показан", "mode": "rm", "js": "getComputedStyle(document.querySelector('#preloader')).display", "expect": "none"},
   {"name": "RM: заголовок hero виден сразу", "mode": "rm", "js": "getComputedStyle(document.querySelector('.hero-title')).opacity", "expect": "1"},
   {"name": "RM: без сплита заголовков", "mode": "rm", "js": "document.querySelectorAll('.mask-line').length", "expect": 0},
+  {"name": "RM: шторки скрыты", "mode": "rm", "js": "[...document.querySelectorAll('.wipe')].every(w => getComputedStyle(w).display === 'none')"},
   {"name": "6 образов в ленте", "js": "document.querySelectorAll('.look').length", "expect": 6},
   {"name": "состав лука mono", "js": "document.querySelector('.look .look-items').textContent.includes('Unit n°')"},
   {"name": "«Образ в корзину» добавляет 2 товара", "js": "((n0=document.querySelector('#cartCount').textContent), document.querySelector('.look-add').click(), +document.querySelector('#cartCount').textContent - +n0)", "expect": 2},
