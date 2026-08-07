@@ -304,9 +304,13 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
   transition:filter .6s var(--ease-cine);
 }
 .chapter--dark .look-media img, .anatomy-plate img{
-  filter:grayscale(1) sepia(.22) contrast(1.06) brightness(.95);
+  filter:grayscale(1) sepia(.3) contrast(1.06) brightness(.95);
 }
 .look:hover .look-media img, .product:hover .product-media img{filter:none}
+/* дуотон-система: у приложений свои тонировки поверх базовой sepia — архив не однотонный;
+   цепочка всегда начинается с grayscale(1) sepia(…) (QA + преемственность языка) */
+[data-chapter="materials"] .material-media img{filter:grayscale(1) sepia(.5) hue-rotate(50deg) saturate(.7) contrast(1.05)}
+[data-chapter="journal"] .journal-media img{filter:grayscale(1) sepia(.25) hue-rotate(180deg) saturate(.6) contrast(1.06)}
 
 /* ================= CHAPTER NUMERALS ================= */
 .chapter-numeral{
@@ -459,6 +463,15 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 .material-card h3{font-size:22px}
 .material-card p{font-size:14px; color:var(--ink-2)}
 .material-used{color:var(--ink-3); margin-top:auto; padding-top:10px}
+/* полоса состава: дорисовывается при входе карточки (transform — композитная, once) */
+.mat-bar{margin-top:10px; display:flex; flex-direction:column; gap:6px}
+.mat-bar>span{color:var(--ink-3); font-size:10px; text-transform:uppercase; letter-spacing:.06em}
+.mat-bar-track{display:block; height:2px; background:var(--line)}
+.mat-bar-track b{
+  display:block; height:100%; background:var(--chapter-accent);
+  transform:scaleX(0); transform-origin:left; transition:transform 1.2s var(--ease-cine) .15s;
+}
+.material-card.is-in .mat-bar-track b{transform:scaleX(var(--v, 1))}
 
 /* ================= JOURNAL (Прил. Б) ================= */
 .journal-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:40px}
@@ -504,7 +517,8 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 .terms{}
 .terms td{padding:26px 0; border-top:1px solid var(--line); vertical-align:baseline}
 .terms tr:last-child td{border-bottom:1px solid var(--line)}
-.terms .t-no{width:80px; color:var(--ink-3); font:500 11px/1.6 var(--font-mono); letter-spacing:.06em}
+.terms .t-no{width:80px; color:var(--ink-3); font:500 11px/1.6 var(--font-mono); letter-spacing:.06em; transition:color .3s}
+.terms tr:hover .t-no{color:var(--chapter-accent)}
 .terms .t-name{width:280px; font:400 24px/1.2 var(--font-display)}
 .terms .t-desc{color:var(--ink-2); font-size:15px; max-width:56ch}
 
@@ -673,7 +687,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
   .anatomy-caps li{position:static; max-width:none; text-align:left}
   .anatomy-caps li::before{display:none}
   .anatomy-stage{height:auto; min-height:0; flex-direction:column; padding:40px 0}
-  .material-media img, .journal-media img{filter:none}
+  .material-media img, .journal-media img{filter:none !important}  /* !important: перебивает per-chapter дуотоны */
   #cursor{display:none !important}
   .look-counter{display:none}  /* pinned-сцена выключена — счётчик статичен и не нужен */
 }
@@ -929,6 +943,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
           <h3>Шерсть Merino 21 мкм</h3>
           <p>Италия, Бьелла. Гребенная пряжа, супервош — можно стирать дома.</p>
           <p class="mono material-used">Используется в: Unit n°041</p>
+          <div class="mat-bar" aria-hidden="true"><span class="mono">Натуральное волокно · 100%</span><i class="mat-bar-track"><b style="--v:1"></b></i></div>
         </article>
         <article class="material-card">
           <figure class="material-media"><img src="https://images.unsplash.com/photo-1537832816519-689ad163238b?w=800&q=80" alt="Переработанный текстиль — макро" loading="lazy"></figure>
@@ -936,6 +951,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
           <h3>Переработанный текстиль</h3>
           <p>Волокно из собранных ПЭТ-бутылок, 87% состава. Плотное плетение ripstop.</p>
           <p class="mono material-used">Используется в: NR-0202</p>
+          <div class="mat-bar" aria-hidden="true"><span class="mono">Переработанное волокно · 87%</span><i class="mat-bar-track"><b style="--v:.87"></b></i></div>
         </article>
         <article class="material-card">
           <figure class="material-media"><img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80" alt="Органический хлопок 240 г/м²" loading="lazy"></figure>
@@ -943,6 +959,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
           <h3>Органический хлопок 240</h3>
           <p>Турция, Измир. Плотность 240 г/м² — футболка держит форму годами.</p>
           <p class="mono material-used">Используется в: Unit n°042</p>
+          <div class="mat-bar" aria-hidden="true"><span class="mono">Плотность · 240 г/м²</span><i class="mat-bar-track"><b style="--v:.8"></b></i></div>
         </article>
         <article class="material-card">
           <figure class="material-media"><img src="https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=800&q=80" alt="Букле 74% шерсть — макро" loading="lazy"></figure>
@@ -950,6 +967,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
           <h3>Букле 74% шерсть</h3>
           <p>Фактурная обивка с петельной поверхностью. Съёмные чехлы, стирка 30°.</p>
           <p class="mono material-used">Используется в: Unit n°048</p>
+          <div class="mat-bar" aria-hidden="true"><span class="mono">Шерсть в составе · 74%</span><i class="mat-bar-track"><b style="--v:.74"></b></i></div>
         </article>
       </div>
     </div>
@@ -1338,6 +1356,18 @@ const mediaIO = 'IntersectionObserver' in window
     }, { threshold: 0.15, rootMargin: '0px 0px 200px 0px' })
   : null;
 
+/* полосы состава материалов: дорисовка при входе (CSS transition — работает и без motion-стека) */
+const matBarIO = 'IntersectionObserver' in window
+  ? new IntersectionObserver(entries => {
+      entries.forEach(en => {
+        if (!en.isIntersecting) return;
+        en.target.classList.add('is-in');
+        matBarIO.unobserve(en.target);
+      });
+    }, { threshold: 0.3 })
+  : null;
+$$('.material-card').forEach(c => matBarIO ? matBarIO.observe(c) : c.classList.add('is-in'));
+
 function renderCatalog() {
   const items = PRODUCTS
     .filter(p => state.filter === 'all' || p.cat === state.filter)
@@ -1384,6 +1414,8 @@ function updateCatalog() {
       gsap.fromTo(c, { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: .45, delay: i * 0.03, ease: 'power2.out' });
     }
   });
+  /* картотека «пересчитывается»: цены расшифровываются после перестановки/фильтрации */
+  $$('.product-price', grid).forEach((el, i) => setTimeout(() => scrambleText(el, el.textContent.trim(), 500), i * 45));
 }
 
 grid.addEventListener('click', e => {
@@ -2044,6 +2076,16 @@ if (motionOK) {
       }
     }
   }
+
+  /* --- нумерация «расшифровывается» при входе: П.1.1–1.3 (01) и У.5.1–5.4 (05) --- */
+  ['.manifest-no', '.terms .t-no'].forEach(sel => {
+    const els = $$(sel);
+    if (!els.length) return;
+    ScrollTrigger.create({
+      trigger: els[0].closest('section'), start: 'top 70%', once: true,
+      onEnter: () => els.forEach((el, i) => setTimeout(() => scrambleText(el, el.textContent.trim(), 700), i * 140))
+    });
+  });
 
   /* --- preloader: один раз за сессию --- */
   const pre = $('#preloader');
