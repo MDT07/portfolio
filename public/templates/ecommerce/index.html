@@ -56,6 +56,16 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 .grain{
   position:fixed; inset:0; z-index:999; pointer-events:none; opacity:.05;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation:grainShift .9s steps(1) infinite;
+}
+/* живое плёночное зерно: дискретные прыжки кадра; в RM глушится глобальным animation:none */
+@keyframes grainShift{
+  0%{background-position:0 0}
+  20%{background-position:-80px 60px}
+  40%{background-position:60px -100px}
+  60%{background-position:-60px -60px}
+  80%{background-position:100px 40px}
+  100%{background-position:0 0}
 }
 
 /* ================= CURSOR ================= */
@@ -101,6 +111,9 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 .wordmark{font:400 22px/1 var(--font-display); letter-spacing:.12em}
 .header-meta{color:var(--ink-3)}
 .cart-btn{display:flex; align-items:center; gap:8px; font:500 11px/1 var(--font-mono); text-transform:uppercase; letter-spacing:.06em}
+.header-actions{display:flex; align-items:center; gap:22px}
+.opis-btn{font:500 11px/1 var(--font-mono); text-transform:uppercase; letter-spacing:.06em; color:var(--ink-2)}
+.opis-btn:hover{color:var(--ink)}
 .cart-count{
   min-width:20px; height:20px; padding:0 5px; border-radius:10px;
   background:var(--brass); color:var(--paper);
@@ -192,6 +205,45 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 }
 .look-interlude .li-no{font:400 clamp(2.4rem,4vw,3.6rem)/1 var(--font-display); color:var(--chapter-accent)}
 .look-interlude p:last-child{font-size:15px; line-height:1.6}
+/* счётчик активного образа в углу pinned-сцены (scramble при смене) */
+.look-counter{
+  position:absolute; right:40px; bottom:32px; z-index:4; pointer-events:none;
+  display:flex; align-items:baseline; gap:10px;
+}
+.look-counter #lookCur{font:400 clamp(2.6rem,5vw,4.2rem)/1 var(--font-display); color:var(--chapter-accent)}
+.look-counter .lc-total{font:500 11px/1 var(--font-mono); letter-spacing:.08em; color:var(--dark-ink-2)}
+
+/* ================= OPIS (полноэкранная опись-оглавление) ================= */
+.opis{
+  position:fixed; inset:0; z-index:250; display:none; overflow:auto;
+  background:var(--dark); color:var(--dark-ink); padding:96px 0 64px;
+}
+.opis.open{display:block}
+.opis .chapter-index{color:var(--dark-ink-2)}
+.opis-list{display:flex; flex-direction:column; margin-top:40px}
+.opis-item{
+  display:flex; align-items:baseline; gap:22px; width:100%; text-align:left;
+  padding:16px 0; border-bottom:1px solid var(--dark-line);
+  font:400 clamp(1.9rem,4.6vw,3.4rem)/1.05 var(--font-display); color:var(--dark-ink);
+  transition:padding-left .3s var(--ease-cine), color .3s;
+}
+.opis-item:first-child{border-top:1px solid var(--dark-line)}
+.opis-item:hover, .opis-item:focus-visible{padding-left:16px; color:#fff}
+.opis-no{font:500 12px/1 var(--font-mono); letter-spacing:.08em; color:var(--opis-c, var(--brass))}
+.opis-foot{margin-top:36px; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--dark-ink-2)}
+.opis-close{
+  position:absolute; top:26px; right:28px;
+  font:500 11px/1 var(--font-mono); text-transform:uppercase; letter-spacing:.06em; color:var(--dark-ink-2);
+}
+.opis-close:hover{color:var(--dark-ink)}
+.opis-preview{
+  position:fixed; right:8vw; top:50%; transform:translateY(-50%); z-index:251;
+  width:min(22vw,260px); aspect-ratio:3/4; object-fit:cover; pointer-events:none;
+  filter:grayscale(1) sepia(.22) contrast(1.06) brightness(1.02);
+  opacity:0; transition:opacity .25s;
+}
+.opis-preview.on{opacity:1}
+@media (max-width:720px){ .opis{padding:80px 0 48px} .opis-preview{display:none} }
 
 /* ================= LOOK STAGE (детальный просмотр образа) ================= */
 .look-stage{
@@ -388,6 +440,15 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
   filter:grayscale(1) sepia(.22) contrast(1.06) brightness(1.02);
   transition:filter 1s var(--ease-cine)}
 .material-card.is-color .material-media img{filter:none}
+/* лупа цвета (pointer:fine): поверх дуотона — цветная копия с маской-кругом за курсором */
+.material-media{position:relative}
+.material-media .lens{
+  position:absolute; inset:0; filter:none !important; transition:opacity .3s !important;
+  pointer-events:none; opacity:0;
+  -webkit-mask-image:radial-gradient(circle 90px at var(--mx,50%) var(--my,50%), #000 97%, transparent 100%);
+  mask-image:radial-gradient(circle 90px at var(--mx,50%) var(--my,50%), #000 97%, transparent 100%);
+}
+.material-card.lens-on .lens{opacity:1}
 .material-no{color:var(--chapter-accent)}
 .material-card h3{font-size:22px}
 .material-card p{font-size:14px; color:var(--ink-2)}
@@ -471,6 +532,8 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 .footer-cols h4{font:500 11px/1 var(--font-mono); text-transform:uppercase; letter-spacing:.08em; color:var(--ink-3); margin-bottom:16px}
 .footer-cols ul{list-style:none; display:flex; flex-direction:column; gap:10px; font-size:15px}
 .footer-note{text-align:center; color:var(--ink-3); padding:0 40px 32px}
+.print-btn{color:var(--ink-3); text-decoration:underline; text-underline-offset:4px; text-transform:inherit; letter-spacing:inherit; font:inherit}
+.print-btn:hover{color:var(--ink)}
 
 /* ================= MODAL (quick-view) ================= */
 .modal{
@@ -550,12 +613,22 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 .drawer-line.mono{font-size:11px}
 .drawer-total{display:flex; justify-content:space-between; font:500 14px/1 var(--font-mono); padding-top:10px; border-top:1px solid var(--line)}
 .drawer-note{font-size:12px; color:var(--ink-3)}
-.act{padding:32px 28px; display:flex; flex-direction:column; gap:18px; overflow:auto}
+.act{padding:32px 28px; display:flex; flex-direction:column; gap:18px; overflow:auto; position:relative}
 .act h3{font-size:28px}
 .act-no{color:var(--brass)}
 .act-list{list-style:none; border-top:1px solid var(--line)}
 .act-list li{display:flex; justify-content:space-between; gap:16px; padding:12px 0; border-bottom:1px solid var(--line); font-size:14px}
 .act-list .mono{color:var(--ink-3)}
+/* штамп «принято в архив»: двойной круг + текст по окружности, пигмент главы, наклон −8° */
+.act-stamp{
+  position:absolute; top:16px; right:18px; width:104px; height:104px;
+  color:var(--chapter-accent); transform:rotate(-8deg); pointer-events:none;
+}
+.act-stamp text{font:500 9px var(--font-mono); letter-spacing:.18em; text-transform:uppercase; fill:currentColor}
+.act-stamp .stamp-no{font-size:14px; letter-spacing:.04em}
+.club-stamp{width:96px; height:96px; color:var(--brass); transform:rotate(-8deg); margin-top:20px; pointer-events:none}
+.club-stamp text{font:500 9px var(--font-mono); letter-spacing:.18em; text-transform:uppercase; fill:currentColor}
+.club-stamp .stamp-no{font-size:14px; letter-spacing:.04em}
 
 /* ================= TOAST ================= */
 .toast{
@@ -596,6 +669,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
   .anatomy-stage{height:auto; min-height:0; flex-direction:column; padding:40px 0}
   .material-media img, .journal-media img{filter:none}
   #cursor{display:none !important}
+  .look-counter{display:none}  /* pinned-сцена выключена — счётчик статичен и не нужен */
 }
 
 /* ================= RESPONSIVE ================= */
@@ -620,6 +694,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
   .modal-media{aspect-ratio:16/10}
   .footer-cols{grid-template-columns:1fr; gap:28px; padding:40px 20px}
   .look-media{width:74vw; height:auto}
+  .look-counter{right:20px; bottom:20px}
   .look-interlude{max-width:60vw; padding:0 6vw}
   .header-meta{display:none}
   .anatomy-frame{width:74vw}
@@ -629,6 +704,33 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
   .anatomy-caps li::before{display:none}
   .studio{padding:80px 0 0}
   .materials-row{grid-template-columns:1fr}
+}
+
+/* ================= PRINT: выпуск честно печатается как листовка ================= */
+@media print{
+  .grain, #cursor, #preloader, .header, .marquee, .wipe, .look-counter, .toast,
+  .opis, .opis-preview, .drawer, .overlay, .modal, .look-stage, .lens,
+  .club-form, .print-btn, .product-add, .footer-cols{display:none !important}
+  html, body{background:#fff !important}
+  .chapter{padding:48px 0; overflow:visible}
+  .chapter--dark{background:#fff !important; color:#1C1917 !important}
+  .chapter--dark .chapter-index, .chapter--dark .look .mono, .look-interlude, .look-interlude p:last-child{color:#44403C !important}
+  .chapter-numeral{display:none}
+  .hero{min-height:0}
+  .hero-media{position:static; width:100%; height:auto; margin:24px 0}
+  .pin-spacer{height:auto !important; padding:0 !important}
+  .lookbook-viewport{overflow:visible !important}
+  .lookbook-track{transform:none !important; flex-wrap:wrap; gap:24px}
+  .look, .look figcaption, .look-interlude{transform:none !important}
+  .look-media{height:auto; width:min(320px, 100%)}
+  .anatomy-stage{height:auto; min-height:0; flex-direction:column; padding:24px 0}
+  .anatomy-caps{position:static; display:flex; flex-direction:column; gap:8px; padding:16px 0 0}
+  .anatomy-caps li{position:static; max-width:none; text-align:left}
+  .anatomy-caps li::before{display:none}
+  .material-media img, .journal-media img, .look img, .product-media img, .hero-media img, .studio-photo{filter:none !important}
+  .footer-wordmark{font-size:22vw}
+  .footer-note{padding-bottom:16px}
+  @page{margin:16mm}
 }
 </style>
 </head>
@@ -642,12 +744,35 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 <header class="header" id="header">
   <div class="container header-row">
     <a class="wordmark" href="#top">NORDE</a>
-    <p class="mono header-meta">Архив · Выпуск 01 · Осень 2026</p>
-    <button class="cart-btn" id="cartBtn" type="button" aria-label="Открыть корзину">
-      Корзина <span class="cart-count hidden" id="cartCount">0</span>
-    </button>
+    <p class="mono header-meta">Архив · Выпуск 01 · 59.93°N 30.33°E · МСК <span id="mskClock">--:--:--</span></p>
+    <div class="header-actions">
+      <button class="opis-btn" id="opisBtn" type="button" aria-haspopup="dialog" aria-controls="opis">Опись ↓</button>
+      <button class="cart-btn" id="cartBtn" type="button" aria-label="Открыть корзину">
+        Корзина <span class="cart-count hidden" id="cartCount">0</span>
+      </button>
+    </div>
   </div>
 </header>
+
+<!-- ================= OPIS (оглавление выпуска) ================= -->
+<div class="opis" id="opis" role="dialog" aria-modal="true" aria-label="Опись — оглавление выпуска" aria-hidden="true">
+  <button class="opis-close" id="opisClose" type="button">Закрыть ×</button>
+  <div class="container">
+    <p class="mono chapter-index"><b>§</b> / Опись выпуска</p>
+    <nav class="opis-list" id="opisList" aria-label="Главы выпуска">
+      <button class="opis-item" type="button" data-target='[data-chapter="00"]' data-preview=".hero-media img" style="--opis-c:#A16207"><span class="opis-no">00</span>Обложка</button>
+      <button class="opis-item" type="button" data-target='[data-chapter="01"]' data-preview=".journal-card:nth-child(3) .journal-media img" style="--opis-c:#3F6212"><span class="opis-no">01</span>Манифест</button>
+      <button class="opis-item" type="button" data-target='[data-chapter="02"]' data-preview="#lookTrack .look img" style="--opis-c:#FB7185"><span class="opis-no">02</span>Лукбук</button>
+      <button class="opis-item" type="button" data-target='[data-chapter="03"]' data-preview=".studio-photo.is-active" style="--opis-c:#67E8F9"><span class="opis-no">03</span>Planche</button>
+      <button class="opis-item" type="button" data-target='[data-chapter="materials"]' data-preview=".material-media img" style="--opis-c:#4D7C0F"><span class="opis-no">А</span>Материалы</button>
+      <button class="opis-item" type="button" data-target='[data-chapter="04"]' data-preview=".product-media img" style="--opis-c:#9A3412"><span class="opis-no">04</span>Архив единиц</button>
+      <button class="opis-item" type="button" data-target='[data-chapter="journal"]' data-preview=".journal-media img" style="--opis-c:#475569"><span class="opis-no">Б</span>Журнал</button>
+      <button class="opis-item" type="button" data-target='[data-chapter="05"]' style="--opis-c:#A16207"><span class="opis-no">05</span>Условия и клуб</button>
+    </nav>
+    <p class="mono opis-foot">NORDE · Архив · Выпуск 01 — опись обновлена <span id="opisDate"></span></p>
+  </div>
+  <img class="opis-preview" id="opisPreview" alt="" aria-hidden="true">
+</div>
 
 <main id="top">
 
@@ -674,7 +799,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
         <h2 data-mask>Правила простые и одинаковые для всех</h2>
       </div>
       <div class="manifest-body">
-        <p class="manifest-quote" data-mask>Материалы важнее <em>логотипов</em></p>
+        <p class="manifest-quote" data-quote>Материалы важнее <em>логотипов</em></p>
         <ol class="manifest-list">
           <li><span class="manifest-no">П. 1.1</span><p>Вещь должна работать каждый день и не надоедать.</p></li>
           <li><span class="manifest-no">П. 1.2</span><p>Никаких акций-ловушек и условий со звёздочкой.</p></li>
@@ -708,6 +833,8 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
         <figure class="look"><div class="look-media"><img src="https://images.unsplash.com/photo-1445205170230-053b83016050?w=1200&q=80" alt="Look n°2 — Студия" loading="eager"></div><figcaption><p class="mono"><b>Look n°2</b> — Студия</p></figcaption></figure>
       </div>
     </div>
+
+    <p class="look-counter" aria-hidden="true"><span id="lookCur">01</span><span class="lc-total">/ 06</span></p>
 
     <!-- detail-стейдж образа: overlay внутри pinned-секции, не ломает ScrollTrigger -->
     <div class="look-stage" id="lookStage" aria-hidden="true">
@@ -933,7 +1060,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
       </ul>
     </div>
   </div>
-  <p class="mono footer-note">NORDE · Архив · Выпуск 01 — демонстрационный шаблон</p>
+  <p class="mono footer-note">NORDE · Архив · Выпуск 01 — демонстрационный шаблон · <button class="print-btn" id="printBtn" type="button">Распечатать выпуск</button></p>
 </footer>
 
 <!-- ================= QUICK VIEW MODAL ================= -->
@@ -1482,6 +1609,21 @@ document.addEventListener('click', e => {
 });
 
 /* ================= CHECKOUT → АКТ ПРИЁМА ================= */
+/* штамп «принято в архив»: двойной круг, текст по окружности, номер в центре */
+function stampSVG(no, uid, cls) {
+  return `<svg class="${cls}" viewBox="0 0 120 120" aria-hidden="true">
+    <circle cx="60" cy="60" r="55" fill="none" stroke="currentColor" stroke-width="2"/>
+    <circle cx="60" cy="60" r="43" fill="none" stroke="currentColor" stroke-width="1"/>
+    <defs><path id="stampArc${uid}" d="M60,60 m-49,0 a49,49 0 1,1 98,0 a49,49 0 1,1 -98,0" fill="none"/></defs>
+    <text><textPath href="#stampArc${uid}">NORDE · АРХИВ · ВЫПУСК 01 · ПРИНЯТО ·</textPath></text>
+    <text class="stamp-no" x="60" y="66" text-anchor="middle">№ ${no}</text>
+  </svg>`;
+}
+function stampIn(el, animate = true) {
+  if (el && animate && window.gsap && !reducedMotion) {
+    gsap.from(el, { scale: 1.6, opacity: 0, duration: 0.35, ease: 'power4.out', delay: 0.15, transformOrigin: '50% 50%' });
+  }
+}
 function checkout() {
   const t = cartTotals();
   const actNo = Math.floor(1000 + Math.random() * 9000);
@@ -1492,9 +1634,11 @@ function checkout() {
 
   drawerItems.innerHTML = `
     <div class="act">
+      ${stampSVG(actNo, 'act', 'act-stamp')}
       <p class="mono act-no">Акт приёма n°${actNo}</p>
       <ul class="act-list">${rows}</ul>
     </div>`;
+  stampIn($('.act-stamp', drawerItems));
   drawerFoot.innerHTML = `
     <div class="drawer-row"><span>Доставка</span><span class="mono">${t.delivery === 0 ? 'Бесплатно' : fmt(t.delivery)}</span></div>
     <div class="drawer-row total"><span>Итого</span><span class="mono">${fmt(t.total)}</span></div>
@@ -1700,16 +1844,38 @@ const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 8);
 window.addEventListener('scroll', onScroll, { passive: true });
 onScroll();
 
+/* --- живые часы МСК в шапке (контент, не анимация — работает и в RM) --- */
+const mskClock = $('#mskClock');
+if (mskClock) {
+  const tickClock = () => {
+    mskClock.textContent = new Date().toLocaleTimeString('ru-RU', {
+      timeZone: 'Europe/Moscow', hour: '2-digit', minute: '2-digit', second: '2-digit'
+    });
+  };
+  tickClock();
+  setInterval(tickClock, 1000);
+}
+
 /* ================= CLUB (05.5) ================= */
 const clubForm = $('#clubForm');
 const clubMsg = $('#clubMsg');
 const clubBtn = $('#clubBtn');
+
+function addClubStamp(no, animate) {
+  if ($('.club-stamp')) return;
+  const wrap = document.createElement('div');
+  wrap.innerHTML = stampSVG(no, 'club', 'club-stamp');
+  const stampEl = wrap.firstElementChild;
+  clubMsg.after(stampEl);
+  stampIn(stampEl, animate);
+}
 
 function clubDone(no) {
   clubBtn.disabled = true;
   clubBtn.textContent = 'Вы в списке';
   clubMsg.className = 'mono club-msg ok';
   clubMsg.textContent = `Вы в списке — № ${no}. Ждите письма в день пополнения.`;
+  addClubStamp(no, false);
 }
 
 if (sessionStorage.getItem('norde-club-no')) {
@@ -1735,8 +1901,67 @@ clubForm.addEventListener('submit', e => {
     scrambleText(clubMsg, `Вы в списке — № ${no}. Ждите письма в день пополнения.`, 700);
     clubMsg.className = 'mono club-msg ok';
     clubBtn.textContent = 'Вы в списке';
+    addClubStamp(no, true);
   }, 700);
 });
+
+/* ================= OPIS (оглавление выпуска) ================= */
+const opis = $('#opis');
+const opisBtn = $('#opisBtn');
+const opisPreview = $('#opisPreview');
+let opisOpenFlag = false;
+
+function openOpis() {
+  if (opisOpenFlag) return;
+  opisOpenFlag = true;
+  opis.classList.add('open');
+  opis.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+  if (window.__lenis) window.__lenis.stop();
+  const first = $('.opis-item', opis);
+  if (first) first.focus();
+  if (window.gsap && !reducedMotion) {
+    gsap.fromTo(opis, { opacity: 0 }, { opacity: 1, duration: 0.35, ease: 'power2.out' });
+    gsap.fromTo($$('.opis-item', opis), { y: 26, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.55, ease: 'power3.out', stagger: 0.05, delay: 0.06, clearProps: 'all' });
+  }
+}
+function closeOpis() {
+  if (!opisOpenFlag) return;
+  opisOpenFlag = false;
+  opis.classList.remove('open');
+  opis.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+  if (window.__lenis) window.__lenis.start();
+  opisPreview.classList.remove('on');
+  opisBtn.focus();
+}
+opisBtn.addEventListener('click', openOpis);
+$('#opisClose').addEventListener('click', closeOpis);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeOpis(); });
+$$('.opis-item', opis).forEach(item => {
+  item.addEventListener('click', () => {
+    const target = item.dataset.target && $(item.dataset.target);
+    closeOpis();
+    if (target) scrollToEl(target);
+  });
+  const showPreview = () => {
+    if (!matchMedia('(pointer:fine)').matches || !item.dataset.preview) return;
+    const img = $(item.dataset.preview);
+    if (!img || !img.src) return;
+    if (opisPreview.src !== img.src) opisPreview.src = img.src;
+    opisPreview.classList.add('on');
+  };
+  item.addEventListener('pointerenter', showPreview);
+  item.addEventListener('focus', showPreview);
+  item.addEventListener('pointerleave', () => opisPreview.classList.remove('on'));
+});
+/* живая дата описи в подвале */
+const opisDate = $('#opisDate');
+if (opisDate) opisDate.textContent = new Date().toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+/* ================= PRINT ================= */
+$('#printBtn').addEventListener('click', () => window.print());
 
 /* ================= INIT ================= */
 renderCatalog();
@@ -1798,6 +2023,21 @@ if (motionOK) {
     if (heroWords) gsap.to(heroWords, { yPercent: 0, duration: 1.2, ease: 'power3.out', stagger: 0.07, delay: 0.1 });
   };
 
+  /* --- глава 01: pull-quote проявляется по словам от скролла (читается скоростью листания) --- */
+  {
+    const quote = $('[data-quote]');
+    if (quote) {
+      const qWords = splitWords(quote);
+      if (qWords.length) {
+        gsap.set(qWords, { opacity: 0.15 });
+        gsap.to(qWords, {
+          opacity: 1, ease: 'none', stagger: 0.08,
+          scrollTrigger: { trigger: quote, start: 'top 85%', end: 'top 35%', scrub: true }
+        });
+      }
+    }
+  }
+
   /* --- preloader: один раз за сессию --- */
   const pre = $('#preloader');
   if (pre && sessionStorage.getItem('norde-loaded') !== '1') {
@@ -1834,8 +2074,30 @@ if (motionOK) {
     if (img) tl.fromTo(img, { scale: 1.12 }, { scale: 1, duration: 1, ease: 'power3.inOut' }, 0);
   });
 
-  /* --- материалы и журнал: проявление grayscale→color при входе --- */
-  ScrollTrigger.batch('.material-card, .journal-card', {
+  /* --- Прил. А/Б: проявление grayscale→color при входе; на pointer:fine материалы вместо этого получают лупу цвета --- */
+  const lensMode = matchMedia('(pointer:fine)').matches;
+  if (lensMode) {
+    $$('.material-card').forEach(card => {
+      const media = $('.material-media', card);
+      const img = media && $('img', media);
+      if (!img) return;
+      const lens = img.cloneNode();
+      lens.className = 'lens';
+      lens.alt = '';
+      lens.setAttribute('aria-hidden', 'true');
+      lens.loading = 'eager';
+      media.appendChild(lens);
+      media.dataset.cursor = 'Цвет под лупой';
+      media.addEventListener('pointermove', e => {
+        const r = media.getBoundingClientRect();
+        media.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+        media.style.setProperty('--my', (e.clientY - r.top) + 'px');
+      });
+      media.addEventListener('pointerenter', () => card.classList.add('lens-on'));
+      media.addEventListener('pointerleave', () => card.classList.remove('lens-on'));
+    });
+  }
+  ScrollTrigger.batch(lensMode ? '.journal-card' : '.material-card, .journal-card', {
     start: 'top 78%', once: true,
     onEnter: els => els.forEach((el, i) => setTimeout(() => el.classList.add('is-color'), i * 120))
   });
@@ -1864,6 +2126,8 @@ if (motionOK) {
     viewport.style.overflow = 'hidden';
     const dist = () => Math.max(0, lookTrack.scrollWidth - viewport.clientWidth);
     const setSkew = gsap.quickSetter(lookTrack, 'skewX', 'deg');
+    const lookCurEl = $('#lookCur');
+    let lookCur = 1;
     gsap.to(lookTrack, {
       x: () => -dist(), ease: 'none',
       scrollTrigger: {
@@ -1873,8 +2137,19 @@ if (motionOK) {
         onUpdate: st => {
           $('#lookProgress').style.transform = `scaleX(${st.progress})`;
           setSkew(-gsap.utils.clamp(-4, 4, st.getVelocity() / 250));
+          const cur = Math.min(LOOKS.length, Math.floor(st.progress * LOOKS.length) + 1);
+          if (lookCurEl && cur !== lookCur) { lookCur = cur; scrambleText(lookCurEl, '0' + cur, 350); }
         },
         onScrubComplete: () => gsap.to(lookTrack, { skewX: 0, duration: 0.4, ease: 'power2.out' })
+      }
+    });
+    /* двухскоростной дрейф: интерлюдии и подписи плывут в противофазе (+6% дистанции) — глубина внутри сцены */
+    gsap.to('.look-interlude, .look figcaption', {
+      x: () => dist() * 0.06, ease: 'none',
+      scrollTrigger: {
+        trigger: '[data-chapter="02"]', start: 'top top',
+        end: () => '+=' + (dist() + innerHeight * 0.6),
+        scrub: 0.6, invalidateOnRefresh: true
       }
     });
   }
