@@ -806,7 +806,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
       <button class="opis-item" type="button" data-target='[data-chapter="02"]' data-preview="#lookTrack .look img" style="--opis-c:#FB7185"><span class="opis-no">02</span>Лукбук</button>
       <button class="opis-item" type="button" data-target='[data-chapter="03"]' data-preview=".studio-photo.is-active" style="--opis-c:#67E8F9"><span class="opis-no">03</span>Planche</button>
       <button class="opis-item" type="button" data-target='[data-chapter="materials"]' data-preview=".material-media img" style="--opis-c:#4D7C0F"><span class="opis-no">А</span>Материалы</button>
-      <button class="opis-item" type="button" data-target='[data-chapter="04"]' data-preview=".product-media img" style="--opis-c:#9A3412"><span class="opis-no">04</span>Архив единиц</button>
+      <button class="opis-item" type="button" data-target='[data-chapter="04"]' data-preview=".ledger-sheet img" style="--opis-c:#9A3412"><span class="opis-no">04</span>Архив единиц</button>
       <button class="opis-item" type="button" data-target='[data-chapter="journal"]' data-preview=".journal-media img" style="--opis-c:#475569"><span class="opis-no">Б</span>Журнал</button>
       <button class="opis-item" type="button" data-target='[data-chapter="05"]' style="--opis-c:#A16207"><span class="opis-no">05</span>Условия и клуб</button>
     </nav>
@@ -1000,30 +1000,15 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
     <span class="chapter-numeral" aria-hidden="true">04</span>
     <div class="container">
       <p class="mono chapter-index"><b>04</b> / Архив единиц</p>
-      <h2 data-mask>Картотека</h2>
-      <div class="filters" id="filters" role="group" aria-label="Рубрикатор">
-        <button class="filter-btn active" type="button" data-filter="all" aria-pressed="true">Все</button>
-        <button class="filter-btn" type="button" data-filter="odezhda" aria-pressed="false">Одежда</button>
-        <button class="filter-btn" type="button" data-filter="obuv" aria-pressed="false">Обувь</button>
-        <button class="filter-btn" type="button" data-filter="aksessuary" aria-pressed="false">Аксессуары</button>
-        <button class="filter-btn" type="button" data-filter="dom" aria-pressed="false">Дом</button>
-      </div>
-      <div class="sort-row mono" id="sortRow">
-        <span class="sort-label">Показано <b id="shownCount" aria-live="polite">8</b> из 8</span>
-        <div class="sort-btns" role="group" aria-label="Сортировка">
-          <button class="sort-btn active" type="button" data-sort="featured" aria-pressed="true">Как в архиве</button>
-          <button class="sort-btn" type="button" data-sort="price-asc" aria-pressed="false">Цена ↑</button>
-          <button class="sort-btn" type="button" data-sort="price-desc" aria-pressed="false">Цена ↓</button>
-          <button class="sort-btn" type="button" data-sort="new" aria-pressed="false">Новизна</button>
-        </div>
-      </div>
-      <div class="catalog-grid" id="catalogGrid"></div>
-      <p class="catalog-note">Все единицы производятся малыми партиями. Если вашего размера нет — напишите, пошьём под заказ за три недели.</p>
+      <h2 data-mask>Инвентарная ведомость</h2>
+      <p class="ledger-sub">Восемь единиц хранения выпуска 01 — каждая занесена в реестр с инвентарным номером. Строка раскрывается в лист единицы.</p>
+      <ol class="ledger" id="ledger"></ol>
+      <p class="ledger-note">Все единицы производятся малыми партиями. Если вашего размера нет — напишите, пошьём под заказ за три недели.</p>
     </div>
   </section>
 
   <div class="marquee" aria-hidden="true"><div class="marquee-inner">
-    <span>Единицы хранения — Unit n°041–048 — Картотека —&nbsp;</span><span>Единицы хранения — Unit n°041–048 — Картотека —&nbsp;</span>
+    <span>Единицы хранения — Unit n°041–048 — Ведомость —&nbsp;</span><span>Единицы хранения — Unit n°041–048 — Ведомость —&nbsp;</span>
   </div></div>
 
   <!-- ================= ПРИЛ. Б — ЖУРНАЛ ================= -->
@@ -1079,12 +1064,9 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
   <div class="footer-wordmark" aria-hidden="true">NORDE</div>
   <div class="container footer-cols">
     <div>
-      <h4>Картотека</h4>
+      <h4>Ведомость</h4>
       <ul>
-        <li><a href="#top" data-goto-filter="odezhda">Одежда</a></li>
-        <li><a href="#top" data-goto-filter="obuv">Обувь</a></li>
-        <li><a href="#top" data-goto-filter="aksessuary">Аксессуары</a></li>
-        <li><a href="#top" data-goto-filter="dom">Дом</a></li>
+        <li><a href="#top" data-goto-ledger>Архив единиц</a></li>
       </ul>
     </div>
     <div>
