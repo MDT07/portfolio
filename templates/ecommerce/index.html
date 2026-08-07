@@ -1244,19 +1244,13 @@ const ARTICLES = [
 ];
 
 /* ================= STATE ================= */
-const state = { filter: 'all', sort: 'featured', cart: [], qvId: null, qvSize: null };
+const state = { cart: [] };
 
 /* ================= HELPERS ================= */
 const $ = (sel, root) => (root || document).querySelector(sel);
 const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
 const fmt = n => new Intl.NumberFormat('ru-RU').format(n) + ' ₽';
 const byId = id => PRODUCTS.find(p => p.id === id) || null;
-const SORTS = {
-  'featured':  (a, b) => a.id - b.id,
-  'price-asc': (a, b) => a.price - b.price,
-  'price-desc':(a, b) => b.price - a.price,
-  'new':       (a, b) => b.added - a.added
-};
 /* scramble-перебор: цифры/буквы «расшифровываются» в финальный текст */
 const SCRAMBLE_CHARS = '0123456789—·ABCDEF';
 function scrambleText(el, finalText, dur = 800) {
@@ -1324,8 +1318,8 @@ function toast(msg) {
   toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2400);
 }
 
-/* ================= CATALOG ================= */
-const grid = $('#catalogGrid');
+/* ================= LEDGER ================= */
+const ledgerEl = $('#ledger');
 
 /* полосы состава материалов: дорисовка при входе (CSS transition — работает и без motion-стека) */
 const matBarIO = 'IntersectionObserver' in window
@@ -1339,99 +1333,82 @@ const matBarIO = 'IntersectionObserver' in window
   : null;
 $$('.material-card').forEach(c => matBarIO ? matBarIO.observe(c) : c.classList.add('is-in'));
 
-function renderCatalog() {
-  const items = PRODUCTS
-    .filter(p => state.filter === 'all' || p.cat === state.filter)
-    .sort(SORTS[state.sort] || SORTS.featured);
-  $('#shownCount').textContent = items.length;
-  grid.innerHTML = items.map(p => `
-    <article class="product" data-id="${p.id}" tabindex="0" role="button" aria-label="${p.name} — быстрый просмотр">
-      <div class="product-media" data-cursor="Быстрый просмотр">
-        <img src="${p.img}" alt="${p.name}" loading="lazy">
-        ${p.stock != null && p.stock <= 3 ? `<span class="product-stock mono">Осталось ${p.stock}</span>` : ''}
-        <button class="product-quick" type="button" data-id="${p.id}">Быстрый просмотр</button>
-      </div>
-      <div class="product-info">
-        <span class="product-unit mono">${p.unit} — ${CATS[p.cat]}</span>
-        <h3>${p.name}</h3>
-        <p class="product-material">${p.material}</p>
-        <div class="product-row">
-          <div class="product-price mono">${fmt(p.price)}</div>
-          <div class="product-dots">${p.colors.map(c => `<i style="--c:${c}"></i>`).join('')}</div>
+function renderLedger() {
+  ledgerEl.innerHTML = PRODUCTS.map(p => `
+    <li class="ledger-item">
+      <button class="ledger-row" type="button" aria-expanded="false" aria-controls="sheet-${p.id}" data-id="${p.id}" data-cursor="Открыть лист">
+        <span class="l-no mono">${p.unit}</span>
+        <span class="l-name">${p.name}</span>
+        <span class="l-cat mono">${CATS[p.cat]}</span>
+        <span class="l-price mono">${fmt(p.price)}</span>
+        <span class="l-hint mono" aria-hidden="true">Лист →</span>
+      </button>
+      <div class="ledger-sheet" id="sheet-${p.id}">
+        <div class="sheet-inner">
+          <figure class="sheet-media"><img src="${p.img}" alt="${p.name}" loading="lazy"></figure>
+          <div class="sheet-body">
+            <p class="sheet-meta mono">${CATS[p.cat]} · ${p.unit}</p>
+            <h3>${p.name}</h3>
+            <p class="sheet-price mono" data-final="${fmt(p.price)}">${fmt(p.price)}</p>
+            <p class="sheet-desc">${p.desc}</p>
+            <div class="sheet-detail mono">${p.meta}</div>
+            <div class="sizes" role="group" aria-label="Размер">
+              ${SIZES[p.cat].map(s => `<button class="size-btn${s === SIZES[p.cat][Math.floor(SIZES[p.cat].length / 2)] ? ' active' : ''}" type="button" data-size="${s}">${s}</button>`).join('')}
+            </div>
+            <button class="btn btn-primary sheet-add" type="button" data-add="${p.id}">+ в корзину</button>
+          </div>
         </div>
       </div>
-      <button class="product-add mono" type="button" data-add="${p.id}">+ в корзину</button>
-    </article>`).join('');
+    </li>`).join('');
 }
+renderLedger();
 
-/* перестановка/фильтрация с ручным FLIP: ушедшие позиции → новые */
-function updateCatalog() {
-  const first = new Map($$('.product', grid).map(c => [c.dataset.id, c.getBoundingClientRect()]));
-  renderCatalog();
-  if (reducedMotion || !window.gsap) return;
-  $$('.product', grid).forEach((c, i) => {
-    const f = first.get(c.dataset.id);
-    const l = c.getBoundingClientRect();
-    if (f && (Math.round(f.left) !== Math.round(l.left) || Math.round(f.top) !== Math.round(l.top))) {
-      gsap.fromTo(c, { x: f.left - l.left, y: f.top - l.top }, { x: 0, y: 0, duration: .5, ease: 'power3.out' });
-    } else if (!f) {
-      gsap.fromTo(c, { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: .45, delay: i * 0.03, ease: 'power2.out' });
-    }
+function toggleSheet(id) {
+  const row = $(`.ledger-row[data-id="${id}"]`, ledgerEl);
+  const sheet = $('#sheet-' + id);
+  if (!row || !sheet) return;
+  const opening = !sheet.classList.contains('open');
+  /* аккордеон: сначала свернуть текущий лист */
+  $$('.ledger-sheet.open', ledgerEl).forEach(s => {
+    s.classList.remove('open');
+    const r = $(`.ledger-row[aria-controls="${s.id}"]`, ledgerEl);
+    if (r) { r.setAttribute('aria-expanded', 'false'); $('.l-hint', r).textContent = 'Лист →'; }
   });
-  /* картотека «пересчитывается»: цены расшифровываются после перестановки/фильтрации */
-  $$('.product-price', grid).forEach((el, i) => setTimeout(() => scrambleText(el, el.textContent.trim(), 500), i * 45));
+  if (!opening) return;
+  sheet.classList.add('open');
+  row.setAttribute('aria-expanded', 'true');
+  $('.l-hint', row).textContent = 'Свернуть ↑';
+  const price = $('.sheet-price', sheet);
+  if (price && window.gsap && !reducedMotion) scrambleText(price, price.dataset.final, 500);
 }
 
-grid.addEventListener('click', e => {
-  const addBtn = e.target.closest('[data-add]');
+ledgerEl.addEventListener('click', e => {
+  const addBtn = e.target.closest('.sheet-add');
   if (addBtn) {
     const p = byId(+addBtn.dataset.add);
-    const sizes = SIZES[p.cat];
-    addToCart(p.id, sizes[Math.floor(sizes.length / 2)]);
+    if (!p) return;
+    const sheet = addBtn.closest('.ledger-sheet');
+    const sizeEl = $('.size-btn.active', sheet);
+    const size = sizeEl ? sizeEl.dataset.size : SIZES[p.cat][Math.floor(SIZES[p.cat].length / 2)];
+    addToCart(p.id, size);
     flyToCart(addBtn);
     toast(`${p.unit} → Корзина`);
+    openDrawer();
     return;
   }
-  const card = e.target.closest('.product');
-  if (card) openQuickView(parseInt(card.dataset.id, 10));
-});
-grid.addEventListener('keydown', e => {
-  if (e.key !== 'Enter' && e.key !== ' ') return;
-  if (e.target.closest('button')) return;  /* у нативных кнопок своё поведение */
-  const card = e.target.closest('.product');
-  if (!card) return;
-  e.preventDefault();
-  openQuickView(parseInt(card.dataset.id, 10));
+  const sizeBtn = e.target.closest('.size-btn');
+  if (sizeBtn) {
+    $$('.size-btn', sizeBtn.closest('.sizes')).forEach(b => b.classList.toggle('active', b === sizeBtn));
+    return;
+  }
+  const row = e.target.closest('.ledger-row');
+  if (row) toggleSheet(+row.dataset.id);
 });
 
-/* ================= FILTERS ================= */
-const filtersWrap = $('#filters');
-function setFilter(cat) {
-  state.filter = cat;
-  $$('.filter-btn', filtersWrap).forEach(b => {
-    const on = b.dataset.filter === cat;
-    b.classList.toggle('active', on);
-    b.setAttribute('aria-pressed', String(on));
-  });
-  updateCatalog();
-}
-filtersWrap.addEventListener('click', e => {
-  const btn = e.target.closest('.filter-btn');
-  if (btn) setFilter(btn.dataset.filter);
-});
-$('#sortRow') && $$('.sort-btn').forEach(b => b.addEventListener('click', () => {
-  state.sort = b.dataset.sort;
-  $$('.sort-btn').forEach(x => {
-    const on = x === b;
-    x.classList.toggle('active', on);
-    x.setAttribute('aria-pressed', String(on));
-  });
-  updateCatalog();
-}));
-$$('[data-goto-filter]').forEach(a => a.addEventListener('click', e => {
+/* футерная ссылка «Архив единиц» */
+$$('[data-goto-ledger]').forEach(a => a.addEventListener('click', e => {
   e.preventDefault();  /* иначе нативный прыжок к #top гонится с анимацией скролла */
-  setFilter(a.dataset.gotoFilter);
-  scrollToEl($('#filters'));
+  scrollToEl($('[data-chapter="04"]'));
 }));
 
 /* ================= FOCUS (диалоги: перенос внутрь, возврат, Tab-ловушка) ================= */
@@ -1629,7 +1606,7 @@ function closeDrawer() {
   drawer.classList.remove('open');
   overlay.classList.remove('open');
   drawer.setAttribute('aria-hidden', 'true');
-  if (!modal.classList.contains('open')) document.body.style.overflow = '';
+  document.body.style.overflow = '';
   focusBack();
 }
 
@@ -1863,19 +1840,18 @@ journalOverlay.addEventListener('click', e => {
 renderJournal();
 
 /* ================= ESC / TAB / HEADER ================= */
-/* Esc глотает только верхний открытый слой: опись (z250) → стейдж/журнал → модалка → drawer */
+/* Esc глотает только верхний открытый слой: опись (z250) → стейдж/журнал → drawer */
 document.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
   if (opisOpenFlag) closeOpis();
   else if (lookStage.classList.contains('open')) closeLookStage();
   else if (journalOverlay.classList.contains('open')) closeArticle();
-  else if (modal.classList.contains('open')) closeQuickView();
   else if (drawer.classList.contains('open')) closeDrawer();
 });
 /* Tab-ловушка в активном диалоге */
 document.addEventListener('keydown', e => {
   if (e.key !== 'Tab') return;
-  const open = [lookStage, modal, drawer].find(el => el.classList.contains('open'));
+  const open = [lookStage, drawer].find(el => el.classList.contains('open'));
   if (open) trapTab(e, open);
 });
 
