@@ -21,7 +21,7 @@
   --dark:#161412; --dark-ink:#EDE9E4; --dark-ink-2:rgba(237,233,228,.62);
   --dark-line:rgba(237,233,228,.16);
   --error:#DC2626;
-  --chapter-accent:#A16207;  /* пигмент текущей главы; скрабится GSAP на границах */
+  --chapter-accent:#A16207;  /* пигмент текущей главы; статично на каждой [data-accent], на :root — дискретная смена при входе */
   --font-display:"Playfair Display",Georgia,serif;
   --font-ui:"Manrope",system-ui,sans-serif;
   --font-mono:"JetBrains Mono",monospace;
@@ -54,18 +54,20 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 
 /* ================= GRAIN ================= */
 .grain{
-  position:fixed; inset:0; z-index:999; pointer-events:none; opacity:.05;
+  position:fixed; inset:-140px; z-index:999; pointer-events:none; opacity:.05;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  will-change:transform;
   animation:grainShift .9s steps(1) infinite;
 }
-/* живое плёночное зерно: дискретные прыжки кадра; в RM глушится глобальным animation:none */
+/* живое плёночное зерно: прыжки через transform (композитор, без репейнта вьюпорта);
+   слой увеличен (inset:-140px), чтобы сдвиг не оголял края; в RM глушится глобальным animation:none */
 @keyframes grainShift{
-  0%{background-position:0 0}
-  20%{background-position:-80px 60px}
-  40%{background-position:60px -100px}
-  60%{background-position:-60px -60px}
-  80%{background-position:100px 40px}
-  100%{background-position:0 0}
+  0%{transform:translate3d(0,0,0)}
+  20%{transform:translate3d(-60px,40px,0)}
+  40%{transform:translate3d(45px,-70px,0)}
+  60%{transform:translate3d(-45px,-45px,0)}
+  80%{transform:translate3d(70px,30px,0)}
+  100%{transform:translate3d(0,0,0)}
 }
 
 /* ================= CURSOR ================= */
@@ -76,7 +78,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 #cursor.on{display:flex}
 #cursor::before{
   content:""; position:absolute; left:-5px; top:-5px; width:10px; height:10px;
-  border-radius:50%; background:var(--chapter-accent); transition:transform .25s;
+  border-radius:50%; background:var(--chapter-accent); transition:transform .25s, background-color .45s;
 }
 #cursor.big::before{transform:scale(2.4)}
 #cursorLabel{
@@ -103,8 +105,9 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
   transition:background .3s, border-color .3s;
 }
 .header.scrolled{
-  background:rgba(250,250,249,.82);
-  -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+  /* без backdrop-filter: blur(12px) над прокручиваемым контентом — фильтр-проход каждый
+     кадр скролла; на бумаге #FAFAF9 плотный rgba читается почти так же, но бесплатен */
+  background:rgba(250,250,249,.94);
   border-bottom-color:var(--line);
 }
 .header-row{display:flex; align-items:center; justify-content:space-between; height:64px}
@@ -129,6 +132,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 .hero .container{position:relative; z-index:1; width:100%}
 .hero-media{
   position:absolute; top:-8%; right:0; bottom:auto; height:116%; width:55%; margin:0; z-index:0;
+  will-change:transform;  /* скраб-параллакс yPercent: выносим в свой композитный слой */
 }
 .hero-media::after{  /* напыление бумаги: заголовок заходит на фото и читается */
   content:""; position:absolute; inset:0;
@@ -300,9 +304,13 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
   transition:filter .6s var(--ease-cine);
 }
 .chapter--dark .look-media img, .anatomy-plate img{
-  filter:grayscale(1) sepia(.22) contrast(1.06) brightness(.95);
+  filter:grayscale(1) sepia(.3) contrast(1.06) brightness(.95);
 }
 .look:hover .look-media img, .product:hover .product-media img{filter:none}
+/* дуотон-система: у приложений свои тонировки поверх базовой sepia — архив не однотонный;
+   цепочка всегда начинается с grayscale(1) sepia(…) (QA + преемственность языка) */
+[data-chapter="materials"] .material-media img{filter:grayscale(1) sepia(.5) hue-rotate(50deg) saturate(.7) contrast(1.05)}
+[data-chapter="journal"] .journal-media img{filter:grayscale(1) sepia(.25) hue-rotate(180deg) saturate(.6) contrast(1.06)}
 
 /* ================= CHAPTER NUMERALS ================= */
 .chapter-numeral{
@@ -399,10 +407,12 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 .product-media{position:relative; overflow:hidden; aspect-ratio:4/5; margin:12px 16px 0;
   clip-path:inset(0 0 100% 0); transition:clip-path .9s var(--ease-cine)}
 .product-media.is-in{clip-path:inset(0 0 0 0)}
-/* зум — единственный владелец transform у img: CSS, без translateY карточки и без gsap */
+/* зум убран структурно: изображения статичны, transform у карточек нет вообще;
+   вместо scale — opacity-кроссфейд на второй кадр товара (img2) */
 .product-media img{width:100%; height:100%; object-fit:cover;
-  transition:filter .6s var(--ease-cine), transform .8s cubic-bezier(.22,1,.36,1)}
-.product:hover .product-media img{transform:scale(1.06)}
+  transition:filter .6s var(--ease-cine), opacity .5s var(--ease-cine)}
+.product-media img.alt{position:absolute; inset:0; opacity:0; filter:none}
+.product:hover .product-media img.alt, .product:focus-visible .product-media img.alt{opacity:1}
 .product-stock{
   position:absolute; top:10px; left:10px; padding:6px 10px;
   background:var(--paper); color:var(--chapter-accent);
@@ -453,6 +463,15 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 .material-card h3{font-size:22px}
 .material-card p{font-size:14px; color:var(--ink-2)}
 .material-used{color:var(--ink-3); margin-top:auto; padding-top:10px}
+/* полоса состава: дорисовывается при входе карточки (transform — композитная, once) */
+.mat-bar{margin-top:10px; display:flex; flex-direction:column; gap:6px}
+.mat-bar>span{color:var(--ink-3); font-size:10px; text-transform:uppercase; letter-spacing:.06em}
+.mat-bar-track{display:block; height:2px; background:var(--line)}
+.mat-bar-track b{
+  display:block; height:100%; background:var(--chapter-accent);
+  transform:scaleX(0); transform-origin:left; transition:transform 1.2s var(--ease-cine) .15s;
+}
+.material-card.is-in .mat-bar-track b{transform:scaleX(var(--v, 1))}
 
 /* ================= JOURNAL (Прил. Б) ================= */
 .journal-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:40px}
@@ -498,7 +517,8 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 .terms{}
 .terms td{padding:26px 0; border-top:1px solid var(--line); vertical-align:baseline}
 .terms tr:last-child td{border-bottom:1px solid var(--line)}
-.terms .t-no{width:80px; color:var(--ink-3); font:500 11px/1.6 var(--font-mono); letter-spacing:.06em}
+.terms .t-no{width:80px; color:var(--ink-3); font:500 11px/1.6 var(--font-mono); letter-spacing:.06em; transition:color .3s}
+.terms tr:hover .t-no{color:var(--chapter-accent)}
 .terms .t-name{width:280px; font:400 24px/1.2 var(--font-display)}
 .terms .t-desc{color:var(--ink-2); font-size:15px; max-width:56ch}
 
@@ -650,7 +670,14 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 .mask-line{display:inline-block; overflow:hidden; vertical-align:bottom}
 .mask-line>span{display:inline-block}
 /* начальное состояние yPercent:115 задаёт только gsap — CSS-transform здесь конфликтует с кэшем gsap */
-.wipe{position:absolute; inset:0; z-index:5; pointer-events:none; background:var(--wipe-c, var(--paper))}
+.wipe{position:absolute; inset:0; z-index:5; pointer-events:none; background:var(--wipe-c, var(--paper));
+  display:flex; align-items:center; justify-content:center}
+/* шторка как титульный лист главы: номер и название пигментным постером, уезжает вместе со шторкой */
+.wipe::after{
+  content:attr(data-title); color:var(--paper); opacity:.92;
+  font:400 clamp(2rem,6vw,4.6rem)/1.05 var(--font-display); letter-spacing:.02em; text-align:center; padding:0 20px;
+}
+.wipe:empty:not([data-title])::after{content:none}
 .wipe--dark{background:var(--wipe-c, var(--dark))}
 [data-clip]{overflow:hidden}
 [data-clip] img{will-change:transform}
@@ -667,7 +694,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
   .anatomy-caps li{position:static; max-width:none; text-align:left}
   .anatomy-caps li::before{display:none}
   .anatomy-stage{height:auto; min-height:0; flex-direction:column; padding:40px 0}
-  .material-media img, .journal-media img{filter:none}
+  .material-media img, .journal-media img{filter:none !important}  /* !important: перебивает per-chapter дуотоны */
   #cursor{display:none !important}
   .look-counter{display:none}  /* pinned-сцена выключена — счётчик статичен и не нужен */
 }
@@ -769,7 +796,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
       <button class="opis-item" type="button" data-target='[data-chapter="journal"]' data-preview=".journal-media img" style="--opis-c:#475569"><span class="opis-no">Б</span>Журнал</button>
       <button class="opis-item" type="button" data-target='[data-chapter="05"]' style="--opis-c:#A16207"><span class="opis-no">05</span>Условия и клуб</button>
     </nav>
-    <p class="mono opis-foot">NORDE · Архив · Выпуск 01 — опись обновлена <span id="opisDate"></span></p>
+    <p class="mono opis-foot">NORDE · Архив · Выпуск 01 — опись обновлена <span id="opisDate"></span> · сборка k4</p>
   </div>
   <img class="opis-preview" id="opisPreview" alt="" aria-hidden="true">
 </div>
@@ -815,7 +842,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 
   <!-- ================= 02 ЛУКБУК ================= -->
   <section class="chapter chapter--dark" data-chapter="02" data-accent="#FB7185">
-    <div class="wipe" style="--wipe-c:#9F1239" aria-hidden="true"></div>
+    <div class="wipe" style="--wipe-c:#9F1239" data-title="02 · Лукбук" aria-hidden="true"></div>
     <span class="chapter-numeral" aria-hidden="true">02</span>
     <div class="container">
       <div class="lookbook-head">
@@ -855,7 +882,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
   </div></div>
 
   <section class="chapter chapter--dark" data-chapter="03" data-accent="#67E8F9">
-    <div class="wipe" style="--wipe-c:#155E75" aria-hidden="true"></div>
+    <div class="wipe" style="--wipe-c:#155E75" data-title="03 · Planche" aria-hidden="true"></div>
     <span class="chapter-numeral" aria-hidden="true">03</span>
     <div class="container">
       <p class="mono chapter-index"><b>03</b> / Planche</p>
@@ -923,6 +950,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
           <h3>Шерсть Merino 21 мкм</h3>
           <p>Италия, Бьелла. Гребенная пряжа, супервош — можно стирать дома.</p>
           <p class="mono material-used">Используется в: Unit n°041</p>
+          <div class="mat-bar" aria-hidden="true"><span class="mono">Натуральное волокно · 100%</span><i class="mat-bar-track"><b style="--v:1"></b></i></div>
         </article>
         <article class="material-card">
           <figure class="material-media"><img src="https://images.unsplash.com/photo-1537832816519-689ad163238b?w=800&q=80" alt="Переработанный текстиль — макро" loading="lazy"></figure>
@@ -930,6 +958,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
           <h3>Переработанный текстиль</h3>
           <p>Волокно из собранных ПЭТ-бутылок, 87% состава. Плотное плетение ripstop.</p>
           <p class="mono material-used">Используется в: NR-0202</p>
+          <div class="mat-bar" aria-hidden="true"><span class="mono">Переработанное волокно · 87%</span><i class="mat-bar-track"><b style="--v:.87"></b></i></div>
         </article>
         <article class="material-card">
           <figure class="material-media"><img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80" alt="Органический хлопок 240 г/м²" loading="lazy"></figure>
@@ -937,6 +966,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
           <h3>Органический хлопок 240</h3>
           <p>Турция, Измир. Плотность 240 г/м² — футболка держит форму годами.</p>
           <p class="mono material-used">Используется в: Unit n°042</p>
+          <div class="mat-bar" aria-hidden="true"><span class="mono">Плотность · 240 г/м²</span><i class="mat-bar-track"><b style="--v:.8"></b></i></div>
         </article>
         <article class="material-card">
           <figure class="material-media"><img src="https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=800&q=80" alt="Букле 74% шерсть — макро" loading="lazy"></figure>
@@ -944,6 +974,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
           <h3>Букле 74% шерсть</h3>
           <p>Фактурная обивка с петельной поверхностью. Съёмные чехлы, стирка 30°.</p>
           <p class="mono material-used">Используется в: Unit n°048</p>
+          <div class="mat-bar" aria-hidden="true"><span class="mono">Шерсть в составе · 74%</span><i class="mat-bar-track"><b style="--v:.74"></b></i></div>
         </article>
       </div>
     </div>
@@ -951,7 +982,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 
   <!-- ================= 04 АРХИВ ЕДИНИЦ ================= -->
   <section class="chapter" data-chapter="04" data-accent="#9A3412">
-    <div class="wipe wipe--dark" style="--wipe-c:#9A3412" aria-hidden="true"></div>
+    <div class="wipe wipe--dark" style="--wipe-c:#9A3412" data-title="04 · Архив единиц" aria-hidden="true"></div>
     <span class="chapter-numeral" aria-hidden="true">04</span>
     <div class="container">
       <p class="mono chapter-index"><b>04</b> / Архив единиц</p>
@@ -1332,6 +1363,18 @@ const mediaIO = 'IntersectionObserver' in window
     }, { threshold: 0.15, rootMargin: '0px 0px 200px 0px' })
   : null;
 
+/* полосы состава материалов: дорисовка при входе (CSS transition — работает и без motion-стека) */
+const matBarIO = 'IntersectionObserver' in window
+  ? new IntersectionObserver(entries => {
+      entries.forEach(en => {
+        if (!en.isIntersecting) return;
+        en.target.classList.add('is-in');
+        matBarIO.unobserve(en.target);
+      });
+    }, { threshold: 0.3 })
+  : null;
+$$('.material-card').forEach(c => matBarIO ? matBarIO.observe(c) : c.classList.add('is-in'));
+
 function renderCatalog() {
   const items = PRODUCTS
     .filter(p => state.filter === 'all' || p.cat === state.filter)
@@ -1341,6 +1384,7 @@ function renderCatalog() {
     <article class="product" data-id="${p.id}" tabindex="0" role="button" aria-label="${p.name} — быстрый просмотр">
       <div class="product-media" data-cursor="Быстрый просмотр">
         <img src="${p.img}" alt="${p.name}" loading="lazy">
+        ${p.img2 ? `<img class="alt" src="${p.img2}" alt="" aria-hidden="true" loading="lazy">` : ''}
         ${p.stock != null && p.stock <= 3 ? `<span class="product-stock mono">Осталось ${p.stock}</span>` : ''}
         <button class="product-quick" type="button" data-id="${p.id}">Быстрый просмотр</button>
       </div>
@@ -1377,6 +1421,8 @@ function updateCatalog() {
       gsap.fromTo(c, { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: .45, delay: i * 0.03, ease: 'power2.out' });
     }
   });
+  /* картотека «пересчитывается»: цены расшифровываются после перестановки/фильтрации */
+  $$('.product-price', grid).forEach((el, i) => setTimeout(() => scrambleText(el, el.textContent.trim(), 500), i * 45));
 }
 
 grid.addEventListener('click', e => {
@@ -1793,7 +1839,7 @@ function renderJournal() {
       <p class="mono journal-meta">${a.rubric} · ${a.date}</p>
       <h3>${a.title}</h3>
       <p class="journal-lead">${a.lead}</p>
-      <button class="journal-read mono" type="button" data-article="${a.id}">Читать →</button>
+      <button class="journal-read mono" type="button" data-article="${a.id}" data-cursor="Читать">Читать →</button>
     </article>`).join('');
 }
 
@@ -2038,6 +2084,38 @@ if (motionOK) {
     }
   }
 
+  /* --- нумерация «расшифровывается» при входе: П.1.1–1.3 (01) и У.5.1–5.4 (05) --- */
+  ['.manifest-no', '.terms .t-no'].forEach(sel => {
+    const els = $$(sel);
+    if (!els.length) return;
+    ScrollTrigger.create({
+      trigger: els[0].closest('section'), start: 'top 70%', once: true,
+      onEnter: () => els.forEach((el, i) => setTimeout(() => scrambleText(el, el.textContent.trim(), 700), i * 140))
+    });
+  });
+
+  /* --- подписной жест: кинетическая переменная типографика hero —
+         вес слов заголовка растёт к курсору (Playfair variable wght 400..900) --- */
+  if (matchMedia('(pointer:fine)').matches && heroWords && heroWords.length) {
+    const hero = $('.hero');
+    let hx = 0, hy = 0, raf = 0;
+    const paint = () => {
+      raf = 0;
+      heroWords.forEach(w => {
+        const r = w.getBoundingClientRect();
+        const dx = Math.max(Math.abs(hx - (r.left + r.width / 2)) - r.width / 2, 0);
+        const dy = Math.abs(hy - (r.top + r.height / 2));
+        const t = Math.max(0, 1 - Math.hypot(dx, dy) / 320);
+        w.style.fontVariationSettings = `'wght' ${Math.round(400 + t * 320)}`;
+      });
+    };
+    hero.addEventListener('pointermove', e => {
+      hx = e.clientX; hy = e.clientY;
+      if (!raf) raf = requestAnimationFrame(paint);
+    });
+    hero.addEventListener('pointerleave', () => heroWords.forEach(w => { w.style.fontVariationSettings = ''; }));
+  }
+
   /* --- preloader: один раз за сессию --- */
   const pre = $('#preloader');
   if (pre && sessionStorage.getItem('norde-loaded') !== '1') {
@@ -2110,13 +2188,17 @@ if (motionOK) {
     });
   });
 
-  /* --- пигменты глав: перелив --chapter-accent на границах --- */
+  /* --- пигменты глав: --chapter-accent статично на каждой главе (перф: скраб var на :root
+         инвалидировал стили всего документа каждый кадр), на :root — дискретная смена при входе
+         для глобальных потребителей (точка курсора, штамп акта) --- */
   const accEls = $$('[data-accent]');
-  accEls.forEach((el, i) => {
-    const prev = i ? accEls[i - 1].dataset.accent : '#A16207';
-    gsap.fromTo(document.documentElement, { '--chapter-accent': prev }, {
-      '--chapter-accent': el.dataset.accent, ease: 'none',
-      scrollTrigger: { trigger: el, start: 'top 70%', end: 'top 30%', scrub: true }
+  accEls.forEach(el => {
+    el.style.setProperty('--chapter-accent', el.dataset.accent);
+    ScrollTrigger.create({
+      trigger: el, start: 'top 60%', end: 'bottom 40%',
+      onToggle: self => {
+        if (self.isActive) document.documentElement.style.setProperty('--chapter-accent', el.dataset.accent);
+      }
     });
   });
 
@@ -2126,6 +2208,7 @@ if (motionOK) {
     viewport.style.overflow = 'hidden';
     const dist = () => Math.max(0, lookTrack.scrollWidth - viewport.clientWidth);
     const setSkew = gsap.quickSetter(lookTrack, 'skewX', 'deg');
+    const setProgress = gsap.quickSetter('#lookProgress', 'scaleX');
     const lookCurEl = $('#lookCur');
     let lookCur = 1;
     gsap.to(lookTrack, {
@@ -2135,7 +2218,7 @@ if (motionOK) {
         end: () => '+=' + (dist() + innerHeight * 0.6),
         pin: true, scrub: 0.6, anticipatePin: true, invalidateOnRefresh: true,
         onUpdate: st => {
-          $('#lookProgress').style.transform = `scaleX(${st.progress})`;
+          setProgress(st.progress);
           setSkew(-gsap.utils.clamp(-4, 4, st.getVelocity() / 250));
           const cur = Math.min(LOOKS.length, Math.floor(st.progress * LOOKS.length) + 1);
           if (lookCurEl && cur !== lookCur) { lookCur = cur; scrambleText(lookCurEl, '0' + cur, 350); }
@@ -2187,18 +2270,34 @@ if (motionOK) {
     });
   }
 
-  /* --- velocity-marquee --- */
-  $$('.marquee-inner').forEach(inner => {
+  /* --- velocity-marquee: пауза вне вьюпорта + один ticker на все ленты --- */
+  const marqueeTweens = $$('.marquee-inner').map(inner => {
     const tween = gsap.to(inner, { xPercent: -50, ease: 'none', duration: 18, repeat: -1 });
-    let target = 1;
-    lenis.on('scroll', ({ velocity }) => { target = Math.min(1 + Math.abs(velocity) / 10, 4); });
-    gsap.ticker.add(() => { target += (1 - target) * 0.04; tween.timeScale(target); });
+    ScrollTrigger.create({
+      trigger: inner.parentElement, start: 'top bottom', end: 'bottom top',
+      onToggle: self => tween.paused(!self.isActive)
+    });
+    return { tween, target: 1 };
   });
+  lenis.on('scroll', ({ velocity }) => {
+    const t = Math.min(1 + Math.abs(velocity) / 10, 4);
+    marqueeTweens.forEach(m => { m.target = t; });
+  });
+  gsap.ticker.add(() => marqueeTweens.forEach(m => {
+    m.target += (1 - m.target) * 0.04;
+    m.tween.timeScale(m.target);
+  }));
 
   /* --- кастомный курсор с контекстной подписью (только pointer:fine) --- */
   if (matchMedia('(pointer:fine)').matches) {
     const cur = $('#cursor'), lbl = $('#cursorLabel');
     cur.classList.add('on');
+    /* курсорный язык на 100% интерактива: подписи всем кликабельным без data-cursor */
+    $$('.opis-item').forEach(el => { el.dataset.cursor = 'Перейти в главу'; });
+    $$('.studio-swatches .swatch').forEach(el => { el.dataset.cursor = 'Колорвей'; });
+    $$('.footer-cols a').forEach(el => { el.dataset.cursor = 'Перейти'; });
+    const pb = $('#printBtn'); if (pb) pb.dataset.cursor = 'Печать';
+    const cb = $('#clubBtn'); if (cb) cb.dataset.cursor = 'Записаться';
     const cx = gsap.quickTo(cur, 'x', { duration: .35, ease: 'power3' });
     const cy = gsap.quickTo(cur, 'y', { duration: .35, ease: 'power3' });
     addEventListener('mousemove', e => { cx(e.clientX); cy(e.clientY); });
