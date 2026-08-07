@@ -35,68 +35,37 @@
   "js": "!!document.querySelector('.grain')"
  },
  {
-  "name": "каталог: 8 карточек картотеки",
-  "js": "document.querySelectorAll('.product').length",
+  "name": "ведомость: 8 строк",
+  "js": "document.querySelectorAll('.ledger-row').length",
   "expect": 8
  },
  {
-  "name": "инвентарный номер на карточке",
-  "js": "document.querySelector('.product .product-unit').textContent.includes('Unit n°')"
+  "name": "строка: unit, имя, рубрика, цена",
+  "js": "(() => { const r=document.querySelector('.ledger-row'); return r.querySelector('.l-no').textContent.includes('Unit n°') && r.querySelector('.l-name').textContent.length>2 && r.querySelector('.l-cat').textContent.length>2 && /\\d/.test(r.querySelector('.l-price').textContent); })()"
  },
  {
-  "name": "каталог: бейдж дефицита",
-  "js": "!!document.querySelector('.product-stock')"
+  "name": "лист раскрывается: aria-expanded + open",
+  "js": "(() => { const r=document.querySelector('.ledger-row'); r.click(); return r.getAttribute('aria-expanded')==='true' && document.querySelector('#sheet-'+r.dataset.id).classList.contains('open'); })()"
  },
  {
-  "name": "каталог: материал на карточке",
-  "js": "!!document.querySelector('.product-material')"
+  "name": "лист содержит имя, цену, размеры",
+  "js": "(() => { const s=document.querySelector('.ledger-sheet.open'); return s.querySelector('h3').textContent.length>2 && /\\d/.test(s.querySelector('.sheet-price').textContent) && s.querySelectorAll('.size-btn').length>=2; })()"
  },
  {
-  "name": "каталог: счётчик показано",
-  "js": "document.querySelector('#shownCount') && document.querySelector('#shownCount').textContent",
-  "expect": "8"
+  "name": "аккордеон: один лист за раз",
+  "js": "(() => { const rows=document.querySelectorAll('.ledger-row'); rows[1].click(); return rows[0].getAttribute('aria-expanded')==='false' && rows[1].getAttribute('aria-expanded')==='true' && document.querySelectorAll('.ledger-sheet.open').length===1; })()"
  },
  {
-  "name": "зум-фикс: в CSS карточек нет transform/scale вообще",
-  "js": "(() => { let css=''; for (const s of document.styleSheets) { try { css += [...s.cssRules].map(r=>r.cssText).join('\\n'); } catch(e){} } const rules = (css.match(/\\.product[^{]*\\{[^}]*\\}/g) || []).filter(r => !/quick|dots|stock|add/.test(r)); return !rules.some(r => /[^\\w-]transform\\s*:|[^\\w-]scale\\s*\\(/.test(r)); })()"
+  "name": "выбор размера в листе",
+  "js": "(() => { const btns=document.querySelectorAll('.ledger-sheet.open .size-btn'); btns[2].click(); return btns[2].classList.contains('active'); })()"
  },
  {
-  "name": "каталог: изображения статичны — нет img.alt и clip-path у product-media",
-  "js": "(() => { if (document.querySelector('.product-media img.alt')) return false; let css=''; for (const s of document.styleSheets) { try { css += [...s.cssRules].map(r=>r.cssText).join('\\n'); } catch(e){} } const rules = (css.match(/\\.product-media[^{]*\\{[^}]*\\}/g) || []); return !rules.some(r => /clip-path\\s*:/.test(r)); })()"
+  "name": "в корзину из листа → drawer открыт",
+  "js": "(document.querySelector('.ledger-sheet.open .sheet-add').click(), document.querySelector('#drawer').classList.contains('open'))"
  },
  {
-  "name": "фильтр obuv → 2 товара",
-  "js": "(document.querySelector('[data-filter=obuv]').click(), document.querySelectorAll('.product').length)",
-  "expect": 2
- },
- {
-  "name": "фильтры: aria-pressed отражает активный",
-  "js": "document.querySelector('[data-filter=obuv]').getAttribute('aria-pressed') === 'true' && document.querySelector('[data-filter=all]').getAttribute('aria-pressed') === 'false'"
- },
- {
-  "name": "фильтр all → 8 товаров",
-  "js": "(document.querySelector('[data-filter=all]').click(), document.querySelectorAll('.product').length)",
-  "expect": 8
- },
- {
-  "name": "сортировка цена ↓ меняет порядок",
-  "js": "(() => { const g=()=>[...document.querySelectorAll('.product')].map(p=>p.dataset.id).join(','); const a=g(); document.querySelector('[data-sort=price-desc]').click(); const b=g(); const prices=[...document.querySelectorAll('.product .product-price')].map(e=>parseInt(e.textContent.replace(/\\D/g,''))); const ok=prices.every((v,i,arr)=>!i||arr[i-1]>=v); document.querySelector('[data-sort=featured]').click(); return a!==b && ok; })()"
- },
- {
-  "name": "quick-view открывается с planche-разметкой",
-  "js": "(document.querySelector('.product').click(), document.querySelector('#modal').classList.contains('open') && document.querySelector('#qvUnit').textContent.includes('Unit'))"
- },
- {
-  "name": "quick-view: два фото",
-  "js": "(document.querySelectorAll('.modal-thumb').length >= 2 && document.querySelector('#qvImg').src.length > 0)"
- },
- {
-  "name": "выбор размера",
-  "js": "(document.querySelectorAll('.size-btn')[2].click(), document.querySelectorAll('.size-btn')[2].classList.contains('active'))"
- },
- {
-  "name": "в корзину → drawer открыт",
-  "js": "(document.querySelector('#qvAdd').click(), document.querySelector('#drawer').classList.contains('open'))"
+  "name": "preview за курсором: только pointer:fine и не RM",
+  "js": "(() => { const fine=matchMedia('(pointer:fine)').matches, rm=matchMedia('(prefers-reduced-motion: reduce)').matches; const has=!!document.querySelector('.ledger-preview'); return (fine && !rm) ? has : !has; })()"
  },
  {
   "name": "счётчик корзины = 1",
@@ -133,7 +102,7 @@
   "js": "document.querySelectorAll('#drawerFoot .drawer-line').length === 1 && !!document.querySelector('#drawerFoot .drawer-total')"
  },
  {
-  "name": "«+ в корзину» с карточки",
+  "name": "«+ в корзину» из листа (data-add)",
   "js": "(() => { const n0=+document.querySelector('#cartCount').textContent||0; document.querySelector('[data-add]').click(); return (+document.querySelector('#cartCount').textContent)>n0; })()"
  },
  {
