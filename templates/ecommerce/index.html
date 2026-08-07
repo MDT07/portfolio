@@ -202,6 +202,13 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 }
 .look-interlude .li-no{font:400 clamp(2.4rem,4vw,3.6rem)/1 var(--font-display); color:var(--chapter-accent)}
 .look-interlude p:last-child{font-size:15px; line-height:1.6}
+/* счётчик активного образа в углу pinned-сцены (scramble при смене) */
+.look-counter{
+  position:absolute; right:40px; bottom:32px; z-index:4; pointer-events:none;
+  display:flex; align-items:baseline; gap:10px;
+}
+.look-counter #lookCur{font:400 clamp(2.6rem,5vw,4.2rem)/1 var(--font-display); color:var(--chapter-accent)}
+.look-counter .lc-total{font:500 11px/1 var(--font-mono); letter-spacing:.08em; color:var(--dark-ink-2)}
 
 /* ================= LOOK STAGE (детальный просмотр образа) ================= */
 .look-stage{
@@ -398,6 +405,15 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
   filter:grayscale(1) sepia(.22) contrast(1.06) brightness(1.02);
   transition:filter 1s var(--ease-cine)}
 .material-card.is-color .material-media img{filter:none}
+/* лупа цвета (pointer:fine): поверх дуотона — цветная копия с маской-кругом за курсором */
+.material-media{position:relative}
+.material-media .lens{
+  position:absolute; inset:0; filter:none !important; transition:opacity .3s !important;
+  pointer-events:none; opacity:0;
+  -webkit-mask-image:radial-gradient(circle 90px at var(--mx,50%) var(--my,50%), #000 97%, transparent 100%);
+  mask-image:radial-gradient(circle 90px at var(--mx,50%) var(--my,50%), #000 97%, transparent 100%);
+}
+.material-card.lens-on .lens{opacity:1}
 .material-no{color:var(--chapter-accent)}
 .material-card h3{font-size:22px}
 .material-card p{font-size:14px; color:var(--ink-2)}
@@ -616,6 +632,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
   .anatomy-stage{height:auto; min-height:0; flex-direction:column; padding:40px 0}
   .material-media img, .journal-media img{filter:none}
   #cursor{display:none !important}
+  .look-counter{display:none}  /* pinned-сцена выключена — счётчик статичен и не нужен */
 }
 
 /* ================= RESPONSIVE ================= */
@@ -640,6 +657,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
   .modal-media{aspect-ratio:16/10}
   .footer-cols{grid-template-columns:1fr; gap:28px; padding:40px 20px}
   .look-media{width:74vw; height:auto}
+  .look-counter{right:20px; bottom:20px}
   .look-interlude{max-width:60vw; padding:0 6vw}
   .header-meta{display:none}
   .anatomy-frame{width:74vw}
@@ -728,6 +746,8 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
         <figure class="look"><div class="look-media"><img src="https://images.unsplash.com/photo-1445205170230-053b83016050?w=1200&q=80" alt="Look n°2 — Студия" loading="eager"></div><figcaption><p class="mono"><b>Look n°2</b> — Студия</p></figcaption></figure>
       </div>
     </div>
+
+    <p class="look-counter" aria-hidden="true"><span id="lookCur">01</span><span class="lc-total">/ 06</span></p>
 
     <!-- detail-стейдж образа: overlay внутри pinned-секции, не ломает ScrollTrigger -->
     <div class="look-stage" id="lookStage" aria-hidden="true">
@@ -1909,8 +1929,30 @@ if (motionOK) {
     if (img) tl.fromTo(img, { scale: 1.12 }, { scale: 1, duration: 1, ease: 'power3.inOut' }, 0);
   });
 
-  /* --- материалы и журнал: проявление grayscale→color при входе --- */
-  ScrollTrigger.batch('.material-card, .journal-card', {
+  /* --- Прил. А/Б: проявление grayscale→color при входе; на pointer:fine материалы вместо этого получают лупу цвета --- */
+  const lensMode = matchMedia('(pointer:fine)').matches;
+  if (lensMode) {
+    $$('.material-card').forEach(card => {
+      const media = $('.material-media', card);
+      const img = media && $('img', media);
+      if (!img) return;
+      const lens = img.cloneNode();
+      lens.className = 'lens';
+      lens.alt = '';
+      lens.setAttribute('aria-hidden', 'true');
+      lens.loading = 'eager';
+      media.appendChild(lens);
+      media.dataset.cursor = 'Цвет под лупой';
+      media.addEventListener('pointermove', e => {
+        const r = media.getBoundingClientRect();
+        media.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+        media.style.setProperty('--my', (e.clientY - r.top) + 'px');
+      });
+      media.addEventListener('pointerenter', () => card.classList.add('lens-on'));
+      media.addEventListener('pointerleave', () => card.classList.remove('lens-on'));
+    });
+  }
+  ScrollTrigger.batch(lensMode ? '.journal-card' : '.material-card, .journal-card', {
     start: 'top 78%', once: true,
     onEnter: els => els.forEach((el, i) => setTimeout(() => el.classList.add('is-color'), i * 120))
   });
@@ -1939,6 +1981,8 @@ if (motionOK) {
     viewport.style.overflow = 'hidden';
     const dist = () => Math.max(0, lookTrack.scrollWidth - viewport.clientWidth);
     const setSkew = gsap.quickSetter(lookTrack, 'skewX', 'deg');
+    const lookCurEl = $('#lookCur');
+    let lookCur = 1;
     gsap.to(lookTrack, {
       x: () => -dist(), ease: 'none',
       scrollTrigger: {
@@ -1948,8 +1992,19 @@ if (motionOK) {
         onUpdate: st => {
           $('#lookProgress').style.transform = `scaleX(${st.progress})`;
           setSkew(-gsap.utils.clamp(-4, 4, st.getVelocity() / 250));
+          const cur = Math.min(LOOKS.length, Math.floor(st.progress * LOOKS.length) + 1);
+          if (lookCurEl && cur !== lookCur) { lookCur = cur; scrambleText(lookCurEl, '0' + cur, 350); }
         },
         onScrubComplete: () => gsap.to(lookTrack, { skewX: 0, duration: 0.4, ease: 'power2.out' })
+      }
+    });
+    /* двухскоростной дрейф: интерлюдии и подписи плывут в противофазе (+6% дистанции) — глубина внутри сцены */
+    gsap.to('.look-interlude, .look figcaption', {
+      x: () => dist() * 0.06, ease: 'none',
+      scrollTrigger: {
+        trigger: '[data-chapter="02"]', start: 'top top',
+        end: () => '+=' + (dist() + innerHeight * 0.6),
+        scrub: 0.6, invalidateOnRefresh: true
       }
     });
   }
