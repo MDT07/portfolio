@@ -44,7 +44,7 @@ open index.html        # macOS
 - **Лупа цвета** в «Материалах» (pointer:fine): фото остаётся дуотоном, цвет виден через круг-маску за курсором
 - **«Опись»** — полноэкранное оглавление из шапки: главы крупным Playfair с пигментами, мини-превью главы при наведении, Esc/навигация с Lenis stop/start
 - **Печатная версия** — кнопка «Распечатать выпуск» в футере и @media print: тёмные главы инвертируются в бумагу, пины и декор снимаются, лукбук перестраивается в сетку
-- **Кинетическая типографика hero** — вес слов заголовка растёт к курсору (Playfair variable `wght 400..900`, pointer:fine)
+- **Кинетическая типографика hero** — вес слов заголовка растёт к курсору (Playfair variable `wght 400..900`, pointer:fine); у Playfair подключена ось `ital` — настоящий каллиграфический курсив, не faux-oblique
 - **Шторки-титулы** — wipe-шторки глав несут номер и название («02 · Лукбук») как титульные листы журнала
 - **Курсорный язык 100%** — data-cursor подписи на всём интерактиве: луки, товары, лупа, журнал, опись, свотчи, клуб, печать, футер
 
@@ -55,15 +55,15 @@ open index.html        # macOS
   - пигмент `--chapter-accent` статичен на каждой главе (не скраб на `:root` — тот давал style recalc всего документа каждый кадр);
   - зерно — transform-кадры в собственном композитном слое (не background-position);
   - шапка без `backdrop-filter: blur` (плотный rgba);
-  - marquee с паузой вне вьюпорта и одним ticker'ом; `will-change` у hero-media; quickSetter для прогресса лукбука
-- Образы лукбука грузятся eager + preload первых трёх в `<head>`; `fetchpriority="high"` у hero; остальное — `loading="lazy"`; preconnect к Google Fonts
-- LCP по спотчеку ~0.33 с (локально, headless)
-- aria-pressed у свотчей/фильтров/сортировок, aria-live у счётчика каталога и клуба, Esc и focus-return у модалок, стейджа и описи
+  - marquee с паузой вне вьюпорта и одним ticker'ом; ленты доращиваются копиями до ≥2× ширины контейнера; `will-change` у hero-media; quickSetter для прогресса лукбука
+- Preload LCP-кадра обложки в `<head>` + `fetchpriority="high"` у hero; образы лукбука — `loading="eager"`, остальное — `loading="lazy"`; у всех Unsplash-URL `auto=format` (webp/avif по Accept); preconnect к Google Fonts
+- LCP по спотчеку ~0.5 с (локально, headless)
+- aria-pressed у свотчей/фильтров/сортировок, aria-live у счётчика каталога и клуба; у диалогов (quick-view, drawer, look-stage, опись) — role=dialog/aria-modal, focus-return и Tab-ловушка; Esc закрывает только верхний слой; meta-текст по `--ink-3` ≥ 4.5:1 (WCAG AA)
 - Мобильная раскладка: 390px — лукбук в одну ленту (кадр по ширине), planche в одну колонку, каталог 2 колонки
 
 ## QA
 
-Автотесты через Chrome DevTools Protocol (70 проверок + скриншоты глав):
+Автотесты через Chrome DevTools Protocol (73 проверки + скриншоты глав):
 
 ```bash
 python3 scripts/qa-norde.py            # десктоп 1440px

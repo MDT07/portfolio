@@ -5,18 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NORDE — Архив · Выпуск 01</title>
 <meta name="description" content="Архив-издание скандинавского магазина: одежда и предметы дома без лишнего шума.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="NORDE — Архив · Выпуск 01">
+<meta property="og:description" content="Архив-издание скандинавского магазина: одежда и предметы дома без лишнего шума.">
+<meta property="og:image" content="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&q=80&auto=format">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23FAFAF9'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='20' text-anchor='middle' fill='%231C1917'%3EN%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<!-- preload первых двух образов лукбука: они видны при входе в pinned-дрейф -->
-<link rel="preload" as="image" href="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1200&q=80">
-<link rel="preload" as="image" href="https://images.unsplash.com/photo-1445205170230-053b83016050?w=1200&q=80">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400..900&family=Manrope:wght@400..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- preload LCP-кадра обложки (hero), а не лукбука за 4+ экранов -->
+<link rel="preload" as="image" href="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1600&q=80&auto=format" fetchpriority="high">
+<!-- ital-ось обязательна: без неё браузер рисует синтетический faux-oblique вместо каллиграфического курсива -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Manrope:wght@400..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 /* ================= TOKENS ================= */
 :root{
   --paper:#FAFAF9; --paper-2:#F4F3F1; --ink:#1C1917;
-  --ink-2:rgba(28,25,23,.62); --ink-3:rgba(28,25,23,.38);
+  --ink-2:rgba(28,25,23,.62); --ink-3:rgba(28,25,23,.68);  /* ink-3 — meta-текст: .68 даёт ≥4.5:1 на бумаге (WCAG AA) */
   --line:#D6D3D1; --brass:#A16207; --brass-hover:#8A5506;
   --dark:#161412; --dark-ink:#EDE9E4; --dark-ink-2:rgba(237,233,228,.62);
   --dark-line:rgba(237,233,228,.16);
@@ -216,6 +221,10 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 }
 .look-counter #lookCur{font:400 clamp(2.6rem,5vw,4.2rem)/1 var(--font-display); color:var(--chapter-accent)}
 .look-counter .lc-total{font:500 11px/1 var(--font-mono); letter-spacing:.08em; color:var(--dark-ink-2)}
+/* во время пина секция выше вьюпорта — счётчик переключается на fixed и виден всю сцену;
+   класс .pin ставит JS при инициализации пина, .on — ScrollTrigger на активном отрезке */
+.look-counter.pin{position:fixed; opacity:0; transition:opacity .3s}
+.look-counter.pin.on{opacity:1}
 
 /* ================= OPIS (полноэкранная опись-оглавление) ================= */
 .opis{
@@ -223,6 +232,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
   background:var(--dark); color:var(--dark-ink); padding:96px 0 64px;
 }
 .opis.open{display:block}
+.opis:focus{outline:none}  /* программный фокус контейнера — видимый фокус остаётся на пунктах */
 .opis .chapter-index{color:var(--dark-ink-2)}
 .opis-list{display:flex; flex-direction:column; margin-top:40px}
 .opis-item{
@@ -250,8 +260,10 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 @media (max-width:720px){ .opis{padding:80px 0 48px} .opis-preview{display:none} }
 
 /* ================= LOOK STAGE (детальный просмотр образа) ================= */
+/* fixed по вьюпорту, а не absolute по секции: секция 02 выше 100vh, и кнопка
+   «Закрыть» с margin-top:auto иначе уходит ниже фолда при остановленном скролле */
 .look-stage{
-  position:absolute; inset:0; z-index:6; display:none;
+  position:fixed; inset:0; z-index:180; display:none;
   grid-template-columns:55% 45%; background:var(--dark);
 }
 .look-stage.open{display:grid}
@@ -558,6 +570,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 }
 .modal.open{opacity:1; pointer-events:auto}
 .modal-card{
+  position:relative;  /* крестик позиционируется от карточки, а не от вьюпорта */
   background:var(--paper); width:min(920px,92vw); max-height:88vh; overflow:auto;
   display:grid; grid-template-columns:1fr 1fr; border:1px solid var(--line);
   transform:translateY(16px); transition:transform .35s var(--ease-cine);
@@ -571,7 +584,12 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 .modal-thumb.is-active{opacity:1; border-color:var(--brass)}
 .modal-media{position:relative}
 .modal-body{padding:40px; display:flex; flex-direction:column; gap:16px}
-.modal-close{position:absolute; top:20px; right:24px; font-size:28px; line-height:1; color:var(--paper)}
+/* бумажная подложка: крестик читается и над фото, и над панелью (был paper-на-paper) */
+.modal-close{
+  position:absolute; top:14px; right:14px; z-index:2; width:40px; height:40px;
+  display:grid; place-items:center; font-size:22px; line-height:1; color:var(--ink);
+  background:var(--paper); border:1px solid var(--line);
+}
 .modal-card .tag{font:500 10px/1 var(--font-mono); text-transform:uppercase; letter-spacing:.08em; color:var(--brass)}
 #qvUnit{color:var(--ink-3)}
 .modal-body h3{font-size:34px; line-height:1.1}
@@ -632,8 +650,9 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 .act{padding:32px 28px; display:flex; flex-direction:column; gap:18px; overflow:auto; position:relative}
 .act h3{font-size:28px}
 .act-no{color:var(--brass)}
-.act-list{list-style:none; border-top:1px solid var(--line)}
+.act-list{list-style:none; border-top:1px solid var(--line); margin-top:56px}  /* отступ: первая строка ниже штампа (top:16 + 104px) */
 .act-list li{display:flex; justify-content:space-between; gap:16px; padding:12px 0; border-bottom:1px solid var(--line); font-size:14px}
+.act-list li>span:first-child{white-space:nowrap}  /* «UNIT N°041 × 1» не переносится */
 .act-list .mono{color:var(--ink-3)}
 /* штамп «принято в архив»: двойной круг + текст по окружности, пигмент главы, наклон −8° */
 .act-stamp{
@@ -777,7 +796,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 </header>
 
 <!-- ================= OPIS (оглавление выпуска) ================= -->
-<div class="opis" id="opis" role="dialog" aria-modal="true" aria-label="Опись — оглавление выпуска" aria-hidden="true">
+<div class="opis" id="opis" role="dialog" aria-modal="true" aria-label="Опись — оглавление выпуска" aria-hidden="true" tabindex="-1">
   <button class="opis-close" id="opisClose" type="button">Закрыть ×</button>
   <div class="container">
     <p class="mono chapter-index"><b>§</b> / Опись выпуска</p>
@@ -801,7 +820,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
   <!-- ================= 00 ОБЛОЖКА ================= -->
   <section class="chapter hero" data-chapter="00" data-accent="#A16207">
     <figure class="hero-media" data-clip>
-      <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1600&q=80" alt="Коллекция NORDE — стеллаж с одеждой" fetchpriority="high">
+      <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1600&q=80&auto=format" alt="Коллекция NORDE — стеллаж с одеждой" fetchpriority="high">
     </figure>
     <p class="mono hero-meta-v" aria-hidden="true">Архив · Выпуск 01 · Осень 2026</p>
     <div class="container">
@@ -851,15 +870,15 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
     <div class="lookbook-viewport">
       <div class="lookbook-track" id="lookTrack">
         <!-- статичный fallback (no-JS витрина): JS (renderLooks) заменит на интерактивные карточки -->
-        <figure class="look"><div class="look-media"><img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1200&q=80" alt="Look n°1 — Город" loading="eager"></div><figcaption><p class="mono"><b>Look n°1</b> — Город</p></figcaption></figure>
-        <figure class="look"><div class="look-media"><img src="https://images.unsplash.com/photo-1445205170230-053b83016050?w=1200&q=80" alt="Look n°2 — Студия" loading="eager"></div><figcaption><p class="mono"><b>Look n°2</b> — Студия</p></figcaption></figure>
+        <figure class="look"><div class="look-media"><img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1200&q=80&auto=format" alt="Look n°1 — Город" loading="eager"></div><figcaption><p class="mono"><b>Look n°1</b> — Город</p></figcaption></figure>
+        <figure class="look"><div class="look-media"><img src="https://images.unsplash.com/photo-1445205170230-053b83016050?w=1200&q=80&auto=format" alt="Look n°2 — Студия" loading="eager"></div><figcaption><p class="mono"><b>Look n°2</b> — Студия</p></figcaption></figure>
       </div>
     </div>
 
     <p class="look-counter" aria-hidden="true"><span id="lookCur">01</span><span class="lc-total">/ 06</span></p>
 
-    <!-- detail-стейдж образа: overlay внутри pinned-секции, не ломает ScrollTrigger -->
-    <div class="look-stage" id="lookStage" aria-hidden="true">
+    <!-- detail-стейдж образа: fixed-оверлей по вьюпорту (см. CSS), скролл стопится на время просмотра -->
+    <div class="look-stage" id="lookStage" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Просмотр образа">
       <div class="look-stage-media" id="lookStageMedia"><img id="lsImg" src="" alt=""></div>
       <aside class="look-stage-panel">
         <p class="mono chapter-index"><b id="lsNo">02</b> / Образ</p>
@@ -888,10 +907,10 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
     <div class="anatomy" id="anatomy">
       <div class="anatomy-stage">
         <div class="anatomy-frame">
-          <figure class="anatomy-plate"><img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=1200&q=80" alt="Archive Runner — верх, переработанный текстиль" loading="lazy"></figure>
-          <figure class="anatomy-plate"><img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=1200&q=80" alt="" aria-hidden="true" loading="lazy"></figure>
-          <figure class="anatomy-plate"><img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=1200&q=80" alt="" aria-hidden="true" loading="lazy"></figure>
-          <figure class="anatomy-plate"><img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=1200&q=80" alt="" aria-hidden="true" loading="lazy"></figure>
+          <figure class="anatomy-plate"><img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=1200&q=80&auto=format" alt="Archive Runner — верх, переработанный текстиль" loading="lazy"></figure>
+          <figure class="anatomy-plate"><img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=1200&q=80&auto=format" alt="" aria-hidden="true" loading="lazy"></figure>
+          <figure class="anatomy-plate"><img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=1200&q=80&auto=format" alt="" aria-hidden="true" loading="lazy"></figure>
+          <figure class="anatomy-plate"><img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=1200&q=80&auto=format" alt="" aria-hidden="true" loading="lazy"></figure>
         </div>
         <ul class="anatomy-caps mono">
           <li><b>Верх</b> — переработанный текстиль · 87%</li>
@@ -906,9 +925,9 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
     <div class="studio" id="studio">
       <div class="container studio-grid">
         <div class="studio-media">
-          <img class="studio-photo is-active" data-way="0" src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=1200&q=80" alt="Archive Runner — колорвей Море" loading="eager">
-          <img class="studio-photo" data-way="1" src="https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=1200&q=80" alt="Archive Runner — колорвей Песок" loading="lazy">
-          <img class="studio-photo" data-way="2" src="https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?w=1200&q=80" alt="Archive Runner — колорвей Графит" loading="lazy">
+          <img class="studio-photo is-active" data-way="0" src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=1200&q=80&auto=format" alt="Archive Runner — колорвей Море" loading="eager">
+          <img class="studio-photo" data-way="1" src="https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=1200&q=80&auto=format" alt="Archive Runner — колорвей Песок" loading="lazy">
+          <img class="studio-photo" data-way="2" src="https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?w=1200&q=80&auto=format" alt="Archive Runner — колорвей Графит" loading="lazy">
         </div>
         <div class="studio-side">
           <p class="mono studio-kicker">Студия цвета</p>
@@ -940,7 +959,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
       <h2 data-mask>Из чего сделан архив</h2>
       <div class="materials-row">
         <article class="material-card">
-          <figure class="material-media"><img src="https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=800&q=80" alt="Шерсть Merino 21 мкм — макро" loading="lazy"></figure>
+          <figure class="material-media"><img src="https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=800&q=80&auto=format" alt="Шерсть Merino 21 мкм — макро" loading="lazy"></figure>
           <p class="mono material-no">М.1</p>
           <h3>Шерсть Merino 21 мкм</h3>
           <p>Италия, Бьелла. Гребенная пряжа, супервош — можно стирать дома.</p>
@@ -948,7 +967,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
           <div class="mat-bar" aria-hidden="true"><span class="mono">Натуральное волокно · 100%</span><i class="mat-bar-track"><b style="--v:1"></b></i></div>
         </article>
         <article class="material-card">
-          <figure class="material-media"><img src="https://images.unsplash.com/photo-1537832816519-689ad163238b?w=800&q=80" alt="Переработанный текстиль — макро" loading="lazy"></figure>
+          <figure class="material-media"><img src="https://images.unsplash.com/photo-1537832816519-689ad163238b?w=800&q=80&auto=format" alt="Переработанный текстиль — макро" loading="lazy"></figure>
           <p class="mono material-no">М.2</p>
           <h3>Переработанный текстиль</h3>
           <p>Волокно из собранных ПЭТ-бутылок, 87% состава. Плотное плетение ripstop.</p>
@@ -956,7 +975,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
           <div class="mat-bar" aria-hidden="true"><span class="mono">Переработанное волокно · 87%</span><i class="mat-bar-track"><b style="--v:.87"></b></i></div>
         </article>
         <article class="material-card">
-          <figure class="material-media"><img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80" alt="Органический хлопок 240 г/м²" loading="lazy"></figure>
+          <figure class="material-media"><img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80&auto=format" alt="Органический хлопок 240 г/м²" loading="lazy"></figure>
           <p class="mono material-no">М.3</p>
           <h3>Органический хлопок 240</h3>
           <p>Турция, Измир. Плотность 240 г/м² — футболка держит форму годами.</p>
@@ -964,7 +983,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
           <div class="mat-bar" aria-hidden="true"><span class="mono">Плотность · 240 г/м²</span><i class="mat-bar-track"><b style="--v:.8"></b></i></div>
         </article>
         <article class="material-card">
-          <figure class="material-media"><img src="https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=800&q=80" alt="Букле 74% шерсть — макро" loading="lazy"></figure>
+          <figure class="material-media"><img src="https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=800&q=80&auto=format" alt="Букле 74% шерсть — макро" loading="lazy"></figure>
           <p class="mono material-no">М.4</p>
           <h3>Букле 74% шерсть</h3>
           <p>Фактурная обивка с петельной поверхностью. Съёмные чехлы, стирка 30°.</p>
@@ -983,11 +1002,11 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
       <p class="mono chapter-index"><b>04</b> / Архив единиц</p>
       <h2 data-mask>Картотека</h2>
       <div class="filters" id="filters" role="group" aria-label="Рубрикатор">
-        <button class="filter-btn active" type="button" data-filter="all">Все</button>
-        <button class="filter-btn" type="button" data-filter="odezhda">Одежда</button>
-        <button class="filter-btn" type="button" data-filter="obuv">Обувь</button>
-        <button class="filter-btn" type="button" data-filter="aksessuary">Аксессуары</button>
-        <button class="filter-btn" type="button" data-filter="dom">Дом</button>
+        <button class="filter-btn active" type="button" data-filter="all" aria-pressed="true">Все</button>
+        <button class="filter-btn" type="button" data-filter="odezhda" aria-pressed="false">Одежда</button>
+        <button class="filter-btn" type="button" data-filter="obuv" aria-pressed="false">Обувь</button>
+        <button class="filter-btn" type="button" data-filter="aksessuary" aria-pressed="false">Аксессуары</button>
+        <button class="filter-btn" type="button" data-filter="dom" aria-pressed="false">Дом</button>
       </div>
       <div class="sort-row mono" id="sortRow">
         <span class="sort-label">Показано <b id="shownCount" aria-live="polite">8</b> из 8</span>
@@ -1115,7 +1134,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 
 <!-- ================= CART DRAWER ================= -->
 <div class="overlay" id="overlay" data-close-drawer></div>
-<aside class="drawer" id="drawer" aria-hidden="true" aria-label="Корзина">
+<aside class="drawer" id="drawer" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Корзина">
   <div class="drawer-head">
     <h3>Корзина<span class="mono" id="drawerCount"></span></h3>
     <button class="drawer-close" type="button" data-close-drawer aria-label="Закрыть корзину">×</button>
@@ -1149,64 +1168,64 @@ const FREE_DELIVERY = 10000, DELIVERY_COST = 490;
 const PRODUCTS = [
   {
     id: 1, cat: 'odezhda', name: 'Пальто из шерсти', price: 24900, unit: 'Unit n°041',
-    img: 'https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=800&q=80',
-    img2: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=800&q=80',
+    img: 'https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=800&q=80&auto=format',
+    img2: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=800&q=80&auto=format',
     material: 'шерсть / кашемир', colors: ['#3B3A36', '#7A7163'], stock: 3, added: 8,
     desc: 'Двубортное пальто из итальянской шерсти с добавлением кашемира. Прямой силуэт, скрытая застёжка, подкладка из вискозы. Садится поверх объёмного свитера.',
     meta: 'Состав: <span>80% шерсть, 20% кашемир</span><br>Уход: <span>химчистка</span><br>Артикул: <span>NR-0101</span>'
   },
   {
     id: 2, cat: 'odezhda', name: 'Футболка Heavyweight', price: 3900, unit: 'Unit n°042',
-    img: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80',
-    img2: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=800&q=80',
+    img: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80&auto=format',
+    img2: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=800&q=80&auto=format',
     material: 'органический хлопок 240 г/м²', colors: ['#EDE9E4', '#1C1917', '#5B7553'], stock: null, added: 5,
     desc: 'Плотная футболка из органического хлопка 240 г/м². Слегка свободный крой, усиленный ворот, не скатывается и не вытягивается после стирок.',
     meta: 'Состав: <span>100% органический хлопок</span><br>Уход: <span>стирка 30°</span><br>Артикул: <span>NR-0102</span>'
   },
   {
     id: 3, cat: 'obuv', name: 'Кеды Court Low', price: 14900, unit: 'Unit n°043',
-    img: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800&q=80',
-    img2: 'https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=800&q=80',
+    img: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800&q=80&auto=format',
+    img2: 'https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=800&q=80&auto=format',
     material: 'телятина / каучук Margom', colors: ['#2E4A5B', '#EDE9E4'], stock: null, added: 6,
     desc: 'Минималистичные кеды из гладкой телятины на прошитой маргомной подошве. Съёмная стелька из пробки, никаких логотипов снаружи.',
     meta: 'Верх: <span>натуральная кожа</span><br>Подошва: <span>каучук Margom</span><br>Артикул: <span>NR-0201</span>'
   },
   {
     id: 4, cat: 'obuv', name: 'Кроссовки Retro Runner', price: 11900, unit: 'Unit n°044',
-    img: 'https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=800&q=80',
-    img2: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=800&q=80',
+    img: 'https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=800&q=80&auto=format',
+    img2: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=800&q=80&auto=format',
     material: 'переработанный текстиль / EVA', colors: ['#2E4A5B', '#C9A227', '#1C1917'], stock: 2, added: 7,
     desc: 'Ретро-силуэт из комбинации замши и дышащей сетки. Амортизирующая подошва EVA, светоотражающие элементы на пятке.',
     meta: 'Верх: <span>замша, сетка</span><br>Подошва: <span>EVA</span><br>Артикул: <span>NR-0202</span>'
   },
   {
     id: 5, cat: 'aksessuary', name: 'Рюкзак Canvas 20L', price: 8900, unit: 'Unit n°045',
-    img: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&q=80',
-    img2: 'https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?w=800&q=80',
+    img: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&q=80&auto=format',
+    img2: 'https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?w=800&q=80&auto=format',
     material: 'канвас 18 oz / кожа', colors: ['#5B5248', '#1C1917'], stock: null, added: 3,
     desc: 'Рюкзак из плотного хлопкового канваса с кожаной фурнитурой. Мягкое отделение для ноутбука 15″, водоотталкивающая пропитка.',
     meta: 'Материал: <span>канвас 18 oz, кожа</span><br>Объём: <span>20 л</span><br>Артикул: <span>NR-0301</span>'
   },
   {
     id: 6, cat: 'aksessuary', name: 'Часы Minimal 36', price: 16900, unit: 'Unit n°046',
-    img: 'https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=800&q=80',
-    img2: 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=800&q=80',
+    img: 'https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=800&q=80&auto=format',
+    img2: 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=800&q=80&auto=format',
     material: 'сталь 316L / кожа', colors: ['#8B8B8B', '#1C1917'], stock: 1, added: 4,
     desc: 'Кварцевые часы с корпусом из матовой стали 36 мм и ремешком из натуральной кожи. Сапфировое стекло, влагозащита 5 ATM.',
     meta: 'Корпус: <span>сталь 316L, 36 мм</span><br>Механизм: <span>Miyota quartz</span><br>Артикул: <span>NR-0302</span>'
   },
   {
     id: 7, cat: 'dom', name: 'Кресло Rattan Lounge', price: 32900, unit: 'Unit n°047',
-    img: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&q=80',
-    img2: 'https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?w=800&q=80',
+    img: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&q=80&auto=format',
+    img2: 'https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?w=800&q=80&auto=format',
     material: 'бук / ротанг / лён', colors: ['#A98F6B', '#3B3A36'], stock: null, added: 2,
     desc: 'Кресло из ротанга ручного плетения на каркасе из массива бука. Подушка из льняной ткани в комплекте, съёмный чехол.',
     meta: 'Каркас: <span>массив бука</span><br>Плетение: <span>натуральный ротанг</span><br>Артикул: <span>NR-0401</span>'
   },
   {
     id: 8, cat: 'dom', name: 'Диван Modular 2-Seat', price: 89900, unit: 'Unit n°048',
-    img: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&q=80',
-    img2: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=800&q=80',
+    img: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&q=80&auto=format',
+    img2: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=800&q=80&auto=format',
     material: 'букле 74% шерсть / дуб', colors: ['#D8D2C8', '#5B5248'], stock: null, added: 1,
     desc: 'Двухместный модульный диван со съёмными чехлами из букле. Наполнитель — пух и высокоэластичная пена HR, ножки из массива дуба.',
     meta: 'Обивка: <span>букле, 74% шерсть</span><br>Наполнитель: <span>пух / пена HR</span><br>Артикул: <span>NR-0402</span>'
@@ -1215,12 +1234,12 @@ const PRODUCTS = [
 
 /* LOOKS для главы 02 (рендер — Task 6) */
 const LOOKS = [
-  { n: 1, title: 'Look n°1 — Город',  items: [1, 3],    img: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1200&q=80' },
-  { n: 2, title: 'Look n°2 — Студия', items: [2, 4],    img: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=1200&q=80' },
-  { n: 3, title: 'Look n°3 — Дом',    items: [7, 8],    img: 'https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?w=1200&q=80' },
-  { n: 4, title: 'Look n°4 — Путь',   items: [5, 2, 4], img: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1200&q=80' },
-  { n: 5, title: 'Look n°5 — Вечер',  items: [1, 6],    img: 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1200&q=80' },
-  { n: 6, title: 'Look n°6 — Утро',   items: [3, 5],    img: 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=1200&q=80' }
+  { n: 1, title: 'Look n°1 — Город',  items: [1, 3],    img: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1200&q=80&auto=format' },
+  { n: 2, title: 'Look n°2 — Студия', items: [2, 4],    img: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=1200&q=80&auto=format' },
+  { n: 3, title: 'Look n°3 — Дом',    items: [7, 8],    img: 'https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?w=1200&q=80&auto=format' },
+  { n: 4, title: 'Look n°4 — Путь',   items: [5, 2, 4], img: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1200&q=80&auto=format' },
+  { n: 5, title: 'Look n°5 — Вечер',  items: [1, 6],    img: 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1200&q=80&auto=format' },
+  { n: 6, title: 'Look n°6 — Утро',   items: [3, 5],    img: 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=1200&q=80&auto=format' }
 ];
 
 /* ARTICLES для Прил. Б (рендер — журнал) */
@@ -1229,7 +1248,7 @@ const ARTICLES = [
     id: 1, rubric: 'Гид по стилю', date: '12.07.2026',
     title: 'Как носить архив: три правила слоёв',
     lead: 'Слои — это не про холод. Это про то, как вещи разговаривают друг с другом.',
-    img: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&q=80',
+    img: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&q=80&auto=format',
     text: [
       'Первое правило: толщина уходит вниз. Самая тонкая вещь — у тела, самая плотная — снаружи. Футболка 240 г/м² под рубашкой под пальто читается как одна линия, а не как капуста. Если хотя бы один слой нарушает порядок, силуэт ломается.',
       'Второе правило: одна фактура на выход. Букле, ротанг, гладкая кожа — выбирайте что-то одно и дайте этому быть главным. Архив собран так, что любая вещь может быть той самой фактурой. Остальные — тихий фон из хлопка и шерсти.',
@@ -1241,7 +1260,7 @@ const ARTICLES = [
     id: 2, rubric: 'Уход', date: '28.07.2026',
     title: 'Уход за шерстью: меньше стирок, больше воздуха',
     lead: 'Шерсть устроена как крыша: чешуйки волокна сами сбрасывают грязь. Ей нужно не стирать, а проветривать.',
-    img: 'https://images.unsplash.com/photo-1545173168-9f1947eebb7f?w=800&q=80',
+    img: 'https://images.unsplash.com/photo-1545173168-9f1947eebb7f?w=800&q=80&auto=format',
     text: [
       'Главная ошибка владельца шерстяного пальто — стирать его как футболку. Каждая стирка размывает натуральный ланолин, и волокно тускнеет. Норма для пальто, которое носят каждый день, — одна химчистка в сезон.',
       'Между носками — воздух. Оставьте пальто на плечиках на балконе или у открытого окна на два часа: запахи уходят, ворс распрямляется. Влага от дождя уходит так же — сначала сушка при комнатной температуре, потом мягкая щётка против ворса.',
@@ -1253,7 +1272,7 @@ const ARTICLES = [
     id: 3, rubric: 'Производство', date: '09.08.2026',
     title: 'Почему мы производим малыми партиями',
     lead: 'Восемь единиц, партия по сорок штук, пополнение — когда закончится. Это не маркетинг, это арифметика ответственности.',
-    img: 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=800&q=80',
+    img: 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=800&q=80&auto=format',
     text: [
       'Большая партия дешевле на единицу — и дороже на совести. Чтобы продать тысячу пальто, нужно спрогнозировать спрос, а прогноз всегда ошибается в большую сторону. Остатки едут на распродажу, потом в переработку, чаще — просто на склад. Мы решили не играть в эту игру.',
       'Партия в сорок штук позволяет держать качество руками. Каждое пальто проходит один стол контроля, а не конвейер выборочной проверки. Если шов уходит волной — партия останавливается, а не списывается процентом брака.',
@@ -1428,8 +1447,11 @@ grid.addEventListener('keydown', e => {
 const filtersWrap = $('#filters');
 function setFilter(cat) {
   state.filter = cat;
-  $$('.filter-btn', filtersWrap).forEach(b =>
-    b.classList.toggle('active', b.dataset.filter === cat));
+  $$('.filter-btn', filtersWrap).forEach(b => {
+    const on = b.dataset.filter === cat;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-pressed', String(on));
+  });
   updateCatalog();
 }
 filtersWrap.addEventListener('click', e => {
@@ -1445,10 +1467,31 @@ $('#sortRow') && $$('.sort-btn').forEach(b => b.addEventListener('click', () => 
   });
   updateCatalog();
 }));
-$$('[data-goto-filter]').forEach(a => a.addEventListener('click', () => {
+$$('[data-goto-filter]').forEach(a => a.addEventListener('click', e => {
+  e.preventDefault();  /* иначе нативный прыжок к #top гонится с анимацией скролла */
   setFilter(a.dataset.gotoFilter);
   scrollToEl($('#filters'));
 }));
+
+/* ================= FOCUS (диалоги: перенос внутрь, возврат, Tab-ловушка) ================= */
+let lastFocus = null;
+function focusIn(container) {
+  lastFocus = document.activeElement;
+  const f = container.querySelector('button, [href], input, select, [tabindex]:not([tabindex="-1"])');
+  if (f) f.focus();
+}
+function focusBack() {
+  if (lastFocus && document.contains(lastFocus)) lastFocus.focus();
+  lastFocus = null;
+}
+function trapTab(e, container) {
+  const list = [...container.querySelectorAll('button, [href], input, select, [tabindex]:not([tabindex="-1"])')]
+    .filter(el => !el.disabled && el.getClientRects().length);
+  if (!list.length) return;
+  const first = list[0], last = list[list.length - 1];
+  if (e.shiftKey && document.activeElement === first) { last.focus(); e.preventDefault(); }
+  else if (!e.shiftKey && document.activeElement === last) { first.focus(); e.preventDefault(); }
+}
 
 /* ================= QUICK VIEW ================= */
 const modal = $('#modal');
@@ -1462,7 +1505,6 @@ function openQuickView(id) {
 
   $('#qvImg').src = p.img;
   $('#qvImg').alt = p.name;
-  $('#qvImg').dataset.cur = p.img;
   $('#qvThumb0').src = p.img;
   const t1 = $('.modal-thumb[data-thumb="1"]');
   if (p.img2) { $('#qvThumb1').src = p.img2; t1.style.display = ''; }
@@ -1481,6 +1523,7 @@ function openQuickView(id) {
   modal.classList.add('open');
   modal.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
+  focusIn(modal);
 }
 
 function closeQuickView() {
@@ -1488,6 +1531,7 @@ function closeQuickView() {
   modal.setAttribute('aria-hidden', 'true');
   if (!drawer.classList.contains('open')) document.body.style.overflow = '';
   state.qvId = null;
+  focusBack();
 }
 
 modal.addEventListener('click', e => {
@@ -1588,9 +1632,9 @@ function renderCart() {
   }).join('');
 
   drawerFoot.innerHTML = `
-    <div class="drawer-row"><span>Подытог</span><span class="mono">${fmt(t.subtotal)}</span></div>
-    <div class="drawer-row"><span>Доставка</span><span class="mono">${t.delivery === 0 ? 'Бесплатно' : fmt(t.delivery)}</span></div>
-    <div class="drawer-row total"><span>Итого</span><span class="mono">${fmt(t.total)}</span></div>
+    <div class="drawer-line"><span>Подытог</span><span class="mono">${fmt(t.subtotal)}</span></div>
+    <div class="drawer-line"><span>Доставка</span><span class="mono">${t.delivery === 0 ? 'Бесплатно' : fmt(t.delivery)}</span></div>
+    <div class="drawer-total"><span>Итого</span><span class="mono">${fmt(t.total)}</span></div>
     <button class="btn btn-primary btn-block" type="button" id="checkoutBtn">Оформить приём</button>
     <p class="drawer-note">Бесплатная доставка от ${fmt(FREE_DELIVERY)}. Оплата картой или при получении.</p>`;
   $('#checkoutBtn').addEventListener('click', checkout);
@@ -1618,12 +1662,14 @@ function openDrawer() {
   overlay.classList.add('open');
   drawer.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
+  focusIn(drawer);
 }
 function closeDrawer() {
   drawer.classList.remove('open');
   overlay.classList.remove('open');
   drawer.setAttribute('aria-hidden', 'true');
   if (!modal.classList.contains('open')) document.body.style.overflow = '';
+  focusBack();
 }
 
 $('#cartBtn').addEventListener('click', openDrawer);
@@ -1663,8 +1709,8 @@ function checkout() {
     </div>`;
   stampIn($('.act-stamp', drawerItems));
   drawerFoot.innerHTML = `
-    <div class="drawer-row"><span>Доставка</span><span class="mono">${t.delivery === 0 ? 'Бесплатно' : fmt(t.delivery)}</span></div>
-    <div class="drawer-row total"><span>Итого</span><span class="mono">${fmt(t.total)}</span></div>
+    <div class="drawer-line"><span>Доставка</span><span class="mono">${t.delivery === 0 ? 'Бесплатно' : fmt(t.delivery)}</span></div>
+    <div class="drawer-total"><span>Итого</span><span class="mono">${fmt(t.total)}</span></div>
     <button class="btn btn-primary btn-block" type="button" id="actCloseBtn">Закрыть акт</button>
     <p class="drawer-note">Подпись курьера подтверждает приём. Чек отправлен на почту.</p>`;
   $('#actCloseBtn').addEventListener('click', () => { closeDrawer(); renderCart(); });
@@ -1756,6 +1802,7 @@ function openLookStage(n) {
   lookStage.setAttribute('aria-hidden', 'false');
   if (window.__lenis) window.__lenis.stop();
   document.body.style.overflow = 'hidden';
+  focusIn(lookStage);
   flyClone(srcImg, $('#lookStageMedia'), () => { lsImg.style.visibility = ''; });
 }
 
@@ -1767,6 +1814,7 @@ function closeLookStage() {
     if (window.__lenis) window.__lenis.start();
     document.body.style.overflow = '';
     stageLook = null;
+    focusBack();
   };
   if (srcImg && lookStage.classList.contains('open')) {
     lsImg.style.visibility = 'hidden';
@@ -1853,13 +1901,21 @@ journalOverlay.addEventListener('click', e => {
 
 renderJournal();
 
-/* ================= ESC / HEADER ================= */
+/* ================= ESC / TAB / HEADER ================= */
+/* Esc глотает только верхний открытый слой: опись (z250) → стейдж/журнал → модалка → drawer */
 document.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
-  if (lookStage.classList.contains('open')) closeLookStage();
+  if (opisOpenFlag) closeOpis();
+  else if (lookStage.classList.contains('open')) closeLookStage();
   else if (journalOverlay.classList.contains('open')) closeArticle();
   else if (modal.classList.contains('open')) closeQuickView();
   else if (drawer.classList.contains('open')) closeDrawer();
+});
+/* Tab-ловушка в активном диалоге */
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Tab') return;
+  const open = [lookStage, modal, drawer].find(el => el.classList.contains('open'));
+  if (open) trapTab(e, open);
 });
 
 const header = $('#header');
@@ -1941,8 +1997,8 @@ function openOpis() {
   opis.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
   if (window.__lenis) window.__lenis.stop();
-  const first = $('.opis-item', opis);
-  if (first) first.focus();
+  /* фокус на контейнер диалога, а не на первый пункт — иначе brass-рамка на всю строку */
+  opis.focus();
   if (window.gsap && !reducedMotion) {
     gsap.fromTo(opis, { opacity: 0 }, { opacity: 1, duration: 0.35, ease: 'power2.out' });
     gsap.fromTo($$('.opis-item', opis), { y: 26, opacity: 0 },
@@ -1961,7 +2017,7 @@ function closeOpis() {
 }
 opisBtn.addEventListener('click', openOpis);
 $('#opisClose').addEventListener('click', closeOpis);
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeOpis(); });
+/* Esc описи — в общем обработчике (секция ESC/TAB/HEADER), приоритет верхнего слоя */
 $$('.opis-item', opis).forEach(item => {
   item.addEventListener('click', () => {
     const target = item.dataset.target && $(item.dataset.target);
@@ -1992,6 +2048,10 @@ renderCart();
 renderLooks();
 
 /* ================= MOTION (Task 5) ================= */
+/* пигменты глав ставятся всегда — системная фича дизайна не должна зависеть от motion-стека;
+   внутри motionOK остаётся только ScrollTrigger-тоггл :root для глобальных потребителей */
+$$('[data-accent]').forEach(el => el.style.setProperty('--chapter-accent', el.dataset.accent));
+
 const motionOK = !reducedMotion && window.gsap && window.ScrollTrigger && window.Lenis;
 if (motionOK) {
   gsap.registerPlugin(ScrollTrigger);
@@ -2170,7 +2230,6 @@ if (motionOK) {
          для глобальных потребителей (точка курсора, штамп акта) --- */
   const accEls = $$('[data-accent]');
   accEls.forEach(el => {
-    el.style.setProperty('--chapter-accent', el.dataset.accent);
     ScrollTrigger.create({
       trigger: el, start: 'top 60%', end: 'bottom 40%',
       onToggle: self => {
@@ -2187,6 +2246,9 @@ if (motionOK) {
     const setSkew = gsap.quickSetter(lookTrack, 'skewX', 'deg');
     const setProgress = gsap.quickSetter('#lookProgress', 'scaleX');
     const lookCurEl = $('#lookCur');
+    /* счётчик переводим на fixed: секция выше вьюпорта, absolute-bottom её недостижим во время пина */
+    const lookCounterEl = lookCurEl && lookCurEl.closest('.look-counter');
+    if (lookCounterEl) lookCounterEl.classList.add('pin');
     let lookCur = 1;
     gsap.to(lookTrack, {
       x: () => -dist(), ease: 'none',
@@ -2194,6 +2256,7 @@ if (motionOK) {
         trigger: '[data-chapter="02"]', start: 'top top',
         end: () => '+=' + (dist() + innerHeight * 0.6),
         pin: true, scrub: 0.6, anticipatePin: true, invalidateOnRefresh: true,
+        onToggle: st => { if (lookCounterEl) lookCounterEl.classList.toggle('on', st.isActive); },
         onUpdate: st => {
           setProgress(st.progress);
           setSkew(-gsap.utils.clamp(-4, 4, st.getVelocity() / 250));
@@ -2249,6 +2312,11 @@ if (motionOK) {
 
   /* --- velocity-marquee: пауза вне вьюпорта + один ticker на все ленты --- */
   const marqueeTweens = $$('.marquee-inner').map(inner => {
+    /* лента должна быть ≥ 2× ширины контейнера, иначе справа пустота;
+       копии дублируем парами — твин xPercent:-50 бесшовен при чётном числе спанов */
+    const base = inner.innerHTML;
+    while (inner.children.length < 12 && inner.scrollWidth < inner.parentElement.clientWidth * 2)
+      inner.innerHTML += base;
     const tween = gsap.to(inner, { xPercent: -50, ease: 'none', duration: 18, repeat: -1 });
     ScrollTrigger.create({
       trigger: inner.parentElement, start: 'top bottom', end: 'bottom top',
@@ -2321,6 +2389,8 @@ const STUDIO_WAYS = [
 ];
 const studioEl = $('#studio');
 let studioWay = 0;
+/* стартовый колорвей «Море» активен в разметке — фон главы должен совпадать с ним до первого клика */
+studioEl.style.backgroundColor = STUDIO_WAYS[0].bg;
 
 function setStudioWay(i) {
   if (i === studioWay) return;

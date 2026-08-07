@@ -70,6 +70,10 @@
   "expect": 2
  },
  {
+  "name": "фильтры: aria-pressed отражает активный",
+  "js": "document.querySelector('[data-filter=obuv]').getAttribute('aria-pressed') === 'true' && document.querySelector('[data-filter=all]').getAttribute('aria-pressed') === 'false'"
+ },
+ {
   "name": "фильтр all → 8 товаров",
   "js": "(document.querySelector('[data-filter=all]').click(), document.querySelectorAll('.product').length)",
   "expect": 8
@@ -109,6 +113,10 @@
   "js": "document.querySelector('#drawerFoot').textContent.includes('Бесплатно')"
  },
  {
+  "name": "итоги корзины стилизованы: drawer-line ×2 + drawer-total",
+  "js": "document.querySelectorAll('#drawerFoot .drawer-line').length === 2 && !!document.querySelector('#drawerFoot .drawer-total')"
+ },
+ {
   "name": "оформление → Акт приёма",
   "js": "(document.querySelector('#checkoutBtn').click(), document.querySelector('#drawer').textContent.includes('Акт приёма'))"
  },
@@ -119,6 +127,10 @@
  {
   "name": "штамп «принято в архив» в акте",
   "js": "!!document.querySelector('.act .act-stamp .stamp-no')"
+ },
+ {
+  "name": "итоги акта стилизованы: drawer-line + drawer-total",
+  "js": "document.querySelectorAll('#drawerFoot .drawer-line').length === 1 && !!document.querySelector('#drawerFoot .drawer-total')"
  },
  {
   "name": "«+ в корзину» с карточки",
@@ -295,7 +307,7 @@
  {
   "name": "все изображения загружены",
   "end": true,
-  "js": "[...document.images].filter(i => !i.complete || i.naturalWidth === 0).map(i => i.currentSrc || i.src)",
+  "js": "[...document.images].filter(i => i.src && (!i.complete || i.naturalWidth === 0)).map(i => i.currentSrc || i.src)",
   "expect": []
  },
  {
