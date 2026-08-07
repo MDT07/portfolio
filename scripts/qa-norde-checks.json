@@ -61,9 +61,8 @@
   "js": "(() => { let css=''; for (const s of document.styleSheets) { try { css += [...s.cssRules].map(r=>r.cssText).join('\\n'); } catch(e){} } const rules = (css.match(/\\.product[^{]*\\{[^}]*\\}/g) || []).filter(r => !/quick|dots|stock|add/.test(r)); return !rules.some(r => /[^\\w-]transform\\s*:|[^\\w-]scale\\s*\\(/.test(r)); })()"
  },
  {
-  "name": "каталог: второй кадр товара (img2) на 8 карточках",
-  "js": "document.querySelectorAll('.product-media img.alt').length",
-  "expect": 8
+  "name": "каталог: изображения статичны — нет img.alt и clip-path у product-media",
+  "js": "(() => { if (document.querySelector('.product-media img.alt')) return false; let css=''; for (const s of document.styleSheets) { try { css += [...s.cssRules].map(r=>r.cssText).join('\\n'); } catch(e){} } const rules = (css.match(/\\.product-media[^{]*\\{[^}]*\\}/g) || []); return !rules.some(r => /clip-path\\s*:/.test(r)); })()"
  },
  {
   "name": "фильтр obuv → 2 товара",
