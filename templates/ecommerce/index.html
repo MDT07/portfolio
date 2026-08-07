@@ -56,6 +56,16 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 .grain{
   position:fixed; inset:0; z-index:999; pointer-events:none; opacity:.05;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation:grainShift .9s steps(1) infinite;
+}
+/* живое плёночное зерно: дискретные прыжки кадра; в RM глушится глобальным animation:none */
+@keyframes grainShift{
+  0%{background-position:0 0}
+  20%{background-position:-80px 60px}
+  40%{background-position:60px -100px}
+  60%{background-position:-60px -60px}
+  80%{background-position:100px 40px}
+  100%{background-position:0 0}
 }
 
 /* ================= CURSOR ================= */
@@ -550,12 +560,22 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 .drawer-line.mono{font-size:11px}
 .drawer-total{display:flex; justify-content:space-between; font:500 14px/1 var(--font-mono); padding-top:10px; border-top:1px solid var(--line)}
 .drawer-note{font-size:12px; color:var(--ink-3)}
-.act{padding:32px 28px; display:flex; flex-direction:column; gap:18px; overflow:auto}
+.act{padding:32px 28px; display:flex; flex-direction:column; gap:18px; overflow:auto; position:relative}
 .act h3{font-size:28px}
 .act-no{color:var(--brass)}
 .act-list{list-style:none; border-top:1px solid var(--line)}
 .act-list li{display:flex; justify-content:space-between; gap:16px; padding:12px 0; border-bottom:1px solid var(--line); font-size:14px}
 .act-list .mono{color:var(--ink-3)}
+/* штамп «принято в архив»: двойной круг + текст по окружности, пигмент главы, наклон −8° */
+.act-stamp{
+  position:absolute; top:16px; right:18px; width:104px; height:104px;
+  color:var(--chapter-accent); transform:rotate(-8deg); pointer-events:none;
+}
+.act-stamp text{font:500 9px var(--font-mono); letter-spacing:.18em; text-transform:uppercase; fill:currentColor}
+.act-stamp .stamp-no{font-size:14px; letter-spacing:.04em}
+.club-stamp{width:96px; height:96px; color:var(--brass); transform:rotate(-8deg); margin-top:20px; pointer-events:none}
+.club-stamp text{font:500 9px var(--font-mono); letter-spacing:.18em; text-transform:uppercase; fill:currentColor}
+.club-stamp .stamp-no{font-size:14px; letter-spacing:.04em}
 
 /* ================= TOAST ================= */
 .toast{
@@ -642,7 +662,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 <header class="header" id="header">
   <div class="container header-row">
     <a class="wordmark" href="#top">NORDE</a>
-    <p class="mono header-meta">Архив · Выпуск 01 · Осень 2026</p>
+    <p class="mono header-meta">Архив · Выпуск 01 · 59.93°N 30.33°E · МСК <span id="mskClock">--:--:--</span></p>
     <button class="cart-btn" id="cartBtn" type="button" aria-label="Открыть корзину">
       Корзина <span class="cart-count hidden" id="cartCount">0</span>
     </button>
@@ -674,7 +694,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
         <h2 data-mask>Правила простые и одинаковые для всех</h2>
       </div>
       <div class="manifest-body">
-        <p class="manifest-quote" data-mask>Материалы важнее <em>логотипов</em></p>
+        <p class="manifest-quote" data-quote>Материалы важнее <em>логотипов</em></p>
         <ol class="manifest-list">
           <li><span class="manifest-no">П. 1.1</span><p>Вещь должна работать каждый день и не надоедать.</p></li>
           <li><span class="manifest-no">П. 1.2</span><p>Никаких акций-ловушек и условий со звёздочкой.</p></li>
@@ -1482,6 +1502,21 @@ document.addEventListener('click', e => {
 });
 
 /* ================= CHECKOUT → АКТ ПРИЁМА ================= */
+/* штамп «принято в архив»: двойной круг, текст по окружности, номер в центре */
+function stampSVG(no, uid, cls) {
+  return `<svg class="${cls}" viewBox="0 0 120 120" aria-hidden="true">
+    <circle cx="60" cy="60" r="55" fill="none" stroke="currentColor" stroke-width="2"/>
+    <circle cx="60" cy="60" r="43" fill="none" stroke="currentColor" stroke-width="1"/>
+    <defs><path id="stampArc${uid}" d="M60,60 m-49,0 a49,49 0 1,1 98,0 a49,49 0 1,1 -98,0" fill="none"/></defs>
+    <text><textPath href="#stampArc${uid}">NORDE · АРХИВ · ВЫПУСК 01 · ПРИНЯТО ·</textPath></text>
+    <text class="stamp-no" x="60" y="66" text-anchor="middle">№ ${no}</text>
+  </svg>`;
+}
+function stampIn(el, animate = true) {
+  if (el && animate && window.gsap && !reducedMotion) {
+    gsap.from(el, { scale: 1.6, opacity: 0, duration: 0.35, ease: 'power4.out', delay: 0.15, transformOrigin: '50% 50%' });
+  }
+}
 function checkout() {
   const t = cartTotals();
   const actNo = Math.floor(1000 + Math.random() * 9000);
@@ -1492,9 +1527,11 @@ function checkout() {
 
   drawerItems.innerHTML = `
     <div class="act">
+      ${stampSVG(actNo, 'act', 'act-stamp')}
       <p class="mono act-no">Акт приёма n°${actNo}</p>
       <ul class="act-list">${rows}</ul>
     </div>`;
+  stampIn($('.act-stamp', drawerItems));
   drawerFoot.innerHTML = `
     <div class="drawer-row"><span>Доставка</span><span class="mono">${t.delivery === 0 ? 'Бесплатно' : fmt(t.delivery)}</span></div>
     <div class="drawer-row total"><span>Итого</span><span class="mono">${fmt(t.total)}</span></div>
@@ -1700,16 +1737,38 @@ const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 8);
 window.addEventListener('scroll', onScroll, { passive: true });
 onScroll();
 
+/* --- живые часы МСК в шапке (контент, не анимация — работает и в RM) --- */
+const mskClock = $('#mskClock');
+if (mskClock) {
+  const tickClock = () => {
+    mskClock.textContent = new Date().toLocaleTimeString('ru-RU', {
+      timeZone: 'Europe/Moscow', hour: '2-digit', minute: '2-digit', second: '2-digit'
+    });
+  };
+  tickClock();
+  setInterval(tickClock, 1000);
+}
+
 /* ================= CLUB (05.5) ================= */
 const clubForm = $('#clubForm');
 const clubMsg = $('#clubMsg');
 const clubBtn = $('#clubBtn');
+
+function addClubStamp(no, animate) {
+  if ($('.club-stamp')) return;
+  const wrap = document.createElement('div');
+  wrap.innerHTML = stampSVG(no, 'club', 'club-stamp');
+  const stampEl = wrap.firstElementChild;
+  clubMsg.after(stampEl);
+  stampIn(stampEl, animate);
+}
 
 function clubDone(no) {
   clubBtn.disabled = true;
   clubBtn.textContent = 'Вы в списке';
   clubMsg.className = 'mono club-msg ok';
   clubMsg.textContent = `Вы в списке — № ${no}. Ждите письма в день пополнения.`;
+  addClubStamp(no, false);
 }
 
 if (sessionStorage.getItem('norde-club-no')) {
@@ -1735,6 +1794,7 @@ clubForm.addEventListener('submit', e => {
     scrambleText(clubMsg, `Вы в списке — № ${no}. Ждите письма в день пополнения.`, 700);
     clubMsg.className = 'mono club-msg ok';
     clubBtn.textContent = 'Вы в списке';
+    addClubStamp(no, true);
   }, 700);
 });
 
@@ -1797,6 +1857,21 @@ if (motionOK) {
   const heroIntro = () => {
     if (heroWords) gsap.to(heroWords, { yPercent: 0, duration: 1.2, ease: 'power3.out', stagger: 0.07, delay: 0.1 });
   };
+
+  /* --- глава 01: pull-quote проявляется по словам от скролла (читается скоростью листания) --- */
+  {
+    const quote = $('[data-quote]');
+    if (quote) {
+      const qWords = splitWords(quote);
+      if (qWords.length) {
+        gsap.set(qWords, { opacity: 0.15 });
+        gsap.to(qWords, {
+          opacity: 1, ease: 'none', stagger: 0.08,
+          scrollTrigger: { trigger: quote, start: 'top 85%', end: 'top 35%', scrub: true }
+        });
+      }
+    }
+  }
 
   /* --- preloader: один раз за сессию --- */
   const pre = $('#preloader');
