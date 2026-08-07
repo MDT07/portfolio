@@ -403,10 +403,12 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 .product-media{position:relative; overflow:hidden; aspect-ratio:4/5; margin:12px 16px 0;
   clip-path:inset(0 0 100% 0); transition:clip-path .9s var(--ease-cine)}
 .product-media.is-in{clip-path:inset(0 0 0 0)}
-/* зум — единственный владелец transform у img: CSS, без translateY карточки и без gsap */
+/* зум убран структурно: изображения статичны, transform у карточек нет вообще;
+   вместо scale — opacity-кроссфейд на второй кадр товара (img2) */
 .product-media img{width:100%; height:100%; object-fit:cover;
-  transition:filter .6s var(--ease-cine), transform .8s cubic-bezier(.22,1,.36,1)}
-.product:hover .product-media img{transform:scale(1.06)}
+  transition:filter .6s var(--ease-cine), opacity .5s var(--ease-cine)}
+.product-media img.alt{position:absolute; inset:0; opacity:0; filter:none}
+.product:hover .product-media img.alt, .product:focus-visible .product-media img.alt{opacity:1}
 .product-stock{
   position:absolute; top:10px; left:10px; padding:6px 10px;
   background:var(--paper); color:var(--chapter-accent);
@@ -773,7 +775,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
       <button class="opis-item" type="button" data-target='[data-chapter="journal"]' data-preview=".journal-media img" style="--opis-c:#475569"><span class="opis-no">Б</span>Журнал</button>
       <button class="opis-item" type="button" data-target='[data-chapter="05"]' style="--opis-c:#A16207"><span class="opis-no">05</span>Условия и клуб</button>
     </nav>
-    <p class="mono opis-foot">NORDE · Архив · Выпуск 01 — опись обновлена <span id="opisDate"></span></p>
+    <p class="mono opis-foot">NORDE · Архив · Выпуск 01 — опись обновлена <span id="opisDate"></span> · сборка k4</p>
   </div>
   <img class="opis-preview" id="opisPreview" alt="" aria-hidden="true">
 </div>
@@ -1345,6 +1347,7 @@ function renderCatalog() {
     <article class="product" data-id="${p.id}" tabindex="0" role="button" aria-label="${p.name} — быстрый просмотр">
       <div class="product-media" data-cursor="Быстрый просмотр">
         <img src="${p.img}" alt="${p.name}" loading="lazy">
+        ${p.img2 ? `<img class="alt" src="${p.img2}" alt="" aria-hidden="true" loading="lazy">` : ''}
         ${p.stock != null && p.stock <= 3 ? `<span class="product-stock mono">Осталось ${p.stock}</span>` : ''}
         <button class="product-quick" type="button" data-id="${p.id}">Быстрый просмотр</button>
       </div>

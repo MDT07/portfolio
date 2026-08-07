@@ -57,8 +57,13 @@
   "expect": "8"
  },
  {
-  "name": "зум-фикс: у .product нет hover-transform",
-  "js": "(() => { let css=''; for (const s of document.styleSheets) { try { css += [...s.cssRules].map(r=>r.cssText).join('\\n'); } catch(e){} } return !/\\.product:hover\\s*\\{[^}]*transform/.test(css); })()"
+  "name": "зум-фикс: в CSS карточек нет transform/scale вообще",
+  "js": "(() => { let css=''; for (const s of document.styleSheets) { try { css += [...s.cssRules].map(r=>r.cssText).join('\\n'); } catch(e){} } const rules = (css.match(/\\.product[^{]*\\{[^}]*\\}/g) || []).filter(r => !/quick|dots|stock|add/.test(r)); return !rules.some(r => /[^\\w-]transform\\s*:|[^\\w-]scale\\s*\\(/.test(r)); })()"
+ },
+ {
+  "name": "каталог: второй кадр товара (img2) на 8 карточках",
+  "js": "document.querySelectorAll('.product-media img.alt').length",
+  "expect": 8
  },
  {
   "name": "фильтр obuv → 2 товара",
