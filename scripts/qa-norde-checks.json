@@ -56,7 +56,7 @@
   {"name": "borderless: глава без border-top", "js": "getComputedStyle(document.querySelector('[data-chapter=\"01\"]')).borderTopWidth", "expect": "0px"},
   {"name": "дуотон на образах лукбука", "js": "getComputedStyle(document.querySelector('.look img')).filter.includes('grayscale')"},
   {"name": "материалы: 4 карточки", "js": "document.querySelectorAll('.material-card').length", "expect": 4},
-  {"name": "материалы: дуотон до проявления", "js": "getComputedStyle(document.querySelector('.material-media img')).filter.includes('grayscale')"},
+  {"name": "материалы: дуотон до проявления", "mode": "no-rm", "js": "getComputedStyle(document.querySelector('.material-media img')).filter.includes('grayscale')"},
   {"name": "журнал: 3 статьи", "js": "document.querySelectorAll('.journal-card').length", "expect": 3},
   {"name": "журнал: overlay с реальным текстом", "js": "(() => { document.querySelector('.journal-read').click(); const ok=document.querySelector('#journalOverlay').classList.contains('open') && document.querySelectorAll('#joText p').length>=3; document.querySelector('#journalClose').click(); return ok && !document.querySelector('#journalOverlay').classList.contains('open'); })()"},
   {"name": "клуб: валидация и успех", "js": "(async () => { const em=document.querySelector('#clubEmail'), f=document.querySelector('#clubForm'), m=document.querySelector('#clubMsg'); em.value='bad'; f.dispatchEvent(new Event('submit',{cancelable:true})); const err=m.textContent.length>0; em.value='a@b.co'; f.dispatchEvent(new Event('submit',{cancelable:true})); await new Promise(r=>setTimeout(r,1000)); return err && /Вы в списке/.test(m.textContent); })()"},

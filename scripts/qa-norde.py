@@ -157,14 +157,38 @@ try:
         # (скролл через Lenis, если он активен — window.scrollTo Lenis перезапишет)
         js("""
           (async () => {
+            const go = y => { if (window.__lenis) window.__lenis.scrollTo(y, { immediate: true }); else window.scrollTo(0, y); };
+            const wait = ms => new Promise(r => setTimeout(r, ms));
             const h = document.body.scrollHeight;
-            for (let y = 0; y <= h; y += Math.round(innerHeight * 0.7)) {
-              if (window.__lenis) window.__lenis.scrollTo(y, { immediate: true });
-              else window.scrollTo(0, y);
-              await new Promise(r => setTimeout(r, 150));
+            for (let y = 0; y <= h; y += Math.round(innerHeight * 0.7)) { go(y); await wait(150); }
+            // лукбук: каждый образ должен побывать во вьюпорте (native lazy)
+            const vp = document.querySelector('.lookbook-viewport');
+            const sec = document.querySelector('[data-chapter="02"]');
+            if (vp && sec) {
+              const top = () => sec.getBoundingClientRect().top + window.scrollY;
+              if (vp.scrollWidth > vp.clientWidth + 100) {  // RM: секция обратно во вьюпорт + горизонтальный прогон
+                go(top() - innerHeight * 0.1);
+                await wait(400);
+                for (let x = 0; x <= vp.scrollWidth; x += Math.round(vp.clientWidth * 0.5)) { vp.scrollLeft = x; await wait(150); }
+                vp.scrollLeft = vp.scrollWidth;
+              } else {  // motion: медленный проход пина (scrub 0.6 должен успевать)
+                const pinTop = sec.getBoundingClientRect().top + window.scrollY;  // константа: у пина rect.top пляшет
+                const track = document.querySelector('.lookbook-track');
+                const pinLen = Math.max(0, track.scrollWidth - vp.clientWidth) + innerHeight * 0.6;
+                for (let y = pinTop; y <= pinTop + pinLen; y += Math.round(innerHeight * 0.35)) { go(y); await wait(220); }
+                await wait(700);  // догнать scrub-лагу
+              }
+              // форс-догрузка образов, которые lazy-порог так и не отпустил (гонка со scrub-лагой)
+              document.querySelectorAll('.look img[loading="lazy"]').forEach(i => {
+                i.loading = 'eager';
+                if (!i.complete) { const s = i.currentSrc || i.src; i.src = s; }
+              });
+              // дождаться догрузки образов, побывавших во вьюпорте, до ухода вниз
+              const imgs = [...document.querySelectorAll('.look img')];
+              const t0 = performance.now();
+              while (imgs.some(i => !i.complete) && performance.now() - t0 < 6000) await wait(200);
             }
-            if (window.__lenis) window.__lenis.scrollTo(h, { immediate: true });
-            else window.scrollTo(0, h);
+            go(document.body.scrollHeight);
           })()
         """)
         time.sleep(3)

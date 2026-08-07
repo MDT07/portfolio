@@ -58,6 +58,25 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
+/* ================= CURSOR ================= */
+#cursor{
+  position:fixed; left:0; top:0; z-index:400; pointer-events:none;
+  display:none; align-items:center; will-change:transform;
+}
+#cursor.on{display:flex}
+#cursor::before{
+  content:""; position:absolute; left:-5px; top:-5px; width:10px; height:10px;
+  border-radius:50%; background:var(--chapter-accent); transition:transform .25s;
+}
+#cursor.big::before{transform:scale(2.4)}
+#cursorLabel{
+  position:absolute; left:16px; top:-10px; white-space:nowrap;
+  font:500 10px/1 var(--font-mono); text-transform:uppercase; letter-spacing:.08em;
+  color:var(--ink); background:var(--paper); padding:7px 10px; border:1px solid var(--line);
+  opacity:0; transition:opacity .25s;
+}
+#cursor.big #cursorLabel{opacity:1}
+
 /* ================= CHAPTERS ================= */
 /* border-top убран (Editorial+): главы разделяются воздухом и сменой тона */
 .chapter{padding:160px 0; position:relative; overflow:hidden}
@@ -96,7 +115,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 .hero{min-height:100svh; display:flex; align-items:center; padding:120px 0 96px}
 .hero .container{position:relative; z-index:1; width:100%}
 .hero-media{
-  position:absolute; top:0; right:0; bottom:0; width:55%; margin:0; z-index:0;
+  position:absolute; top:-8%; right:0; bottom:auto; height:116%; width:55%; margin:0; z-index:0;
 }
 .hero-media::after{  /* напыление бумаги: заголовок заходит на фото и читается */
   content:""; position:absolute; inset:0;
@@ -600,7 +619,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
   .modal-card{grid-template-columns:1fr; max-height:92vh}
   .modal-media{aspect-ratio:16/10}
   .footer-cols{grid-template-columns:1fr; gap:28px; padding:40px 20px}
-  .look-media{height:58vh}
+  .look-media{width:74vw; height:auto}
   .look-interlude{max-width:60vw; padding:0 6vw}
   .header-meta{display:none}
   .anatomy-frame{width:74vw}
@@ -616,6 +635,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 <body>
 
 <div class="grain" aria-hidden="true"></div>
+<div id="cursor" aria-hidden="true"><span id="cursorLabel"></span></div>
 <div id="preloader" aria-hidden="true"><span id="preCount">0</span></div>
 
 <!-- ================= HEADER ================= -->
@@ -703,6 +723,10 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
   </section>
 
   <!-- ================= 03 PLANCHE ================= -->
+  <div class="marquee marquee--dark" aria-hidden="true" style="background:var(--dark)"><div class="marquee-inner">
+    <span>Лукбук — Planche — Анатомия — NR-0202 —&nbsp;</span><span>Лукбук — Planche — Анатомия — NR-0202 —&nbsp;</span>
+  </div></div>
+
   <section class="chapter chapter--dark" data-chapter="03" data-accent="#67E8F9">
     <div class="wipe" style="--wipe-c:#155E75" aria-hidden="true"></div>
     <span class="chapter-numeral" aria-hidden="true">03</span>
@@ -1894,6 +1918,47 @@ if (motionOK) {
     let target = 1;
     lenis.on('scroll', ({ velocity }) => { target = Math.min(1 + Math.abs(velocity) / 10, 4); });
     gsap.ticker.add(() => { target += (1 - target) * 0.04; tween.timeScale(target); });
+  });
+
+  /* --- кастомный курсор с контекстной подписью (только pointer:fine) --- */
+  if (matchMedia('(pointer:fine)').matches) {
+    const cur = $('#cursor'), lbl = $('#cursorLabel');
+    cur.classList.add('on');
+    const cx = gsap.quickTo(cur, 'x', { duration: .35, ease: 'power3' });
+    const cy = gsap.quickTo(cur, 'y', { duration: .35, ease: 'power3' });
+    addEventListener('mousemove', e => { cx(e.clientX); cy(e.clientY); });
+    document.addEventListener('mouseover', e => {
+      const t = e.target.closest('[data-cursor]');
+      if (t) { lbl.textContent = t.dataset.cursor; cur.classList.add('big'); }
+      else cur.classList.remove('big');
+    });
+  }
+
+  /* --- magnetic-кнопки: притяжение ≤25% в радиусе, spring-возврат (делегированно) --- */
+  if (matchMedia('(pointer:fine)').matches) {
+    const mag = new WeakMap();
+    const magged = new Set();  /* WeakMap не итерабелен — ключи держим отдельно */
+    document.addEventListener('mousemove', e => {
+      const btn = e.target.closest('[data-magnetic]');
+      magged.forEach(b => { if (b !== btn) { mag.get(b).xTo(0); mag.get(b).yTo(0); } });
+      if (!btn) return;
+      if (!mag.has(btn)) {
+        mag.set(btn, {
+          xTo: gsap.quickTo(btn, 'x', { duration: .4, ease: 'power3' }),
+          yTo: gsap.quickTo(btn, 'y', { duration: .4, ease: 'power3' })
+        });
+        magged.add(btn);
+      }
+      const r = btn.getBoundingClientRect();
+      mag.get(btn).xTo((e.clientX - r.left - r.width / 2) * .25);
+      mag.get(btn).yTo((e.clientY - r.top - r.height / 2) * .25);
+    });
+  }
+
+  /* --- параллакс фото обложки --- */
+  gsap.fromTo('.hero-media', { yPercent: 0 }, {
+    yPercent: 8, ease: 'none',
+    scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true }
   });
   /* --- FLIP-перелёт: образ из 02 летит в первую карточку 04 --- */
   ScrollTrigger.create({
