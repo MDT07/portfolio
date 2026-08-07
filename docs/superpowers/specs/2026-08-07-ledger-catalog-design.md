@@ -43,7 +43,7 @@ section.chapter data-chapter="04" data-accent="#9A3412" (пигмент без �
 ## Удаляемое (физически из кода)
 
 - Разметка: filters row, sort row, catalog-grid, catalog-note; `#modal` (quick-view) целиком.
-- CSS: `.filters`, `.filter-btn`, `.sort-*`, `.catalog-grid`, `.product*` (media/unit/stock/quick/info/material/row/price/dots/add), `.modal*`, `.sizes` в модалке (у листа — свои стили).
+- CSS: `.filters`, `.filter-btn`, `.sort-*`, `.catalog-grid`, `.product*` (media/unit/stock/quick/info/material/row/price/dots/add), `.modal*`; `.sizes`/`.size-btn` остаются — переиспользуются листом единицы.
 - JS: `renderCatalog`, `updateCatalog` (FLIP-перестановка), `setFilter`, sort-хендлеры, `state.filter/state.sort/shownCount`, `openQuickView/closeQuickView` и все qv-хендлеры.
 - Footer: 4 ссылки `data-goto-filter` → одна «Архив единиц» (`scrollToEl` к главе 04).
 - Esc-цепочка и Tab-trap: `modal` выпадает из обеих (стейдж/журнал/drawer остаются).
