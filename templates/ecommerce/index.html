@@ -670,7 +670,14 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 .mask-line{display:inline-block; overflow:hidden; vertical-align:bottom}
 .mask-line>span{display:inline-block}
 /* начальное состояние yPercent:115 задаёт только gsap — CSS-transform здесь конфликтует с кэшем gsap */
-.wipe{position:absolute; inset:0; z-index:5; pointer-events:none; background:var(--wipe-c, var(--paper))}
+.wipe{position:absolute; inset:0; z-index:5; pointer-events:none; background:var(--wipe-c, var(--paper));
+  display:flex; align-items:center; justify-content:center}
+/* шторка как титульный лист главы: номер и название пигментным постером, уезжает вместе со шторкой */
+.wipe::after{
+  content:attr(data-title); color:var(--paper); opacity:.92;
+  font:400 clamp(2rem,6vw,4.6rem)/1.05 var(--font-display); letter-spacing:.02em; text-align:center; padding:0 20px;
+}
+.wipe:empty:not([data-title])::after{content:none}
 .wipe--dark{background:var(--wipe-c, var(--dark))}
 [data-clip]{overflow:hidden}
 [data-clip] img{will-change:transform}
@@ -835,7 +842,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 
   <!-- ================= 02 ЛУКБУК ================= -->
   <section class="chapter chapter--dark" data-chapter="02" data-accent="#FB7185">
-    <div class="wipe" style="--wipe-c:#9F1239" aria-hidden="true"></div>
+    <div class="wipe" style="--wipe-c:#9F1239" data-title="02 · Лукбук" aria-hidden="true"></div>
     <span class="chapter-numeral" aria-hidden="true">02</span>
     <div class="container">
       <div class="lookbook-head">
@@ -875,7 +882,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
   </div></div>
 
   <section class="chapter chapter--dark" data-chapter="03" data-accent="#67E8F9">
-    <div class="wipe" style="--wipe-c:#155E75" aria-hidden="true"></div>
+    <div class="wipe" style="--wipe-c:#155E75" data-title="03 · Planche" aria-hidden="true"></div>
     <span class="chapter-numeral" aria-hidden="true">03</span>
     <div class="container">
       <p class="mono chapter-index"><b>03</b> / Planche</p>
@@ -975,7 +982,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 
   <!-- ================= 04 АРХИВ ЕДИНИЦ ================= -->
   <section class="chapter" data-chapter="04" data-accent="#9A3412">
-    <div class="wipe wipe--dark" style="--wipe-c:#9A3412" aria-hidden="true"></div>
+    <div class="wipe wipe--dark" style="--wipe-c:#9A3412" data-title="04 · Архив единиц" aria-hidden="true"></div>
     <span class="chapter-numeral" aria-hidden="true">04</span>
     <div class="container">
       <p class="mono chapter-index"><b>04</b> / Архив единиц</p>
@@ -1832,7 +1839,7 @@ function renderJournal() {
       <p class="mono journal-meta">${a.rubric} · ${a.date}</p>
       <h3>${a.title}</h3>
       <p class="journal-lead">${a.lead}</p>
-      <button class="journal-read mono" type="button" data-article="${a.id}">Читать →</button>
+      <button class="journal-read mono" type="button" data-article="${a.id}" data-cursor="Читать">Читать →</button>
     </article>`).join('');
 }
 
@@ -2087,6 +2094,28 @@ if (motionOK) {
     });
   });
 
+  /* --- подписной жест: кинетическая переменная типографика hero —
+         вес слов заголовка растёт к курсору (Playfair variable wght 400..900) --- */
+  if (matchMedia('(pointer:fine)').matches && heroWords && heroWords.length) {
+    const hero = $('.hero');
+    let hx = 0, hy = 0, raf = 0;
+    const paint = () => {
+      raf = 0;
+      heroWords.forEach(w => {
+        const r = w.getBoundingClientRect();
+        const dx = Math.max(Math.abs(hx - (r.left + r.width / 2)) - r.width / 2, 0);
+        const dy = Math.abs(hy - (r.top + r.height / 2));
+        const t = Math.max(0, 1 - Math.hypot(dx, dy) / 320);
+        w.style.fontVariationSettings = `'wght' ${Math.round(400 + t * 320)}`;
+      });
+    };
+    hero.addEventListener('pointermove', e => {
+      hx = e.clientX; hy = e.clientY;
+      if (!raf) raf = requestAnimationFrame(paint);
+    });
+    hero.addEventListener('pointerleave', () => heroWords.forEach(w => { w.style.fontVariationSettings = ''; }));
+  }
+
   /* --- preloader: один раз за сессию --- */
   const pre = $('#preloader');
   if (pre && sessionStorage.getItem('norde-loaded') !== '1') {
@@ -2263,6 +2292,12 @@ if (motionOK) {
   if (matchMedia('(pointer:fine)').matches) {
     const cur = $('#cursor'), lbl = $('#cursorLabel');
     cur.classList.add('on');
+    /* курсорный язык на 100% интерактива: подписи всем кликабельным без data-cursor */
+    $$('.opis-item').forEach(el => { el.dataset.cursor = 'Перейти в главу'; });
+    $$('.studio-swatches .swatch').forEach(el => { el.dataset.cursor = 'Колорвей'; });
+    $$('.footer-cols a').forEach(el => { el.dataset.cursor = 'Перейти'; });
+    const pb = $('#printBtn'); if (pb) pb.dataset.cursor = 'Печать';
+    const cb = $('#clubBtn'); if (cb) cb.dataset.cursor = 'Записаться';
     const cx = gsap.quickTo(cur, 'x', { duration: .35, ease: 'power3' });
     const cy = gsap.quickTo(cur, 'y', { duration: .35, ease: 'power3' });
     addEventListener('mousemove', e => { cx(e.clientX); cy(e.clientY); });
