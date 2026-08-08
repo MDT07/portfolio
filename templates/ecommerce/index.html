@@ -1435,8 +1435,8 @@ function renderCart() {
     drawerItems.innerHTML = `
       <div class="drawer-empty">
         <p class="mono">Корзина пуста</p>
-        <p>Добавьте что-нибудь из картотеки —<br>например, Unit n°041.</p>
-        <button class="btn btn-ghost" type="button" data-goto-catalog>Перейти в картотеку</button>
+        <p>Добавьте что-нибудь из ведомости —<br>например, Unit n°041.</p>
+        <button class="btn btn-ghost" type="button" data-goto-ledger>Перейти к ведомости</button>
       </div>`;
     drawerFoot.innerHTML = '';
     return;
@@ -1476,9 +1476,9 @@ function renderCart() {
 }
 
 drawerItems.addEventListener('click', e => {
-  if (e.target.closest('[data-goto-catalog]')) {
+  if (e.target.closest('[data-goto-ledger]')) {
     closeDrawer();
-    scrollToEl($('#filters'));
+    scrollToEl($('[data-chapter="04"]'));
     return;
   }
   const btn = e.target.closest('[data-act]');

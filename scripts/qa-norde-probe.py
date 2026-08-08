@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
-"""Зонд NORDE: (1) воспроизведение «бесконечного зума» карточек каталога,
-(2) замер FPS при скролле по всей странице. Не часть QA-сьюта."""
+"""Зонд NORDE: (1) регрессия «бесконечного зума» — фото инвентарного листа
+обязано оставаться статичным при наведении (transform: none во всех сэмплах),
+(2) кто владеет transform у фото листа и плавающего preview,
+(3-5) замер FPS и long tasks при скролле по всей странице. Не часть QA-сьюта."""
 import json, subprocess, time, sys, urllib.request, os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -57,17 +59,19 @@ try:
     cmd("Page.navigate", {"url": BASE + "/"})
     time.sleep(7)
 
-    print("=== ЗОНД 1: зум карточки при наведении ===")
+    print("=== ЗОНД 1: фото листа статично при наведении (анти-зум регрессия) ===")
     js("""(() => { const el = document.querySelector('[data-chapter="04"]');
       if (window.__lenis) window.__lenis.scrollTo(el, { immediate: true }); else el.scrollIntoView(); })()""")
     time.sleep(1.5)
-    rect = json.loads(js("JSON.stringify(document.querySelector('.product').getBoundingClientRect())"))
+    js("document.querySelector('.ledger-row').click()")  # раскрыть первый лист
+    time.sleep(1.2)
+    rect = json.loads(js("JSON.stringify(document.querySelector('.ledger-sheet.open .sheet-media img').getBoundingClientRect())"))
     cx, cy = rect["x"] + rect["width"] / 2, rect["y"] + min(rect["height"] / 2, 400)
     cmd("Input.dispatchMouseEvent", {"type": "mouseMoved", "x": cx, "y": cy})
     time.sleep(0.3)
     cmd("Input.dispatchMouseEvent", {"type": "mouseMoved", "x": cx + 2, "y": cy + 2})
     samples = js("""(async () => {
-      const img = document.querySelector('.product .product-media img');
+      const img = document.querySelector('.ledger-sheet.open .sheet-media img');
       const out = [];
       for (let i = 0; i < 14; i++) {
         out.push(getComputedStyle(img).transform + ' | inline: ' + img.style.transform);
@@ -77,13 +81,16 @@ try:
     })()""")
     for s in (samples or []):
         print(" ", s)
+    bad = [s for s in (samples or []) if not s.startswith('none')]
+    print("  STATIC:", "OK — transform ни разу не менялся" if not bad else f"FAIL — {len(bad)} сэмплов с transform")
 
     print("=== ЗОНД 2: hover-цепочка (кто владеет transform) ===")
     print(js("""(() => {
-      const img = document.querySelector('.product .product-media img');
-      const m = getComputedStyle(img);
-      return JSON.stringify({transform: m.transform, transition: m.transition, willChange: m.willChange,
-        gsap: !!img._gsap, gsapScale: img._gsap ? img._gsap.scaleX : null});
+      const img = document.querySelector('.ledger-sheet.open .sheet-media img');
+      const prev = document.querySelector('.ledger-preview');
+      const pack = el => el ? {transform: getComputedStyle(el).transform, transition: getComputedStyle(el).transition,
+        willChange: getComputedStyle(el).willChange, gsap: !!el._gsap, gsapScale: el._gsap ? el._gsap.scaleX : null} : null;
+      return JSON.stringify({ sheetImg: pack(img), cursorPreview: pack(prev) });
     })()"""))
 
     print("=== ЗОНД 3: FPS при скролле ===")

@@ -54,7 +54,7 @@ body{
 h1,h2,h3{font-family:var(--font-display); font-weight:400; line-height:1.05}
 h2{font-size:clamp(2rem,5vw,4rem); letter-spacing:0}
 a{position:relative}
-a:not(.wordmark):not(.btn):not(.product):hover{text-decoration:underline; text-underline-offset:4px; text-decoration-thickness:1px}
+a:not(.wordmark):not(.btn):hover{text-decoration:underline; text-underline-offset:4px; text-decoration-thickness:1px}
 button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-offset:2px}
 
 /* ================= GRAIN ================= */
@@ -310,15 +310,15 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 /* ================= DUOTONE (архивная обработка фото) ================= */
 /* transform НЕ в общей transition: CSS-transition на transform конфликтует с
    gsap-твинами (clip-reveal) — это и был источник «бесконечного зума» */
-.hero-media img, .look-media img, .product-media img,
-.modal-media img, .modal-thumb img, .cart-item img{
+.hero-media img, .look-media img, .sheet-media img,
+.ledger-preview, .cart-item img{
   filter:grayscale(1) sepia(.22) contrast(1.06) brightness(1.02);
   transition:filter .6s var(--ease-cine);
 }
 .chapter--dark .look-media img, .anatomy-plate img{
   filter:grayscale(1) sepia(.3) contrast(1.06) brightness(.95);
 }
-.look:hover .look-media img, .product:hover .product-media img{filter:none}
+.look:hover .look-media img, .ledger-sheet.open .sheet-media img{filter:none}
 /* дуотон-система: у приложений свои тонировки поверх базовой sepia — архив не однотонный;
    цепочка всегда начинается с grayscale(1) sepia(…) (QA + преемственность языка) */
 [data-chapter="materials"] .material-media img{filter:grayscale(1) sepia(.5) hue-rotate(50deg) saturate(.7) contrast(1.05)}
@@ -383,72 +383,50 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 .swatch.active{outline:1px solid var(--chapter-accent); outline-offset:3px}
 .studio-note{color:var(--dark-ink-2); font-size:15px; max-width:36ch}
 
-/* ================= CATALOG (04) ================= */
-.filters{display:flex; gap:12px; flex-wrap:wrap; margin-bottom:24px}
-.filter-btn{
-  position:relative; padding:10px 4px;
-  font:500 11px/1 var(--font-mono); text-transform:uppercase; letter-spacing:.06em;
-  color:var(--ink-3); transition:color .2s;
+/* ================= LEDGER (04) ================= */
+.ledger-sub{max-width:52ch; color:var(--ink-2); font-size:16px; margin:0 0 48px}
+.ledger{list-style:none}
+.ledger-item{border-top:1px solid var(--line)}
+.ledger-item:last-child{border-bottom:1px solid var(--line)}
+.ledger-row{
+  display:grid; grid-template-columns:130px 1fr auto auto auto; align-items:baseline; gap:24px;
+  width:100%; text-align:left; padding:22px 0; cursor:pointer;
+  transition:padding-left .3s var(--ease-cine);
 }
-.filter-btn::after{
-  content:""; position:absolute; left:50%; bottom:0; width:4px; height:4px;
-  border-radius:50%; background:transparent; transform:translateX(-50%);
+.ledger-row:hover, .ledger-row:focus-visible{padding-left:16px}
+.ledger-row:focus-visible{outline:none}
+.ledger-row:hover .l-name, .ledger-row:focus-visible .l-name{color:var(--chapter-accent)}
+.l-no{font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--chapter-accent)}
+.l-name{font:400 clamp(1.6rem,3.4vw,2.9rem)/1.05 var(--font-display); transition:color .3s}
+.l-cat{font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-3)}
+.l-price{font-size:12px; letter-spacing:.04em}
+.l-hint{font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-3); transition:color .3s}
+.ledger-row:hover .l-hint, .ledger-row[aria-expanded="true"] .l-hint{color:var(--chapter-accent)}
+/* раскрываемый инвентарный лист: grid-rows 0fr→1fr (Chrome/Safari 16+) */
+.ledger-sheet{display:grid; grid-template-rows:0fr; transition:grid-template-rows .55s var(--ease-cine)}
+.ledger-sheet.open{grid-template-rows:1fr}
+.sheet-inner{
+  overflow:hidden; min-height:0;
+  display:grid; grid-template-columns:minmax(280px,380px) 1fr; gap:48px;
 }
-.filter-btn:hover{color:var(--ink)}
-.filter-btn.active{color:var(--chapter-accent)}
-.filter-btn.active::after{background:var(--chapter-accent)}
-.sort-row{
-  display:flex; align-items:center; justify-content:space-between; gap:16px;
-  flex-wrap:wrap; margin-bottom:48px;
+.sheet-media{aspect-ratio:4/5; overflow:hidden; margin:8px 0 40px}
+.sheet-media img{width:100%; height:100%; object-fit:cover; transition:filter .6s var(--ease-cine)}
+.sheet-body{display:flex; flex-direction:column; gap:14px; align-items:flex-start; padding:8px 0 40px}
+.sheet-meta{font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3)}
+.sheet-body h3{font-size:clamp(1.6rem,3vw,2.4rem); line-height:1.1}
+.sheet-price{font:500 14px/1 var(--font-mono); letter-spacing:.04em}
+.sheet-desc{color:var(--ink-2); font-size:15px; max-width:52ch}
+.sheet-detail{font-size:12px; color:var(--ink-2); border-top:1px solid var(--line); padding-top:14px; width:100%}
+.sheet-detail span{color:var(--ink)}
+.sheet-add{margin-top:6px}
+.ledger-note{margin-top:64px; max-width:52ch; color:var(--ink-2); font-size:15px}
+/* плавающее фото за курсором (создаётся JS только при pointer:fine и не RM) */
+.ledger-preview{
+  position:fixed; left:0; top:0; z-index:90; width:min(20vw,240px); aspect-ratio:4/5;
+  object-fit:cover; pointer-events:none; opacity:0;
+  transition:opacity .25s, filter .45s var(--ease-cine);
 }
-.sort-label{color:var(--ink-3)}
-.sort-label b{color:var(--ink); font-weight:500}
-.sort-btns{display:flex; gap:14px; flex-wrap:wrap}
-.sort-btn{
-  padding:8px 2px; font:500 11px/1 var(--font-mono); text-transform:uppercase;
-  letter-spacing:.06em; color:var(--ink-3); transition:color .2s;
-}
-.sort-btn:hover{color:var(--ink)}
-.sort-btn.active{color:var(--chapter-accent); text-decoration:underline; text-underline-offset:5px}
-.catalog-grid{
-  display:grid; grid-template-columns:repeat(4,1fr); gap:32px;
-  background:transparent;
-}
-.product{background:var(--paper); display:flex; flex-direction:column; cursor:pointer}
-.product-unit{color:var(--ink-3); padding:14px 16px 0}
-.product-media{position:relative; overflow:hidden; aspect-ratio:4/5; margin:12px 16px 0}
-/* изображения полностью статичны: ни transform, ни clip-reveal, ни кроссфейда;
-   единственный hover-эффект — фильтр дуотон→цвет (не геометрия) */
-.product-media img{width:100%; height:100%; object-fit:cover;
-  transition:filter .6s var(--ease-cine)}
-.product-stock{
-  position:absolute; top:10px; left:10px; padding:6px 10px;
-  background:var(--paper); color:var(--chapter-accent);
-  font-size:10px; letter-spacing:.08em;
-}
-.product-quick{
-  position:absolute; left:50%; bottom:12px; transform:translate(-50%,8px);
-  padding:10px 18px; background:rgba(250,250,249,.92); color:var(--ink);
-  font:500 10px/1 var(--font-mono); text-transform:uppercase; letter-spacing:.06em;
-  opacity:0; transition:opacity .25s, transform .25s;
-  pointer-events:none;
-}
-.product:hover .product-quick, .product:focus-visible .product-quick{opacity:1; transform:translate(-50%,0)}
-.product-info{padding:16px 16px 8px; display:flex; flex-direction:column; gap:6px}
-.product-info .tag{font:500 10px/1 var(--font-mono); text-transform:uppercase; letter-spacing:.08em; color:var(--brass)}
-.product-info h3{font-size:19px; line-height:1.25}
-.product-material{font-size:13px; color:var(--ink-2)}
-.product-row{display:flex; align-items:center; justify-content:space-between; margin-top:4px}
-.product-price{font:500 12px/1 var(--font-mono); letter-spacing:.04em}
-.product-dots{display:flex; gap:6px}
-.product-dots i{width:10px; height:10px; border-radius:50%; background:var(--c); border:1px solid var(--line)}
-.product-add{
-  align-self:flex-start; margin:4px 16px 16px; padding:8px 0;
-  font:500 11px/1 var(--font-mono); text-transform:uppercase; letter-spacing:.06em;
-  color:var(--ink-2); transition:color .2s;
-}
-.product-add:hover{color:var(--chapter-accent); text-decoration:underline; text-underline-offset:4px}
-.catalog-note{margin-top:64px; max-width:52ch; color:var(--ink-2); font-size:15px}
+.ledger-preview.on{opacity:1; filter:none}
 
 /* ================= MATERIALS (Прил. А) ================= */
 .materials-row{display:grid; grid-template-columns:repeat(4,1fr); gap:32px}
@@ -563,40 +541,6 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 .print-btn{color:var(--ink-3); text-decoration:underline; text-underline-offset:4px; text-transform:inherit; letter-spacing:inherit; font:inherit}
 .print-btn:hover{color:var(--ink)}
 
-/* ================= MODAL (quick-view) ================= */
-.modal{
-  position:fixed; inset:0; z-index:200; display:flex; align-items:center; justify-content:center;
-  background:rgba(22,20,18,.55); opacity:0; pointer-events:none; transition:opacity .3s;
-}
-.modal.open{opacity:1; pointer-events:auto}
-.modal-card{
-  position:relative;  /* крестик позиционируется от карточки, а не от вьюпорта */
-  background:var(--paper); width:min(920px,92vw); max-height:88vh; overflow:auto;
-  display:grid; grid-template-columns:1fr 1fr; border:1px solid var(--line);
-  transform:translateY(16px); transition:transform .35s var(--ease-cine);
-}
-.modal.open .modal-card{transform:translateY(0)}
-.modal-media{overflow:hidden; aspect-ratio:4/5}
-.modal-media img{width:100%; height:100%; object-fit:cover}
-.modal-thumbs{position:absolute; left:12px; bottom:12px; display:flex; gap:8px}
-.modal-thumb{width:56px; height:70px; overflow:hidden; border:1px solid var(--line); opacity:.65; transition:opacity .2s, border-color .2s}
-.modal-thumb img{width:100%; height:100%; object-fit:cover}
-.modal-thumb.is-active{opacity:1; border-color:var(--brass)}
-.modal-media{position:relative}
-.modal-body{padding:40px; display:flex; flex-direction:column; gap:16px}
-/* бумажная подложка: крестик читается и над фото, и над панелью (был paper-на-paper) */
-.modal-close{
-  position:absolute; top:14px; right:14px; z-index:2; width:40px; height:40px;
-  display:grid; place-items:center; font-size:22px; line-height:1; color:var(--ink);
-  background:var(--paper); border:1px solid var(--line);
-}
-.modal-card .tag{font:500 10px/1 var(--font-mono); text-transform:uppercase; letter-spacing:.08em; color:var(--brass)}
-#qvUnit{color:var(--ink-3)}
-.modal-body h3{font-size:34px; line-height:1.1}
-.modal-price{font:500 14px/1 var(--font-mono); letter-spacing:.04em}
-.modal-desc{color:var(--ink-2); font-size:15px}
-.modal-meta{font-size:13px; color:var(--ink-2); border-top:1px solid var(--line); padding-top:16px}
-.modal-meta span{color:var(--ink)}
 .sizes{display:flex; gap:8px; flex-wrap:wrap}
 .size-btn{
   min-width:44px; padding:10px 12px; border:1px solid var(--line); border-radius:3px;
@@ -715,7 +659,6 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 
 /* ================= RESPONSIVE ================= */
 @media (max-width:1100px){
-  .catalog-grid{grid-template-columns:repeat(3,1fr)}
   .studio-grid{grid-template-columns:1fr; gap:40px}
   .materials-row{grid-template-columns:repeat(2,1fr)}
 }
@@ -728,11 +671,13 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
   .hero-media::after{background:linear-gradient(180deg, var(--paper) 0%, transparent 45%)}
   .hero-meta-v{display:none}
   .hero-title{font-size:clamp(2.6rem,13vw,4rem)}
-  .catalog-grid{grid-template-columns:repeat(2,1fr)}
+  .ledger-row{grid-template-columns:1fr auto; gap:6px 16px; padding:18px 0}
+  .l-no, .l-name{grid-column:1/-1}
+  .l-hint{display:none}
+  .sheet-inner{grid-template-columns:1fr; gap:24px}
+  .sheet-media{max-width:320px; margin-bottom:0}
   .terms .t-name{font-size:19px; width:auto; display:block; padding-bottom:6px}
   .terms td{display:block; width:100%}
-  .modal-card{grid-template-columns:1fr; max-height:92vh}
-  .modal-media{aspect-ratio:16/10}
   .footer-cols{grid-template-columns:1fr; gap:28px; padding:40px 20px}
   .look-media{width:74vw; height:auto}
   .look-counter{right:20px; bottom:20px}
@@ -750,8 +695,8 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 /* ================= PRINT: выпуск честно печатается как листовка ================= */
 @media print{
   .grain, #cursor, #preloader, .header, .marquee, .wipe, .look-counter, .toast,
-  .opis, .opis-preview, .drawer, .overlay, .modal, .look-stage, .lens,
-  .club-form, .print-btn, .product-add, .footer-cols{display:none !important}
+  .opis, .opis-preview, .drawer, .overlay, .look-stage, .lens,
+  .club-form, .print-btn, .footer-cols, .ledger-preview{display:none !important}
   html, body{background:#fff !important}
   .chapter{padding:48px 0; overflow:visible}
   .chapter--dark{background:#fff !important; color:#1C1917 !important}
@@ -768,7 +713,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
   .anatomy-caps{position:static; display:flex; flex-direction:column; gap:8px; padding:16px 0 0}
   .anatomy-caps li{position:static; max-width:none; text-align:left}
   .anatomy-caps li::before{display:none}
-  .material-media img, .journal-media img, .look img, .product-media img, .hero-media img, .studio-photo{filter:none !important}
+  .material-media img, .journal-media img, .look img, .sheet-media img, .hero-media img, .studio-photo{filter:none !important}
   .footer-wordmark{font-size:22vw}
   .footer-note{padding-bottom:16px}
   @page{margin:16mm}
@@ -806,7 +751,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
       <button class="opis-item" type="button" data-target='[data-chapter="02"]' data-preview="#lookTrack .look img" style="--opis-c:#FB7185"><span class="opis-no">02</span>Лукбук</button>
       <button class="opis-item" type="button" data-target='[data-chapter="03"]' data-preview=".studio-photo.is-active" style="--opis-c:#67E8F9"><span class="opis-no">03</span>Planche</button>
       <button class="opis-item" type="button" data-target='[data-chapter="materials"]' data-preview=".material-media img" style="--opis-c:#4D7C0F"><span class="opis-no">А</span>Материалы</button>
-      <button class="opis-item" type="button" data-target='[data-chapter="04"]' data-preview=".product-media img" style="--opis-c:#9A3412"><span class="opis-no">04</span>Архив единиц</button>
+      <button class="opis-item" type="button" data-target='[data-chapter="04"]' data-preview=".ledger-sheet img" style="--opis-c:#9A3412"><span class="opis-no">04</span>Архив единиц</button>
       <button class="opis-item" type="button" data-target='[data-chapter="journal"]' data-preview=".journal-media img" style="--opis-c:#475569"><span class="opis-no">Б</span>Журнал</button>
       <button class="opis-item" type="button" data-target='[data-chapter="05"]' style="--opis-c:#A16207"><span class="opis-no">05</span>Условия и клуб</button>
     </nav>
@@ -1000,30 +945,15 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
     <span class="chapter-numeral" aria-hidden="true">04</span>
     <div class="container">
       <p class="mono chapter-index"><b>04</b> / Архив единиц</p>
-      <h2 data-mask>Картотека</h2>
-      <div class="filters" id="filters" role="group" aria-label="Рубрикатор">
-        <button class="filter-btn active" type="button" data-filter="all" aria-pressed="true">Все</button>
-        <button class="filter-btn" type="button" data-filter="odezhda" aria-pressed="false">Одежда</button>
-        <button class="filter-btn" type="button" data-filter="obuv" aria-pressed="false">Обувь</button>
-        <button class="filter-btn" type="button" data-filter="aksessuary" aria-pressed="false">Аксессуары</button>
-        <button class="filter-btn" type="button" data-filter="dom" aria-pressed="false">Дом</button>
-      </div>
-      <div class="sort-row mono" id="sortRow">
-        <span class="sort-label">Показано <b id="shownCount" aria-live="polite">8</b> из 8</span>
-        <div class="sort-btns" role="group" aria-label="Сортировка">
-          <button class="sort-btn active" type="button" data-sort="featured" aria-pressed="true">Как в архиве</button>
-          <button class="sort-btn" type="button" data-sort="price-asc" aria-pressed="false">Цена ↑</button>
-          <button class="sort-btn" type="button" data-sort="price-desc" aria-pressed="false">Цена ↓</button>
-          <button class="sort-btn" type="button" data-sort="new" aria-pressed="false">Новизна</button>
-        </div>
-      </div>
-      <div class="catalog-grid" id="catalogGrid"></div>
-      <p class="catalog-note">Все единицы производятся малыми партиями. Если вашего размера нет — напишите, пошьём под заказ за три недели.</p>
+      <h2 data-mask>Инвентарная ведомость</h2>
+      <p class="ledger-sub">Восемь единиц хранения выпуска 01 — каждая занесена в реестр с инвентарным номером. Строка раскрывается в лист единицы.</p>
+      <ol class="ledger" id="ledger"></ol>
+      <p class="ledger-note">Все единицы производятся малыми партиями. Если вашего размера нет — напишите, пошьём под заказ за три недели.</p>
     </div>
   </section>
 
   <div class="marquee" aria-hidden="true"><div class="marquee-inner">
-    <span>Единицы хранения — Unit n°041–048 — Картотека —&nbsp;</span><span>Единицы хранения — Unit n°041–048 — Картотека —&nbsp;</span>
+    <span>Единицы хранения — Unit n°041–048 — Ведомость —&nbsp;</span><span>Единицы хранения — Unit n°041–048 — Ведомость —&nbsp;</span>
   </div></div>
 
   <!-- ================= ПРИЛ. Б — ЖУРНАЛ ================= -->
@@ -1079,12 +1009,9 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
   <div class="footer-wordmark" aria-hidden="true">NORDE</div>
   <div class="container footer-cols">
     <div>
-      <h4>Картотека</h4>
+      <h4>Ведомость</h4>
       <ul>
-        <li><a href="#top" data-goto-filter="odezhda">Одежда</a></li>
-        <li><a href="#top" data-goto-filter="obuv">Обувь</a></li>
-        <li><a href="#top" data-goto-filter="aksessuary">Аксессуары</a></li>
-        <li><a href="#top" data-goto-filter="dom">Дом</a></li>
+        <li><a href="#top" data-goto-ledger>Архив единиц</a></li>
       </ul>
     </div>
     <div>
@@ -1107,30 +1034,6 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
   </div>
   <p class="mono footer-note">NORDE · Архив · Выпуск 01 — демонстрационный шаблон · <button class="print-btn" id="printBtn" type="button">Распечатать выпуск</button></p>
 </footer>
-
-<!-- ================= QUICK VIEW MODAL ================= -->
-<div class="modal" id="modal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Быстрый просмотр товара">
-  <div class="modal-card">
-    <button class="modal-close" type="button" data-close-modal aria-label="Закрыть">×</button>
-    <div class="modal-media">
-      <img id="qvImg" src="" alt="">
-      <div class="modal-thumbs">
-        <button class="modal-thumb is-active" type="button" data-thumb="0" aria-label="Фото 1"><img id="qvThumb0" src="" alt=""></button>
-        <button class="modal-thumb" type="button" data-thumb="1" aria-label="Фото 2"><img id="qvThumb1" src="" alt=""></button>
-      </div>
-    </div>
-    <div class="modal-body">
-      <span class="tag mono" id="qvCat"></span>
-      <span class="mono" id="qvUnit"></span>
-      <h3 id="qvName"></h3>
-      <p class="modal-price mono" id="qvPrice"></p>
-      <p class="modal-desc" id="qvDesc"></p>
-      <div class="sizes" id="qvSizes"></div>
-      <button class="btn btn-primary btn-block" type="button" id="qvAdd">В корзину</button>
-      <p class="modal-meta" id="qvMeta"></p>
-    </div>
-  </div>
-</div>
 
 <!-- ================= CART DRAWER ================= -->
 <div class="overlay" id="overlay" data-close-drawer></div>
@@ -1283,19 +1186,13 @@ const ARTICLES = [
 ];
 
 /* ================= STATE ================= */
-const state = { filter: 'all', sort: 'featured', cart: [], qvId: null, qvSize: null };
+const state = { cart: [] };
 
 /* ================= HELPERS ================= */
 const $ = (sel, root) => (root || document).querySelector(sel);
 const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
 const fmt = n => new Intl.NumberFormat('ru-RU').format(n) + ' ₽';
 const byId = id => PRODUCTS.find(p => p.id === id) || null;
-const SORTS = {
-  'featured':  (a, b) => a.id - b.id,
-  'price-asc': (a, b) => a.price - b.price,
-  'price-desc':(a, b) => b.price - a.price,
-  'new':       (a, b) => b.added - a.added
-};
 /* scramble-перебор: цифры/буквы «расшифровываются» в финальный текст */
 const SCRAMBLE_CHARS = '0123456789—·ABCDEF';
 function scrambleText(el, finalText, dur = 800) {
@@ -1363,8 +1260,8 @@ function toast(msg) {
   toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2400);
 }
 
-/* ================= CATALOG ================= */
-const grid = $('#catalogGrid');
+/* ================= LEDGER ================= */
+const ledgerEl = $('#ledger');
 
 /* полосы состава материалов: дорисовка при входе (CSS transition — работает и без motion-стека) */
 const matBarIO = 'IntersectionObserver' in window
@@ -1378,100 +1275,103 @@ const matBarIO = 'IntersectionObserver' in window
   : null;
 $$('.material-card').forEach(c => matBarIO ? matBarIO.observe(c) : c.classList.add('is-in'));
 
-function renderCatalog() {
-  const items = PRODUCTS
-    .filter(p => state.filter === 'all' || p.cat === state.filter)
-    .sort(SORTS[state.sort] || SORTS.featured);
-  $('#shownCount').textContent = items.length;
-  grid.innerHTML = items.map(p => `
-    <article class="product" data-id="${p.id}" tabindex="0" role="button" aria-label="${p.name} — быстрый просмотр">
-      <div class="product-media" data-cursor="Быстрый просмотр">
-        <img src="${p.img}" alt="${p.name}" loading="lazy">
-        ${p.stock != null && p.stock <= 3 ? `<span class="product-stock mono">Осталось ${p.stock}</span>` : ''}
-        <button class="product-quick" type="button" data-id="${p.id}">Быстрый просмотр</button>
-      </div>
-      <div class="product-info">
-        <span class="product-unit mono">${p.unit} — ${CATS[p.cat]}</span>
-        <h3>${p.name}</h3>
-        <p class="product-material">${p.material}</p>
-        <div class="product-row">
-          <div class="product-price mono">${fmt(p.price)}</div>
-          <div class="product-dots">${p.colors.map(c => `<i style="--c:${c}"></i>`).join('')}</div>
+function renderLedger() {
+  ledgerEl.innerHTML = PRODUCTS.map(p => `
+    <li class="ledger-item">
+      <button class="ledger-row" type="button" aria-expanded="false" aria-controls="sheet-${p.id}" data-id="${p.id}" data-cursor="Открыть лист">
+        <span class="l-no mono">${p.unit}</span>
+        <span class="l-name">${p.name}</span>
+        <span class="l-cat mono">${CATS[p.cat]}</span>
+        <span class="l-price mono">${fmt(p.price)}</span>
+        <span class="l-hint mono" aria-hidden="true">Лист →</span>
+      </button>
+      <div class="ledger-sheet" id="sheet-${p.id}">
+        <div class="sheet-inner">
+          <figure class="sheet-media"><img src="${p.img}" alt="${p.name}" loading="lazy"></figure>
+          <div class="sheet-body">
+            <p class="sheet-meta mono">${CATS[p.cat]} · ${p.unit}</p>
+            <h3>${p.name}</h3>
+            <p class="sheet-price mono" data-final="${fmt(p.price)}">${fmt(p.price)}</p>
+            <p class="sheet-desc">${p.desc}</p>
+            <div class="sheet-detail mono">${p.meta}</div>
+            <div class="sizes" role="group" aria-label="Размер">
+              ${SIZES[p.cat].map(s => `<button class="size-btn${s === SIZES[p.cat][Math.floor(SIZES[p.cat].length / 2)] ? ' active' : ''}" type="button" data-size="${s}">${s}</button>`).join('')}
+            </div>
+            <button class="btn btn-primary sheet-add" type="button" data-add="${p.id}">+ в корзину</button>
+          </div>
         </div>
       </div>
-      <button class="product-add mono" type="button" data-add="${p.id}">+ в корзину</button>
-    </article>`).join('');
+    </li>`).join('');
 }
+renderLedger();
 
-/* перестановка/фильтрация с ручным FLIP: ушедшие позиции → новые */
-function updateCatalog() {
-  const first = new Map($$('.product', grid).map(c => [c.dataset.id, c.getBoundingClientRect()]));
-  renderCatalog();
-  if (reducedMotion || !window.gsap) return;
-  $$('.product', grid).forEach((c, i) => {
-    const f = first.get(c.dataset.id);
-    const l = c.getBoundingClientRect();
-    if (f && (Math.round(f.left) !== Math.round(l.left) || Math.round(f.top) !== Math.round(l.top))) {
-      gsap.fromTo(c, { x: f.left - l.left, y: f.top - l.top }, { x: 0, y: 0, duration: .5, ease: 'power3.out' });
-    } else if (!f) {
-      gsap.fromTo(c, { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: .45, delay: i * 0.03, ease: 'power2.out' });
-    }
+function toggleSheet(id) {
+  const row = $(`.ledger-row[data-id="${id}"]`, ledgerEl);
+  const sheet = $('#sheet-' + id);
+  if (!row || !sheet) return;
+  const opening = !sheet.classList.contains('open');
+  /* аккордеон: сначала свернуть текущий лист */
+  $$('.ledger-sheet.open', ledgerEl).forEach(s => {
+    s.classList.remove('open');
+    const r = $(`.ledger-row[aria-controls="${s.id}"]`, ledgerEl);
+    if (r) { r.setAttribute('aria-expanded', 'false'); $('.l-hint', r).textContent = 'Лист →'; }
   });
-  /* картотека «пересчитывается»: цены расшифровываются после перестановки/фильтрации */
-  $$('.product-price', grid).forEach((el, i) => setTimeout(() => scrambleText(el, el.textContent.trim(), 500), i * 45));
+  if (!opening) return;
+  sheet.classList.add('open');
+  row.setAttribute('aria-expanded', 'true');
+  $('.l-hint', row).textContent = 'Свернуть ↑';
+  const price = $('.sheet-price', sheet);
+  if (price && window.gsap && !reducedMotion) scrambleText(price, price.dataset.final, 500);
 }
 
-grid.addEventListener('click', e => {
-  const addBtn = e.target.closest('[data-add]');
+ledgerEl.addEventListener('click', e => {
+  const addBtn = e.target.closest('.sheet-add');
   if (addBtn) {
     const p = byId(+addBtn.dataset.add);
-    const sizes = SIZES[p.cat];
-    addToCart(p.id, sizes[Math.floor(sizes.length / 2)]);
+    if (!p) return;
+    const sheet = addBtn.closest('.ledger-sheet');
+    const sizeEl = $('.size-btn.active', sheet);
+    const size = sizeEl ? sizeEl.dataset.size : SIZES[p.cat][Math.floor(SIZES[p.cat].length / 2)];
+    addToCart(p.id, size);
     flyToCart(addBtn);
     toast(`${p.unit} → Корзина`);
+    openDrawer();
     return;
   }
-  const card = e.target.closest('.product');
-  if (card) openQuickView(parseInt(card.dataset.id, 10));
-});
-grid.addEventListener('keydown', e => {
-  if (e.key !== 'Enter' && e.key !== ' ') return;
-  if (e.target.closest('button')) return;  /* у нативных кнопок своё поведение */
-  const card = e.target.closest('.product');
-  if (!card) return;
-  e.preventDefault();
-  openQuickView(parseInt(card.dataset.id, 10));
+  const sizeBtn = e.target.closest('.size-btn');
+  if (sizeBtn) {
+    $$('.size-btn', sizeBtn.closest('.sizes')).forEach(b => b.classList.toggle('active', b === sizeBtn));
+    return;
+  }
+  const row = e.target.closest('.ledger-row');
+  if (row) toggleSheet(+row.dataset.id);
 });
 
-/* ================= FILTERS ================= */
-const filtersWrap = $('#filters');
-function setFilter(cat) {
-  state.filter = cat;
-  $$('.filter-btn', filtersWrap).forEach(b => {
-    const on = b.dataset.filter === cat;
-    b.classList.toggle('active', on);
-    b.setAttribute('aria-pressed', String(on));
-  });
-  updateCatalog();
-}
-filtersWrap.addEventListener('click', e => {
-  const btn = e.target.closest('.filter-btn');
-  if (btn) setFilter(btn.dataset.filter);
-});
-$('#sortRow') && $$('.sort-btn').forEach(b => b.addEventListener('click', () => {
-  state.sort = b.dataset.sort;
-  $$('.sort-btn').forEach(x => {
-    const on = x === b;
-    x.classList.toggle('active', on);
-    x.setAttribute('aria-pressed', String(on));
-  });
-  updateCatalog();
-}));
-$$('[data-goto-filter]').forEach(a => a.addEventListener('click', e => {
+/* футерная ссылка «Архив единиц» */
+$$('[data-goto-ledger]').forEach(a => a.addEventListener('click', e => {
   e.preventDefault();  /* иначе нативный прыжок к #top гонится с анимацией скролла */
-  setFilter(a.dataset.gotoFilter);
-  scrollToEl($('#filters'));
+  scrollToEl($('[data-chapter="04"]'));
 }));
+
+/* плавающее фото за курсором: pointer:fine + не RM + GSAP (иначе не создаётся) */
+if (matchMedia('(pointer:fine)').matches && !reducedMotion && window.gsap) {
+  const prev = document.createElement('img');
+  prev.className = 'ledger-preview';
+  prev.alt = '';
+  prev.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(prev);
+  const qx = gsap.quickTo(prev, 'x', { duration: .35, ease: 'power3' });
+  const qy = gsap.quickTo(prev, 'y', { duration: .35, ease: 'power3' });
+  ledgerEl.addEventListener('pointermove', e => { qx(e.clientX + 24); qy(e.clientY - 130); });
+  ledgerEl.addEventListener('pointerover', e => {
+    const row = e.target.closest('.ledger-row');
+    if (!row) return;
+    const p = byId(+row.dataset.id);
+    if (p && prev.getAttribute('src') !== p.img) prev.src = p.img;
+    prev.classList.add('on');
+  });
+  ledgerEl.addEventListener('pointerleave', () => prev.classList.remove('on'));
+}
 
 /* ================= FOCUS (диалоги: перенос внутрь, возврат, Tab-ловушка) ================= */
 let lastFocus = null;
@@ -1492,71 +1392,6 @@ function trapTab(e, container) {
   if (e.shiftKey && document.activeElement === first) { last.focus(); e.preventDefault(); }
   else if (!e.shiftKey && document.activeElement === last) { first.focus(); e.preventDefault(); }
 }
-
-/* ================= QUICK VIEW ================= */
-const modal = $('#modal');
-
-function openQuickView(id) {
-  const p = byId(id);
-  if (!p) return;
-  state.qvId = id;
-  const sizes = SIZES[p.cat];
-  state.qvSize = sizes[Math.floor(sizes.length / 2)];
-
-  $('#qvImg').src = p.img;
-  $('#qvImg').alt = p.name;
-  $('#qvThumb0').src = p.img;
-  const t1 = $('.modal-thumb[data-thumb="1"]');
-  if (p.img2) { $('#qvThumb1').src = p.img2; t1.style.display = ''; }
-  else t1.style.display = 'none';
-  $$('.modal-thumb').forEach(t => t.classList.toggle('is-active', t.dataset.thumb === '0'));
-  $('#qvCat').textContent = CATS[p.cat];
-  $('#qvUnit').textContent = p.unit;
-  $('#qvName').textContent = p.name;
-  $('#qvPrice').textContent = fmt(p.price);
-  $('#qvDesc').textContent = p.desc;
-  $('#qvMeta').innerHTML = p.meta;
-  $('#qvSizes').innerHTML = sizes.map(s =>
-    `<button class="size-btn${s === state.qvSize ? ' active' : ''}" type="button" data-size="${s}">${s}</button>`
-  ).join('');
-
-  modal.classList.add('open');
-  modal.setAttribute('aria-hidden', 'false');
-  document.body.style.overflow = 'hidden';
-  focusIn(modal);
-}
-
-function closeQuickView() {
-  modal.classList.remove('open');
-  modal.setAttribute('aria-hidden', 'true');
-  if (!drawer.classList.contains('open')) document.body.style.overflow = '';
-  state.qvId = null;
-  focusBack();
-}
-
-modal.addEventListener('click', e => {
-  if (e.target.closest('[data-close-modal]')) closeQuickView();
-});
-$('#qvSizes').addEventListener('click', e => {
-  const btn = e.target.closest('.size-btn');
-  if (!btn) return;
-  state.qvSize = btn.dataset.size;
-  $$('.size-btn', $('#qvSizes')).forEach(b => b.classList.toggle('active', b === btn));
-});
-$$('.modal-thumb').forEach(t => t.addEventListener('click', () => {
-  const src = t.dataset.thumb === '0' ? byId(state.qvId).img : byId(state.qvId).img2;
-  if (!src) return;
-  $('#qvImg').src = src;
-  $$('.modal-thumb').forEach(x => x.classList.toggle('is-active', x === t));
-}));
-$('#qvAdd').addEventListener('click', () => {
-  if (state.qvId == null) return;
-  const p = byId(state.qvId);
-  addToCart(state.qvId, state.qvSize);
-  closeQuickView();
-  openDrawer();
-  toast(`${p.unit} → Корзина`);
-});
 
 /* ================= CART ================= */
 const drawer = $('#drawer');
@@ -1600,8 +1435,8 @@ function renderCart() {
     drawerItems.innerHTML = `
       <div class="drawer-empty">
         <p class="mono">Корзина пуста</p>
-        <p>Добавьте что-нибудь из картотеки —<br>например, Unit n°041.</p>
-        <button class="btn btn-ghost" type="button" data-goto-catalog>Перейти в картотеку</button>
+        <p>Добавьте что-нибудь из ведомости —<br>например, Unit n°041.</p>
+        <button class="btn btn-ghost" type="button" data-goto-ledger>Перейти к ведомости</button>
       </div>`;
     drawerFoot.innerHTML = '';
     return;
@@ -1641,9 +1476,9 @@ function renderCart() {
 }
 
 drawerItems.addEventListener('click', e => {
-  if (e.target.closest('[data-goto-catalog]')) {
+  if (e.target.closest('[data-goto-ledger]')) {
     closeDrawer();
-    scrollToEl($('#filters'));
+    scrollToEl($('[data-chapter="04"]'));
     return;
   }
   const btn = e.target.closest('[data-act]');
@@ -1668,7 +1503,7 @@ function closeDrawer() {
   drawer.classList.remove('open');
   overlay.classList.remove('open');
   drawer.setAttribute('aria-hidden', 'true');
-  if (!modal.classList.contains('open')) document.body.style.overflow = '';
+  document.body.style.overflow = '';
   focusBack();
 }
 
@@ -1902,19 +1737,18 @@ journalOverlay.addEventListener('click', e => {
 renderJournal();
 
 /* ================= ESC / TAB / HEADER ================= */
-/* Esc глотает только верхний открытый слой: опись (z250) → стейдж/журнал → модалка → drawer */
+/* Esc глотает только верхний открытый слой: опись (z250) → стейдж/журнал → drawer */
 document.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
   if (opisOpenFlag) closeOpis();
   else if (lookStage.classList.contains('open')) closeLookStage();
   else if (journalOverlay.classList.contains('open')) closeArticle();
-  else if (modal.classList.contains('open')) closeQuickView();
   else if (drawer.classList.contains('open')) closeDrawer();
 });
 /* Tab-ловушка в активном диалоге */
 document.addEventListener('keydown', e => {
   if (e.key !== 'Tab') return;
-  const open = [lookStage, modal, drawer].find(el => el.classList.contains('open'));
+  const open = [lookStage, drawer].find(el => el.classList.contains('open'));
   if (open) trapTab(e, open);
 });
 
@@ -2043,7 +1877,7 @@ if (opisDate) opisDate.textContent = new Date().toLocaleDateString('ru-RU', { da
 $('#printBtn').addEventListener('click', () => window.print());
 
 /* ================= INIT ================= */
-renderCatalog();
+renderLedger();
 renderCart();
 renderLooks();
 
@@ -2215,6 +2049,13 @@ if (motionOK) {
   ScrollTrigger.batch(lensMode ? '.journal-card' : '.material-card, .journal-card', {
     start: 'top 78%', once: true,
     onEnter: els => els.forEach((el, i) => setTimeout(() => el.classList.add('is-color'), i * 120))
+  });
+
+  /* --- ведомость 04: строки проявляются каскадом --- */
+  gsap.set('.ledger-item', { opacity: 0, y: 24 });
+  ScrollTrigger.batch('.ledger-item', {
+    start: 'top 88%', once: true,
+    onEnter: els => gsap.to(els, { opacity: 1, y: 0, duration: .7, ease: 'power3.out', stagger: .07, overwrite: true })
   });
 
   /* --- curtain-wipe в начале глав 02/03/04 --- */
