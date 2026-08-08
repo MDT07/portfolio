@@ -541,40 +541,6 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 .print-btn{color:var(--ink-3); text-decoration:underline; text-underline-offset:4px; text-transform:inherit; letter-spacing:inherit; font:inherit}
 .print-btn:hover{color:var(--ink)}
 
-/* ================= MODAL (quick-view) ================= */
-.modal{
-  position:fixed; inset:0; z-index:200; display:flex; align-items:center; justify-content:center;
-  background:rgba(22,20,18,.55); opacity:0; pointer-events:none; transition:opacity .3s;
-}
-.modal.open{opacity:1; pointer-events:auto}
-.modal-card{
-  position:relative;  /* крестик позиционируется от карточки, а не от вьюпорта */
-  background:var(--paper); width:min(920px,92vw); max-height:88vh; overflow:auto;
-  display:grid; grid-template-columns:1fr 1fr; border:1px solid var(--line);
-  transform:translateY(16px); transition:transform .35s var(--ease-cine);
-}
-.modal.open .modal-card{transform:translateY(0)}
-.modal-media{overflow:hidden; aspect-ratio:4/5}
-.modal-media img{width:100%; height:100%; object-fit:cover}
-.modal-thumbs{position:absolute; left:12px; bottom:12px; display:flex; gap:8px}
-.modal-thumb{width:56px; height:70px; overflow:hidden; border:1px solid var(--line); opacity:.65; transition:opacity .2s, border-color .2s}
-.modal-thumb img{width:100%; height:100%; object-fit:cover}
-.modal-thumb.is-active{opacity:1; border-color:var(--brass)}
-.modal-media{position:relative}
-.modal-body{padding:40px; display:flex; flex-direction:column; gap:16px}
-/* бумажная подложка: крестик читается и над фото, и над панелью (был paper-на-paper) */
-.modal-close{
-  position:absolute; top:14px; right:14px; z-index:2; width:40px; height:40px;
-  display:grid; place-items:center; font-size:22px; line-height:1; color:var(--ink);
-  background:var(--paper); border:1px solid var(--line);
-}
-.modal-card .tag{font:500 10px/1 var(--font-mono); text-transform:uppercase; letter-spacing:.08em; color:var(--brass)}
-#qvUnit{color:var(--ink-3)}
-.modal-body h3{font-size:34px; line-height:1.1}
-.modal-price{font:500 14px/1 var(--font-mono); letter-spacing:.04em}
-.modal-desc{color:var(--ink-2); font-size:15px}
-.modal-meta{font-size:13px; color:var(--ink-2); border-top:1px solid var(--line); padding-top:16px}
-.modal-meta span{color:var(--ink)}
 .sizes{display:flex; gap:8px; flex-wrap:wrap}
 .size-btn{
   min-width:44px; padding:10px 12px; border:1px solid var(--line); border-radius:3px;
@@ -1069,30 +1035,6 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
   <p class="mono footer-note">NORDE · Архив · Выпуск 01 — демонстрационный шаблон · <button class="print-btn" id="printBtn" type="button">Распечатать выпуск</button></p>
 </footer>
 
-<!-- ================= QUICK VIEW MODAL ================= -->
-<div class="modal" id="modal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Быстрый просмотр товара">
-  <div class="modal-card">
-    <button class="modal-close" type="button" data-close-modal aria-label="Закрыть">×</button>
-    <div class="modal-media">
-      <img id="qvImg" src="" alt="">
-      <div class="modal-thumbs">
-        <button class="modal-thumb is-active" type="button" data-thumb="0" aria-label="Фото 1"><img id="qvThumb0" src="" alt=""></button>
-        <button class="modal-thumb" type="button" data-thumb="1" aria-label="Фото 2"><img id="qvThumb1" src="" alt=""></button>
-      </div>
-    </div>
-    <div class="modal-body">
-      <span class="tag mono" id="qvCat"></span>
-      <span class="mono" id="qvUnit"></span>
-      <h3 id="qvName"></h3>
-      <p class="modal-price mono" id="qvPrice"></p>
-      <p class="modal-desc" id="qvDesc"></p>
-      <div class="sizes" id="qvSizes"></div>
-      <button class="btn btn-primary btn-block" type="button" id="qvAdd">В корзину</button>
-      <p class="modal-meta" id="qvMeta"></p>
-    </div>
-  </div>
-</div>
-
 <!-- ================= CART DRAWER ================= -->
 <div class="overlay" id="overlay" data-close-drawer></div>
 <aside class="drawer" id="drawer" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Корзина">
@@ -1450,71 +1392,6 @@ function trapTab(e, container) {
   if (e.shiftKey && document.activeElement === first) { last.focus(); e.preventDefault(); }
   else if (!e.shiftKey && document.activeElement === last) { first.focus(); e.preventDefault(); }
 }
-
-/* ================= QUICK VIEW ================= */
-const modal = $('#modal');
-
-function openQuickView(id) {
-  const p = byId(id);
-  if (!p) return;
-  state.qvId = id;
-  const sizes = SIZES[p.cat];
-  state.qvSize = sizes[Math.floor(sizes.length / 2)];
-
-  $('#qvImg').src = p.img;
-  $('#qvImg').alt = p.name;
-  $('#qvThumb0').src = p.img;
-  const t1 = $('.modal-thumb[data-thumb="1"]');
-  if (p.img2) { $('#qvThumb1').src = p.img2; t1.style.display = ''; }
-  else t1.style.display = 'none';
-  $$('.modal-thumb').forEach(t => t.classList.toggle('is-active', t.dataset.thumb === '0'));
-  $('#qvCat').textContent = CATS[p.cat];
-  $('#qvUnit').textContent = p.unit;
-  $('#qvName').textContent = p.name;
-  $('#qvPrice').textContent = fmt(p.price);
-  $('#qvDesc').textContent = p.desc;
-  $('#qvMeta').innerHTML = p.meta;
-  $('#qvSizes').innerHTML = sizes.map(s =>
-    `<button class="size-btn${s === state.qvSize ? ' active' : ''}" type="button" data-size="${s}">${s}</button>`
-  ).join('');
-
-  modal.classList.add('open');
-  modal.setAttribute('aria-hidden', 'false');
-  document.body.style.overflow = 'hidden';
-  focusIn(modal);
-}
-
-function closeQuickView() {
-  modal.classList.remove('open');
-  modal.setAttribute('aria-hidden', 'true');
-  if (!drawer.classList.contains('open')) document.body.style.overflow = '';
-  state.qvId = null;
-  focusBack();
-}
-
-modal.addEventListener('click', e => {
-  if (e.target.closest('[data-close-modal]')) closeQuickView();
-});
-$('#qvSizes').addEventListener('click', e => {
-  const btn = e.target.closest('.size-btn');
-  if (!btn) return;
-  state.qvSize = btn.dataset.size;
-  $$('.size-btn', $('#qvSizes')).forEach(b => b.classList.toggle('active', b === btn));
-});
-$$('.modal-thumb').forEach(t => t.addEventListener('click', () => {
-  const src = t.dataset.thumb === '0' ? byId(state.qvId).img : byId(state.qvId).img2;
-  if (!src) return;
-  $('#qvImg').src = src;
-  $$('.modal-thumb').forEach(x => x.classList.toggle('is-active', x === t));
-}));
-$('#qvAdd').addEventListener('click', () => {
-  if (state.qvId == null) return;
-  const p = byId(state.qvId);
-  addToCart(state.qvId, state.qvSize);
-  closeQuickView();
-  openDrawer();
-  toast(`${p.unit} → Корзина`);
-});
 
 /* ================= CART ================= */
 const drawer = $('#drawer');
