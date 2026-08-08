@@ -1411,6 +1411,26 @@ $$('[data-goto-ledger]').forEach(a => a.addEventListener('click', e => {
   scrollToEl($('[data-chapter="04"]'));
 }));
 
+/* плавающее фото за курсором: pointer:fine + не RM + GSAP (иначе не создаётся) */
+if (matchMedia('(pointer:fine)').matches && !reducedMotion && window.gsap) {
+  const prev = document.createElement('img');
+  prev.className = 'ledger-preview';
+  prev.alt = '';
+  prev.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(prev);
+  const qx = gsap.quickTo(prev, 'x', { duration: .35, ease: 'power3' });
+  const qy = gsap.quickTo(prev, 'y', { duration: .35, ease: 'power3' });
+  ledgerEl.addEventListener('pointermove', e => { qx(e.clientX + 24); qy(e.clientY - 130); });
+  ledgerEl.addEventListener('pointerover', e => {
+    const row = e.target.closest('.ledger-row');
+    if (!row) return;
+    const p = byId(+row.dataset.id);
+    if (p && prev.getAttribute('src') !== p.img) prev.src = p.img;
+    prev.classList.add('on');
+  });
+  ledgerEl.addEventListener('pointerleave', () => prev.classList.remove('on'));
+}
+
 /* ================= FOCUS (диалоги: перенос внутрь, возврат, Tab-ловушка) ================= */
 let lastFocus = null;
 function focusIn(container) {
@@ -1980,7 +2000,7 @@ if (opisDate) opisDate.textContent = new Date().toLocaleDateString('ru-RU', { da
 $('#printBtn').addEventListener('click', () => window.print());
 
 /* ================= INIT ================= */
-renderCatalog();
+renderLedger();
 renderCart();
 renderLooks();
 
@@ -2152,6 +2172,13 @@ if (motionOK) {
   ScrollTrigger.batch(lensMode ? '.journal-card' : '.material-card, .journal-card', {
     start: 'top 78%', once: true,
     onEnter: els => els.forEach((el, i) => setTimeout(() => el.classList.add('is-color'), i * 120))
+  });
+
+  /* --- ведомость 04: строки проявляются каскадом --- */
+  gsap.set('.ledger-item', { opacity: 0, y: 24 });
+  ScrollTrigger.batch('.ledger-item', {
+    start: 'top 88%', once: true,
+    onEnter: els => gsap.to(els, { opacity: 1, y: 0, duration: .7, ease: 'power3.out', stagger: .07, overwrite: true })
   });
 
   /* --- curtain-wipe в начале глав 02/03/04 --- */

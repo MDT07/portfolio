@@ -61,7 +61,7 @@
  },
  {
   "name": "в корзину из листа → drawer открыт",
-  "js": "(document.querySelector('.ledger-sheet.open .sheet-add').click(), document.querySelector('#drawer').classList.contains('open'))"
+  "js": "(() => { const r=document.querySelectorAll('.ledger-row')[0]; if(r.getAttribute('aria-expanded')!=='true') r.click(); document.querySelector('.ledger-sheet.open .sheet-add').click(); return document.querySelector('#drawer').classList.contains('open'); })()"
  },
  {
   "name": "preview за курсором: только pointer:fine и не RM",
