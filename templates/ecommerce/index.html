@@ -161,6 +161,8 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 .header-meta{color:var(--ink-3)}
 .cart-btn{display:flex; align-items:center; gap:8px; font:500 11px/1 var(--font-mono); text-transform:uppercase; letter-spacing:.06em}
 .header-actions{display:flex; align-items:center; gap:22px}
+.sound-toggle{font-size:14px; padding:8px; border-radius:50%; border:1px solid var(--line); background:transparent; cursor:pointer; transition:border-color .2s}
+.sound-toggle[aria-pressed="true"]{border-color:var(--accent)}
 .opis-btn{font:500 11px/1 var(--font-mono); text-transform:uppercase; letter-spacing:.06em; color:var(--ink-2)}
 .opis-btn:hover{color:var(--ink)}
 .cart-count{
@@ -773,6 +775,10 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
     <a class="wordmark" href="#top">NORDE</a>
     <p class="mono header-meta">Архив · Выпуск 01 · 59.93°N 30.33°E · МСК <span id="mskClock">--:--:--</span></p>
     <div class="header-actions">
+      <button class="sound-toggle" id="soundToggle" type="button" aria-pressed="false" aria-label="Звук выключен">
+        <span class="sound-off" aria-hidden="true">🔇</span>
+        <span class="sound-on" aria-hidden="true" hidden>🔊</span>
+      </button>
       <button class="opis-btn" id="opisBtn" type="button" aria-haspopup="dialog" aria-controls="opis">Опись ↓</button>
       <button class="cart-btn" id="cartBtn" type="button" aria-label="Открыть корзину">
         Корзина <span class="cart-count hidden" id="cartCount">0</span>
@@ -1093,6 +1099,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
 <script src=//cdn.jsdelivr.net/npm/gsap@3.12.5/dist/SplitText.min.js></script>
+<script src="https://cdn.jsdelivr.net/npm/howler@2.2.4/dist/howler.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
 
 <script type="module">
@@ -1286,6 +1293,33 @@ function flyToCart(fromEl) {
   });
 }
 const cartKey = (id, size) => id + '::' + size;
+
+/* ================= SOUND (opt-in) ================= */
+const soundEnabled = () => {
+  const btn = document.getElementById('soundToggle');
+  return btn && btn.getAttribute('aria-pressed') === 'true';
+};
+let stampSound = null;
+if (window.Howl) {
+  stampSound = new Howl({
+    src: ['data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZURE'],
+    volume: 0.15
+  });
+}
+const playStamp = () => {
+  if (soundEnabled() && stampSound) stampSound.play();
+};
+$('#soundToggle').addEventListener('click', () => {
+  const btn = $('#soundToggle');
+  const on = btn.getAttribute('aria-pressed') !== 'true';
+  btn.setAttribute('aria-pressed', on);
+  btn.setAttribute('aria-label', on ? 'Звук включён' : 'Звук выключен');
+  btn.querySelector('.sound-off').hidden = on;
+  btn.querySelector('.sound-on').hidden = !on;
+});
+
+/* прокрутка через Lenis, если он активен */
+
 /* прокрутка через Lenis, если он активен */
 const scrollToEl = el => {
   if (window.__lenis) window.__lenis.scrollTo(el, { offset: -72 });
@@ -1591,6 +1625,9 @@ function checkout() {
     <button class="btn btn-primary btn-block" type="button" id="actCloseBtn">Закрыть акт</button>
     <p class="drawer-note">Подпись курьера подтверждает приём. Чек отправлен на почту.</p>`;
   $('#actCloseBtn').addEventListener('click', () => { closeDrawer(); renderCart(); });
+  if (typeof playStamp === 'function') playStamp();
+
+  state.cart = [];
 
   state.cart = [];
   cartCountEl.textContent = '0';
