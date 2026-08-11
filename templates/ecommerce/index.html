@@ -72,6 +72,34 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 
 /* ================= GRAIN ================= */
 .grain{
+  position:fixed; inset:-140px; z-index:999; pointer-events:none; opacity:.04;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='512' height='512'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  will-change:transform;
+  animation:grainShift 1.2s steps(1) infinite;
+}
+/* живое плёночное зерно: прыжки через transform (композитор, без репейнта вьюпорта);
+   слой увеличен (inset:-140px), чтобы сдвиг не оголял края; в RM глушится глобальным animation:none */
+@keyframes grainShift{
+  0%{transform:translate3d(0,0,0) scale(1.1)}
+  25%{transform:translate3d(-80px,60px,0) scale(1.15)}
+  50%{transform:translate3d(60px,-90px,0) scale(1.08)}
+  75%{transform:translate3d(-70px,-50px,0) scale(1.12)}
+  100%{transform:translate3d(0,0,0) scale(1.1)}
+}
+
+/* ================= PAPER TEXTURE ================= */
+.paper-texture{position:relative}
+.paper-texture::before{
+  content:''; position:absolute; inset:0; pointer-events:none; opacity:.03;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='5'/%3E%3CfeDiffuseLighting lighting-color='%23F4F3F1' surfaceScale='2'%3E%3CfeDistantLight azimuth='45' elevation='60'/%3E%3C/feDiffuseLighting%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
+  mix-blend-mode:multiply;
+}
+
+@media (prefers-reduced-motion: reduce){
+  .grain{animation:none; opacity:.02}
+  .paper-texture::before{opacity:.01}
+}
+.grain{
   position:fixed; inset:-140px; z-index:999; pointer-events:none; opacity:.05;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   will-change:transform;
