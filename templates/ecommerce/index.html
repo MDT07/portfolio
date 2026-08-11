@@ -23,10 +23,12 @@
   --paper:#FAFAF9; --paper-2:#F4F3F1; --ink:#1C1917;
   --ink-2:rgba(28,25,23,.62); --ink-3:rgba(28,25,23,.68);  /* ink-3 — meta-текст: .68 даёт ≥4.5:1 на бумаге (WCAG AA) */
   --line:#D6D3D1; --brass:#A16207; --brass-hover:#8A5506;
+  --accent:#B7410E; --accent-hover:#9A350B;  /* киноварь — dopamine-акцент для editorial-архива */
+  --dark:#161412; --dark-ink:#EDE9E4; --dark-ink-2:rgba(237,233,228,.62);
   --dark:#161412; --dark-ink:#EDE9E4; --dark-ink-2:rgba(237,233,228,.62);
   --dark-line:rgba(237,233,228,.16);
   --error:#DC2626;
-  --chapter-accent:#A16207;  /* пигмент текущей главы; статично на каждой [data-accent], на :root — дискретная смена при входе */
+  --chapter-accent:var(--accent);  /* пигмент текущей главы; дискретная смена при входе */
   --font-display:"Playfair Display",Georgia,serif;
   --font-ui:"Manrope",system-ui,sans-serif;
   --font-mono:"JetBrains Mono",monospace;
@@ -746,14 +748,14 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
   <div class="container">
     <p class="mono chapter-index"><b>§</b> / Опись выпуска</p>
     <nav class="opis-list" id="opisList" aria-label="Главы выпуска">
-      <button class="opis-item" type="button" data-target='[data-chapter="00"]' data-preview=".hero-media img" style="--opis-c:#A16207"><span class="opis-no">00</span>Обложка</button>
+      <button class="opis-item" type="button" data-target='[data-chapter="00"]' data-preview=".hero-media img" style="--opis-c:var(--accent)"><span class="opis-no">00</span>Обложка</button>
       <button class="opis-item" type="button" data-target='[data-chapter="01"]' data-preview=".journal-card:nth-child(3) .journal-media img" style="--opis-c:#3F6212"><span class="opis-no">01</span>Манифест</button>
       <button class="opis-item" type="button" data-target='[data-chapter="02"]' data-preview="#lookTrack .look img" style="--opis-c:#FB7185"><span class="opis-no">02</span>Лукбук</button>
       <button class="opis-item" type="button" data-target='[data-chapter="03"]' data-preview=".studio-photo.is-active" style="--opis-c:#67E8F9"><span class="opis-no">03</span>Planche</button>
       <button class="opis-item" type="button" data-target='[data-chapter="materials"]' data-preview=".material-media img" style="--opis-c:#4D7C0F"><span class="opis-no">А</span>Материалы</button>
       <button class="opis-item" type="button" data-target='[data-chapter="04"]' data-preview=".ledger-sheet img" style="--opis-c:#9A3412"><span class="opis-no">04</span>Архив единиц</button>
       <button class="opis-item" type="button" data-target='[data-chapter="journal"]' data-preview=".journal-media img" style="--opis-c:#475569"><span class="opis-no">Б</span>Журнал</button>
-      <button class="opis-item" type="button" data-target='[data-chapter="05"]' style="--opis-c:#A16207"><span class="opis-no">05</span>Условия и клуб</button>
+      <button class="opis-item" type="button" data-target='[data-chapter="05"]' style="--opis-c:var(--accent)"><span class="opis-no">05</span>Условия и клуб</button>
     </nav>
     <p class="mono opis-foot">NORDE · Архив · Выпуск 01 — опись обновлена <span id="opisDate"></span> · сборка k4</p>
   </div>
@@ -763,7 +765,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 <main id="top">
 
   <!-- ================= 00 ОБЛОЖКА ================= -->
-  <section class="chapter hero" data-chapter="00" data-accent="#A16207">
+  <section class="chapter hero" data-chapter="00" data-accent=var(--accent)">
     <figure class="hero-media" data-clip>
       <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1600&q=80&auto=format" alt="Коллекция NORDE — стеллаж с одеждой" fetchpriority="high">
     </figure>
@@ -967,7 +969,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
   </section>
 
   <!-- ================= 05 УСЛОВИЯ АРХИВА ================= -->
-  <section class="chapter" data-chapter="05" data-accent="#A16207">
+  <section class="chapter" data-chapter="05" data-accent=var(--accent)">
     <span class="chapter-numeral" aria-hidden="true">05</span>
     <div class="container">
       <p class="mono chapter-index"><b>05</b> / Условия архива</p>
