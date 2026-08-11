@@ -55,6 +55,17 @@ body{
 .mono{font:500 11px/1.4 var(--font-mono); text-transform:uppercase; letter-spacing:.06em}
 h1,h2,h3{font-family:var(--font-display); font-weight:400; line-height:1.05}
 h2{font-size:clamp(2rem,5vw,4rem); letter-spacing:0}
+/* кинетическая типографика — mask-line reveal */
+.chapter-title .word{display:inline-block; overflow:hidden; vertical-align:top}
+.chapter-title .word-inner{display:inline-block; transform:translateY(100%); transition:none}
+.chapter-title.revealed .word-inner{transform:translateY(0); transition:transform .8s var(--ease-cine)}
+.chapter-title.revealed .word:nth-child(1) .word-inner{transition-delay:0s}
+.chapter-title.revealed .word:nth-child(2) .word-inner{transition-delay:.08s}
+.chapter-title.revealed .word:nth-child(3) .word-inner{transition-delay:.16s}
+.chapter-title.revealed .word:nth-child(4) .word-inner{transition-delay:.24s}
+.chapter-title.revealed .word:nth-child(5) .word-inner{transition-delay:.32s}
+.chapter-title.revealed .word:nth-child(6) .word-inner{transition-delay:.40s}
+.chapter-title.revealed .word:nth-child(7) .word-inner{transition-delay:.48s}
 a{position:relative}
 a:not(.wordmark):not(.btn):hover{text-decoration:underline; text-underline-offset:4px; text-decoration-thickness:1px}
 button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-offset:2px}
@@ -784,7 +795,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
     <div class="container manifest-grid">
       <div class="manifest-head">
         <p class="mono chapter-index"><b>01</b> / Манифест</p>
-        <h2 data-mask>Правила простые и одинаковые для всех</h2>
+        <h2 class=chapter-title data-split-text data-mask>Правила простые и одинаковые для всех</h2>
       </div>
       <div class="manifest-body">
         <p class="manifest-quote" data-quote>Материалы важнее <em>логотипов</em></p>
@@ -809,7 +820,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
       <div class="lookbook-head">
         <div>
           <p class="mono chapter-index"><b>02</b> / Лукбук</p>
-          <h2 data-mask>Шесть образов выпуска</h2>
+          <h2 class=chapter-title data-split-text data-mask>Шесть образов выпуска</h2>
         </div>
         <div class="lookbook-progress" aria-hidden="true"><i id="lookProgress"></i></div>
       </div>
@@ -847,7 +858,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
     <span class="chapter-numeral" aria-hidden="true">03</span>
     <div class="container">
       <p class="mono chapter-index"><b>03</b> / Planche</p>
-      <h2 data-mask>Archive Runner — анатомия</h2>
+      <h2 class=chapter-title data-split-text data-mask>Archive Runner — анатомия</h2>
     </div>
 
     <!-- Акт 1: exploded-анатомия NR-0202 -->
@@ -903,7 +914,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
     <span class="chapter-numeral" aria-hidden="true">А</span>
     <div class="container">
       <p class="mono chapter-index"><b>Прил. А</b> / Материалы</p>
-      <h2 data-mask>Из чего сделан архив</h2>
+      <h2 class=chapter-title data-split-text data-mask>Из чего сделан архив</h2>
       <div class="materials-row">
         <article class="material-card">
           <figure class="material-media"><img src="https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=800&q=80&auto=format" alt="Шерсть Merino 21 мкм — макро" loading="lazy"></figure>
@@ -947,7 +958,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
     <span class="chapter-numeral" aria-hidden="true">04</span>
     <div class="container">
       <p class="mono chapter-index"><b>04</b> / Архив единиц</p>
-      <h2 data-mask>Инвентарная ведомость</h2>
+      <h2 class=chapter-title data-split-text data-mask>Инвентарная ведомость</h2>
       <p class="ledger-sub">Восемь единиц хранения выпуска 01 — каждая занесена в реестр с инвентарным номером. Строка раскрывается в лист единицы.</p>
       <ol class="ledger" id="ledger"></ol>
       <p class="ledger-note">Все единицы производятся малыми партиями. Если вашего размера нет — напишите, пошьём под заказ за три недели.</p>
@@ -963,7 +974,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
     <span class="chapter-numeral" aria-hidden="true">Б</span>
     <div class="container">
       <p class="mono chapter-index"><b>Прил. Б</b> / Журнал</p>
-      <h2 data-mask>Записки архивариуса</h2>
+      <h2 class=chapter-title data-split-text data-mask>Записки архивариуса</h2>
       <div class="journal-grid" id="journalGrid"></div>
     </div>
   </section>
@@ -973,7 +984,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
     <span class="chapter-numeral" aria-hidden="true">05</span>
     <div class="container">
       <p class="mono chapter-index"><b>05</b> / Условия архива</p>
-      <h2 data-mask>Как это работает</h2>
+      <h2 class=chapter-title data-split-text data-mask>Как это работает</h2>
       <table class="terms">
         <tr><td class="t-no">У. 5.1</td><td class="t-name">Доставка</td><td class="t-desc">По России 2–5 дней. Бесплатно при заказе от 10 000 ₽, иначе — 490 ₽. Курьер позвонит за час.</td></tr>
         <tr><td class="t-no">У. 5.2</td><td class="t-name">Возврат</td><td class="t-desc">30 дней без вопросов и формуляров. Деньги возвращаем тем же способом в течение 3 дней.</td></tr>
@@ -1053,6 +1064,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
 
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src=//cdn.jsdelivr.net/npm/gsap@3.12.5/dist/SplitText.min.js></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
 
 <script type="module">
@@ -1929,6 +1941,7 @@ if (motionOK) {
 
   let heroWords = null;
   $$('[data-mask]').forEach(el => {
+    if (el.classList.contains('chapter-title')) return; /* chapter-title обрабатывается отдельно — mask-line reveal */
     const words = splitWords(el);
     if (!words.length) return;
     gsap.set(words, { yPercent: 115 });
@@ -2054,6 +2067,26 @@ if (motionOK) {
   });
 
   /* --- ведомость 04: строки проявляются каскадом --- */
+  gsap.set('.ledger-item', { opacity: 0, y: 24 });
+  ScrollTrigger.batch('.ledger-item', {
+    start: 'top 88%', once: true,
+    onEnter: els => gsap.to(els, { opacity: 1, y: 0, duration: .7, ease: 'power3.out', stagger: .07, overwrite: true })
+  });
+
+  /* --- кинетическая типографика глав — mask-line reveal --- */
+  $$('.chapter-title[data-split-text]').forEach(title => {
+    const text = title.textContent;
+    title.innerHTML = text.split(' ').map(word =>
+      `<span class="word"><span class="word-inner">${word}</span></span>`
+    ).join(' ');
+    gsap.set(title.querySelectorAll('.word-inner'), { y: '100%' });
+    ScrollTrigger.create({
+      trigger: title,
+      start: 'top 85%',
+      onEnter: () => title.classList.add('revealed'),
+      once: true
+    });
+  });
   gsap.set('.ledger-item', { opacity: 0, y: 24 });
   ScrollTrigger.batch('.ledger-item', {
     start: 'top 88%', once: true,
