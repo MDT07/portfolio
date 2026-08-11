@@ -99,6 +99,19 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
   .grain{animation:none; opacity:.02}
   .paper-texture::before{opacity:.01}
 }
+
+/* CSS Scroll-Driven Animations — progressive enhancement */
+@supports (animation-timeline: view()){
+  .scroll-reveal{
+    animation: fade-in-up linear both;
+    animation-timeline: view();
+    animation-range: entry 10% entry 60%;
+  }
+  @keyframes fade-in-up{
+    from{opacity:0; transform:translateY(30px)}
+    to{opacity:1; transform:translateY(0)}
+  }
+}
 .grain{
   position:fixed; inset:-140px; z-index:999; pointer-events:none; opacity:.05;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -950,7 +963,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
       <p class="mono chapter-index"><b>Прил. А</b> / Материалы</p>
       <h2 class=chapter-title data-split-text data-mask>Из чего сделан архив</h2>
       <div class="materials-row">
-        <article class="material-card">
+        <article class="material-card scroll-reveal">
           <figure class="material-media"><img src="https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=800&q=80&auto=format" alt="Шерсть Merino 21 мкм — макро" loading="lazy"></figure>
           <p class="mono material-no">М.1</p>
           <h3>Шерсть Merino 21 мкм</h3>
@@ -958,7 +971,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
           <p class="mono material-used">Используется в: Unit n°041</p>
           <div class="mat-bar" aria-hidden="true"><span class="mono">Натуральное волокно · 100%</span><i class="mat-bar-track"><b style="--v:1"></b></i></div>
         </article>
-        <article class="material-card">
+        <article class="material-card scroll-reveal">
           <figure class="material-media"><img src="https://images.unsplash.com/photo-1537832816519-689ad163238b?w=800&q=80&auto=format" alt="Переработанный текстиль — макро" loading="lazy"></figure>
           <p class="mono material-no">М.2</p>
           <h3>Переработанный текстиль</h3>
@@ -966,7 +979,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
           <p class="mono material-used">Используется в: NR-0202</p>
           <div class="mat-bar" aria-hidden="true"><span class="mono">Переработанное волокно · 87%</span><i class="mat-bar-track"><b style="--v:.87"></b></i></div>
         </article>
-        <article class="material-card">
+        <article class="material-card scroll-reveal">
           <figure class="material-media"><img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80&auto=format" alt="Органический хлопок 240 г/м²" loading="lazy"></figure>
           <p class="mono material-no">М.3</p>
           <h3>Органический хлопок 240</h3>
@@ -974,7 +987,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--brass); outline-of
           <p class="mono material-used">Используется в: Unit n°042</p>
           <div class="mat-bar" aria-hidden="true"><span class="mono">Плотность · 240 г/м²</span><i class="mat-bar-track"><b style="--v:.8"></b></i></div>
         </article>
-        <article class="material-card">
+        <article class="material-card scroll-reveal">
           <figure class="material-media"><img src="https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=800&q=80&auto=format" alt="Букле 74% шерсть — макро" loading="lazy"></figure>
           <p class="mono material-no">М.4</p>
           <h3>Букле 74% шерсть</h3>
@@ -1773,7 +1786,7 @@ let lastReadBtn = null;
 
 function renderJournal() {
   $('#journalGrid').innerHTML = ARTICLES.map(a => `
-    <article class="journal-card">
+    <article class="journal-card scroll-reveal">
       <figure class="journal-media"><img src="${a.img}" alt="${a.title}" loading="lazy"></figure>
       <p class="mono journal-meta">${a.rubric} · ${a.date}</p>
       <h3>${a.title}</h3>
