@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, Prata } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import Script from "next/script";
 import { notFound } from "next/navigation";
 import "../globals.css";
 import Header from "@/components/layout/Header";
-import PosterFooter from "@/components/layout/PosterFooter";
+import FooterWrapper from "@/components/layout/FooterWrapper";
 import SmoothScroll from "@/components/providers/SmoothScroll";
 import { getDictionary, isLocale, locales } from "@/lib/i18n";
 import { siteConfig } from "@/lib/config";
@@ -71,13 +72,17 @@ export default async function RootLayout({
       className={`${inter.variable} ${jetbrainsMono.variable} ${prata.variable} h-full antialiased`}
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInit }} />
+        <Script
+          id="theme-init"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: themeInit }}
+        />
       </head>
       <body className="flex min-h-full flex-col bg-surface-0 text-text-primary">
         <SmoothScroll>
           <Header lang={lang} dict={dict} />
           <main className="flex-1">{children}</main>
-          <PosterFooter lang={lang} dict={dict} />
+          <FooterWrapper lang={lang} dict={dict} />
         </SmoothScroll>
         <Analytics />
       </body>

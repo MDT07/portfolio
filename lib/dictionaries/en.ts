@@ -16,6 +16,7 @@ export const en: Dictionary = {
     status: "Status",
     theme: "Theme",
     language: "Language",
+    sound: "Sound",
   },
   hero: {
     label: "Frontend Developer · E-commerce",
@@ -148,4 +149,6 @@ export const en: Dictionary = {
     tagline: "Engineering approach to web development",
     rights: "Made with precision",
   },
+  lab: "Experiments",
+  tech: "Technology",
 };

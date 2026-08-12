@@ -14,6 +14,7 @@ export const ru = {
     status: "Статус",
     theme: "Тема",
     language: "Язык",
+    sound: "Звук",
   },
   hero: {
     label: "Frontend Developer · E-commerce",
@@ -146,6 +147,8 @@ export const ru = {
     tagline: "Инженерный подход к веб-разработке",
     rights: "Сделано с точностью",
   },
+  lab: "Эксперименты",
+  tech: "Технологии",
 } as const;
 
 /** Расширяет все литеральные строки до string, сохраняя структуру словаря */

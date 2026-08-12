@@ -6,7 +6,7 @@
 
 **Стиль:** строгий реализм. Инженерная точность, модульная сетка, монохромная база с одним сигнальным акцентом. Никакой декоративности — каждый элемент обоснован функцией. Ближе к Vercel и Linear по духу: precision, clarity, restraint.
 
-**Главная** — editorial-постер уровня Awwwards внутри той же строгости (DESIGN.md §11): display-serif Prata, нумерованные главы, прелоадер, line-mask заголовки, velocity-marquee, hover-превью работ, постерный футер. Контент: «Принципы и подход» + работы.
+**Главная** — Awwwards-level creative-dev experience, построенная на Canvas 2D без WebGL. Одна scroll-driven история из 6 сцен: Portal/Hero, Capabilities, Spatial Works Gallery, Experiments Lab, Tech Stack, Contact/Outro. Scroll управляет "камерой" в 2.5D-типографическом пространстве; фон — интерактивное поле частиц-констелляций с реакцией на курсор и скорость скролла. Сохранены монохромная база, Prata и единый акцент, но DESIGN.md временно переопределён для этой страницы: допустимы glow, depth и shader-like Canvas 2D-эффекты. При `prefers-reduced-motion: reduce` вся кинематографика отключается и показывается статичный editorial-поток.
 
 **Референсы по духу:**
 - [Vercel](https://vercel.com) — чёрно-белая точность, Geist, нулевой шум
@@ -67,16 +67,22 @@ portfolio/
 │
 ├── components/
 │   ├── ui/                       # Примитивы: Button, Card, Tag, Reveal, MaskText,
-│   │                             #   ThemeToggle, LangSwitcher
-│   ├── layout/                   # Header (nav + theme + lang), PosterFooter (§11), Container
-│   ├── sections/                 # Главная §11: PosterHero, Marquee, AboutChapter,
-│   │                             #   WorksIndex + WorksIndexClient (hover-превью)
+│   │                             #   ThemeToggle, LangSwitcher, MagneticButton, TextScramble, SoundToggle
+│   ├── layout/                   # Header (nav + theme + lang + sound), PosterFooter (§11), Container, FooterWrapper
+│   ├── sections/                 # Главная: CinematicPage, CinematicHero, CapabilitiesScene,
+│   │                             #   SpatialWorksScene, ExperimentsScene, TechScene, ContactScene
+│   │                             #   (старые PosterHero, Marquee, AboutChapter, WorksIndex отключены на главной)
 │   │                             # Каталог /works: WorksGrid
 │   ├── interactive/              # Клиентские виджеты для MDX и страниц:
 │   │                             #   Counter, BeforeAfter, ProcessSteps,
 │   │                             #   DemoViewer (iframe fullscreen), Gallery
+│   ├── canvas/                   # Canvas 2D-слой: CanvasEnvironment, ParticleField, LiquidDistortion
+│   ├── camera/                   # CameraRig — scroll-driven CSS 3D-камера
+│   ├── navigation/               # SceneNav — навигация по сценам
+│   ├── cursor/                   # CustomCursor — blend-mode курсор
 │   ├── mdx/mdx-components.tsx    # Маппинг MDX → стилизованные блоки + интерактив
 │   └── providers/SmoothScroll.tsx # Lenis (off при prefers-reduced-motion)
+│                                  # SceneProvider — состояние сцен, scroll progress, cursor, sound
 │
 ├── content/
 │   └── works/                    # Кейсы: development (Primary Terra),
@@ -99,7 +105,10 @@ portfolio/
 │   ├── i18n.ts                   # locales, getDictionary, withLocale, stripLocale
 │   ├── dictionaries/             # ru.ts, en.ts (DeepString-тип Dictionary)
 │   ├── mdx.ts                    # Загрузчик MDX (works, локали)
-│   ├── animations.ts             # Framer Motion пресеты (150–400ms + кинематографика §10/§11)
+│   ├── animations.ts             # Framer Motion пресеты
+│   ├── scenes.ts                 # Метаданные сцен и keyframes камеры
+│   ├── canvas.ts                 # Утилиты Canvas 2D
+│   ├── hooks.ts                  # useMediaQuery, useMounted, useReducedMotion и т.д.
 │   └── utils.ts                  # cn()
 │
 └── public/
