@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VOLT — Liquid Charge</title>
+  <meta name="description" content="Сеть быстрой зарядки электромобилей. Энергия как жидкость.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+  <style>
+    :root {
+      --obsidian: #0B0C0F;
+      --graphite: #1F2126;
+      --graphite-2: #2A2D33;
+      --mercury: #E5E7EB;
+      --silver: #9CA3AF;
+      --teal: #00E5C9;
+      --teal-dim: rgba(0,229,201,.12);
+      --amber: #FFB800;
+      --amber-dim: rgba(255,184,0,.12);
+      --rule: rgba(229,231,235,.08);
+      --rule-2: rgba(229,231,235,.04);
+
+      --font-display: 'Chakra Petch', system-ui, sans-serif;
+      --font-body: 'Inter', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+
+      --header-h: 68px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    html { scroll-behavior: auto; }
+    body {
+      font-family: var(--font-body);
+      background: var(--obsidian);
+      color: var(--mercury);
+      font-size: 15px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    ::selection { background: var(--teal); color: var(--obsidian); }
+
+    h1, h2, h3, h4, p, figure, ul, ol { margin: 0; }
+    ul, ol { padding: 0; list-style: none; }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; }
+    img { max-width: 100%; display: block; }
+
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+    }
+
+    /* Header */
+    #header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: var(--header-h);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 28px;
+      border-bottom: 1px solid transparent;
+      transition: background .3s, border-color .3s;
+    }
+    #header.is-scrolled { background: rgba(11,12,15,.85); backdrop-filter: blur(10px); border-color: var(--rule); }
+    .logo {
+      font-family: var(--font-display); font-size: 24px; font-weight: 600;
+      letter-spacing: .08em; line-height: 1; color: var(--mercury);
+    }
+    .nav-links { display: flex; gap: 32px; }
+    .nav-links a {
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--silver); position: relative;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--teal); }
+    @media (max-width: 768px) { .nav-links { display: none; } }
+
+    /* Typography */
+    .display-xl {
+      font-family: var(--font-display); font-size: clamp(46px, 8vw, 120px);
+      line-height: .92; font-weight: 600; letter-spacing: -.02em; text-transform: uppercase;
+    }
+    .display-lg {
+      font-family: var(--font-display); font-size: clamp(34px, 5vw, 68px);
+      line-height: 1; font-weight: 500;
+    }
+    .display-md {
+      font-family: var(--font-display); font-size: clamp(26px, 3.5vw, 44px);
+      line-height: 1.1; font-weight: 500;
+    }
+    .title { font-family: var(--font-display); font-size: 20px; line-height: 1.2; font-weight: 500; }
+    .label {
+      font-family: var(--font-mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase;
+      color: var(--silver);
+    }
+    .mono { font-family: var(--font-mono); }
+    .caption { font-size: 13px; line-height: 1.55; color: var(--silver); }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+      height: 52px; padding: 0 28px;
+      font-family: var(--font-display); font-size: 13px; font-weight: 500; letter-spacing: .04em;
+      border: 1px solid var(--mercury); color: var(--mercury);
+      transition: background .25s, color .25s, box-shadow .25s;
+    }
+    .btn:hover { background: var(--mercury); color: var(--obsidian); }
+    .btn-accent { background: var(--teal); border-color: var(--teal); color: var(--obsidian); box-shadow: 0 0 24px rgba(0,229,201,.25); }
+    .btn-accent:hover { background: #00CDB5; box-shadow: 0 0 36px rgba(0,229,201,.4); }
+    .btn-ghost { border-color: var(--rule); color: var(--silver); }
+    .btn-ghost:hover { border-color: var(--teal); color: var(--teal); background: var(--teal-dim); }
+
+    /* Sections */
+    .section { position: relative; width: 100%; }
+    .section-pad { padding: 120px 28px; }
+    @media (max-width: 768px) { .section-pad { padding: 80px 20px; } }
+    .container { width: 100%; max-width: 1320px; margin: 0 auto; }
+
+    /* Liquid level indicator */
+    #liquidLevel {
+      position: fixed; right: 0; top: 0; bottom: 0; width: 6px; z-index: 95;
+      background: var(--rule); transform-origin: top;
+    }
+    #liquidFill {
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(180deg, var(--teal) 0%, rgba(0,229,201,.3) 100%);
+      transform-origin: top; transform: scaleY(0);
+      box-shadow: 0 0 20px rgba(0,229,201,.35);
+    }
+    @media (max-width: 768px) {
+      #liquidLevel { top: 0; left: 0; right: 0; bottom: auto; height: 3px; width: 100%; }
+      #liquidFill { transform-origin: left; transform: scaleX(0); }
+    }
+
+    /* Hero */
+    #hero {
+      min-height: 100svh;
+      display: flex; align-items: center; justify-content: center;
+      padding: calc(var(--header-h) + 40px) 28px 80px;
+      position: relative; overflow: hidden;
+    }
+    #particleCanvas {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      z-index: 1; pointer-events: none;
+    }
+    .hero-inner { position: relative; z-index: 2; text-align: center; max-width: 980px; }
+    .hero-inner .label { color: var(--teal); margin-bottom: 20px; display: block; }
+    .hero-inner h1 { margin-bottom: 24px; }
+    .hero-inner p { max-width: 560px; margin: 0 auto 36px; color: var(--silver); }
+    .connector-wrap {
+      width: 180px; height: 260px; margin: 0 auto 40px; position: relative;
+    }
+    .connector {
+      width: 100%; height: 100%;
+      filter: drop-shadow(0 0 30px rgba(0,229,201,.4));
+      animation: breathe 4s ease-in-out infinite;
+    }
+    @keyframes breathe {
+      0%, 100% { filter: drop-shadow(0 0 24px rgba(0,229,201,.3)); }
+      50% { filter: drop-shadow(0 0 48px rgba(0,229,201,.6)); }
+    }
+
+    /* Stats */
+    #stats { border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+    }
+    @media (max-width: 900px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+    .stat {
+      padding: 40px 28px; text-align: center;
+      border-right: 1px solid var(--rule);
+    }
+    .stat:last-child { border-right: none; }
+    @media (max-width: 900px) { .stat:nth-child(2n) { border-right: none; } .stat { border-bottom: 1px solid var(--rule); } }
+    .stat-value {
+      font-family: var(--font-display); font-size: clamp(36px, 5vw, 64px);
+      font-weight: 600; color: var(--teal); line-height: 1;
+    }
+    .stat-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--silver); margin-top: 12px; }
+
+    /* Stations */
+    .stations-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+    }
+    @media (max-width: 1024px) { .stations-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 640px) { .stations-grid { grid-template-columns: 1fr; } }
+    .station-card {
+      background: var(--graphite); border: 1px solid var(--rule); border-radius: 4px;
+      padding: 28px; position: relative; overflow: hidden;
+      transition: transform .3s var(--ease-out), border-color .3s;
+    }
+    .station-card:hover { transform: translateY(-6px); border-color: var(--teal); }
+    .station-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(0,229,201,.12), transparent 50%);
+      opacity: 0; transition: opacity .3s;
+    }
+    .station-card:hover::before { opacity: 1; }
+    .station-status {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: var(--font-mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--teal); margin-bottom: 16px;
+    }
+    .station-status i { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 8px var(--teal); }
+    .station-card h4 { font-family: var(--font-display); font-size: 20px; margin-bottom: 8px; }
+    .station-meta { font-family: var(--font-mono); font-size: 11px; color: var(--silver); }
+
+    /* Calculator */
+    #calculator { background: var(--graphite); }
+    .calc-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center;
+    }
+    @media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }
+    .calc-field { margin-bottom: 28px; }
+    .calc-field label {
+      display: flex; justify-content: space-between; margin-bottom: 12px;
+      font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: .08em;
+    }
+    .calc-field input[type="range"] {
+      width: 100%; -webkit-appearance: none; height: 3px; background: var(--rule); outline: none;
+    }
+    .calc-field input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+      background: var(--teal); box-shadow: 0 0 12px rgba(0,229,201,.5); cursor: pointer;
+    }
+    .calc-result {
+      border: 1px solid var(--rule); border-radius: 4px; padding: 36px;
+      background: var(--obsidian);
+    }
+    .calc-result .label { margin-bottom: 12px; }
+    .calc-result .value {
+      font-family: var(--font-display); font-size: clamp(40px, 6vw, 72px);
+      font-weight: 600; color: var(--teal); line-height: 1;
+    }
+    .calc-result .caption { margin-top: 16px; }
+
+    /* Tariffs */
+    .tariffs-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+    }
+    @media (max-width: 900px) { .tariffs-grid { grid-template-columns: 1fr; } }
+    .tariff {
+      border: 1px solid var(--rule); border-radius: 4px; padding: 36px;
+      transition: border-color .3s, transform .3s var(--ease-out);
+    }
+    .tariff:hover { border-color: var(--teal); transform: translateY(-4px); }
+    .tariff.featured { border-color: var(--teal); background: var(--teal-dim); }
+    .tariff-name {
+      font-family: var(--font-display); font-size: 22px; margin-bottom: 8px;
+    }
+    .tariff-price {
+      font-family: var(--font-display); font-size: 42px; font-weight: 600; color: var(--mercury);
+      margin-bottom: 8px;
+    }
+    .tariff-price span { font-size: 14px; font-weight: 400; color: var(--silver); }
+    .tariff ul { margin: 24px 0; }
+    .tariff li {
+      padding: 10px 0; border-bottom: 1px solid var(--rule-2);
+      font-size: 14px; color: var(--silver);
+    }
+
+    /* App mockup */
+    #app { border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+    .app-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center;
+    }
+    @media (max-width: 900px) { .app-grid { grid-template-columns: 1fr; } }
+    .phone {
+      width: 280px; height: 560px; margin: 0 auto;
+      border: 12px solid var(--graphite); border-radius: 36px;
+      background: var(--obsidian); position: relative; overflow: hidden;
+      box-shadow: 0 30px 80px rgba(0,0,0,.5);
+    }
+    .phone-screen { padding: 28px; height: 100%; display: flex; flex-direction: column; }
+    .phone-bar { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px; color: var(--silver); margin-bottom: 24px; }
+    .phone-charge {
+      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+    .charge-ring {
+      width: 140px; height: 140px; border-radius: 50%;
+      border: 4px solid var(--rule); position: relative;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .charge-ring::before {
+      content: ''; position: absolute; inset: -4px; border-radius: 50%;
+      border: 4px solid transparent; border-top-color: var(--teal);
+      animation: spin 2.5s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .charge-pct { font-family: var(--font-display); font-size: 36px; font-weight: 600; color: var(--teal); }
+    .phone-info { text-align: center; margin-top: 20px; }
+    .phone-info .value { font-family: var(--font-display); font-size: 18px; }
+    .phone-info .label { margin-top: 4px; }
+
+    /* FAQ */
+    .faq-list { max-width: 800px; margin: 0 auto; }
+    .faq-item { border-bottom: 1px solid var(--rule); }
+    .faq-q {
+      width: 100%; padding: 24px 0; text-align: left;
+      display: flex; justify-content: space-between; align-items: center;
+      font-family: var(--font-display); font-size: 18px; color: var(--mercury);
+    }
+    .faq-q::after {
+      content: '+'; font-family: var(--font-mono); font-size: 20px; color: var(--teal);
+      transition: transform .3s var(--ease-out);
+    }
+    .faq-item.is-open .faq-q::after { transform: rotate(45deg); }
+    .faq-a {
+      display: grid; grid-template-rows: 0fr;
+      transition: grid-template-rows .4s var(--ease-out);
+    }
+    .faq-item.is-open .faq-a { grid-template-rows: 1fr; }
+    .faq-a-inner { overflow: hidden; }
+    .faq-a-inner p { padding: 0 0 24px; color: var(--silver); max-width: 680px; }
+
+    /* Fleet form */
+    #fleet { background: var(--graphite); }
+    .fleet-form { max-width: 720px; margin: 0 auto; }
+    .fleet-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 640px) { .fleet-grid { grid-template-columns: 1fr; } }
+    .fleet-field { margin-bottom: 20px; }
+    .fleet-field label {
+      display: block; margin-bottom: 8px;
+      font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--silver);
+    }
+    .fleet-field input, .fleet-field select, .fleet-field textarea {
+      width: 100%; background: var(--obsidian); border: 1px solid var(--rule);
+      padding: 14px 16px; color: var(--mercury); font-family: var(--font-body); font-size: 15px;
+      outline: none; transition: border-color .2s;
+    }
+    .fleet-field input:focus, .fleet-field select:focus, .fleet-field textarea:focus { border-color: var(--teal); }
+    .fleet-field textarea { min-height: 120px; resize: vertical; }
+
+    /* Footer */
+    #footer { border-top: 1px solid var(--rule); padding: 80px 28px 40px; }
+    .footer-grid {
+      display: grid; grid-template-columns: 2fr repeat(3, 1fr); gap: 48px;
+    }
+    @media (max-width: 900px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 640px) { .footer-grid { grid-template-columns: 1fr; } }
+    .footer-wordmark {
+      font-family: var(--font-display); font-size: clamp(64px, 14vw, 180px);
+      line-height: .85; font-weight: 600; text-transform: uppercase;
+      opacity: .06; grid-column: 1 / -1; margin-top: 60px; user-select: none;
+      color: var(--teal);
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .001ms !important; animation-iteration-count: 1 !important;
+        transition-duration: .001ms !important;
+      }
+      #particleCanvas { display: none !important; }
+      .connector { animation: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="liquidLevel" aria-hidden="true">
+    <div id="liquidFill"></div>
+  </div>
+
+  <header id="header">
+    <a href="#top" class="logo">VOLT</a>
+    <nav class="nav-links" aria-label="Основная">
+      <a href="#stations">Станции</a>
+      <a href="#calculator">Калькулятор</a>
+      <a href="#tariffs">Тарифы</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <a href="#fleet" class="btn" style="height:42px; padding:0 22px; font-size:12px;">Флоту</a>
+  </header>
+
+  <main id="top">
+
+    <!-- Hero -->
+    <section id="hero" class="section">
+      <canvas id="particleCanvas"></canvas>
+      <div class="hero-inner">
+        <span class="label">Сеть быстрой зарядки</span>
+        <div class="connector-wrap">
+          <svg class="connector" viewBox="0 0 180 260" fill="none">
+            <path d="M90 0v80" stroke="var(--mercury)" stroke-width="10"/>
+            <rect x="50" y="80" width="80" height="120" rx="14" stroke="var(--mercury)" stroke-width="8" fill="var(--obsidian)"/>
+            <circle cx="90" cy="120" r="10" fill="var(--teal)"/>
+            <circle cx="90" cy="160" r="10" fill="var(--teal)"/>
+            <path d="M90 200v60" stroke="var(--teal)" stroke-width="10" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h1 class="display-xl">Заряд за<br>18 минут</h1>
+        <p class="body-lg">Энергия как жидкость: мгновенный поток, который наполняет батарею, пока вы пьёте кофе.</p>
+        <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
+          <a href="#stations" class="btn btn-accent">Найти станцию</a>
+          <a href="#calculator" class="btn btn-ghost">Рассчитать экономию</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats -->
+    <section id="stats" class="section">
+      <div class="stats-grid">
+        <div class="stat">
+          <div class="stat-value" data-count="340">0</div>
+          <div class="stat-label">Станций</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" data-count="1800">0</div>
+          <div class="stat-label">Разъёмов</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" data-count="98">0</div>
+          <div class="stat-label">% доступности</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" data-count="18">0</div>
+          <div class="stat-label">минут до 80%</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stations -->
+    <section id="stations" class="section section-pad">
+      <div class="container">
+        <span class="label">Сеть</span>
+        <h2 class="display-md" style="margin-top:16px; margin-bottom:48px;">Станции в городе</h2>
+        <div class="stations-grid" id="stationsGrid"></div>
+      </div>
+    </section>
+
+    <!-- Calculator -->
+    <section id="calculator" class="section section-pad">
+      <div class="container">
+        <div class="calc-grid">
+          <div>
+            <span class="label">Экономия</span>
+            <h2 class="display-md" style="margin-top:16px; margin-bottom:32px;">Сколько вы сэкономите</h2>
+            <div class="calc-field">
+              <label>
+                <span>Пробег в месяц</span>
+                <span id="kmVal">2000 км</span>
+              </label>
+              <input type="range" id="km" min="500" max="5000" step="100" value="2000">
+            </div>
+            <div class="calc-field">
+              <label>
+                <span>Цена бензина</span>
+                <span id="petrolVal">65 ₽/л</span>
+              </label>
+              <input type="range" id="petrol" min="45" max="100" step="1" value="65">
+            </div>
+            <div class="calc-field">
+              <label>
+                <span>Тариф VOLT</span>
+                <span id="tariffVal">12 ₽/кВт·ч</span>
+              </label>
+              <input type="range" id="tariff" min="8" max="20" step="1" value="12">
+            </div>
+          </div>
+          <div class="calc-result">
+            <div class="label">Экономия в месяц</div>
+            <div class="value" id="savings">0 ₽</div>
+            <p class="caption">Расчёт для расхода 8 л/100 км по бензину и 18 кВт·ч/100 км по электричеству.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tariffs -->
+    <section id="tariffs" class="section section-pad">
+      <div class="container">
+        <span class="label">Тарифы</span>
+        <h2 class="display-md" style="margin-top:16px; margin-bottom:48px;">Выберите подключение</h2>
+        <div class="tariffs-grid">
+          <article class="tariff">
+            <div class="tariff-name">Pay Go</div>
+            <div class="tariff-price">14 <span>₽/кВт·ч</span></div>
+            <p class="caption">Без абонентской платы. Оплата по факту.</p>
+            <ul class="caption">
+              <li>Доступ ко всей сети</li>
+              <li>Мгновенная активация</li>
+              <li>Push-уведомления</li>
+            </ul>
+            <button class="btn btn-ghost" style="width:100%;">Выбрать</button>
+          </article>
+
+          <article class="tariff featured">
+            <div class="tariff-name">Subscriber</div>
+            <div class="tariff-price">990 <span>₽/мес</span></div>
+            <p class="caption">Для регулярной зарядки. Цена включена.</p>
+            <ul class="caption">
+              <li>10 ₽/кВт·ч</li>
+              <li>Бронирование разъёма</li>
+              <li>Семейный доступ</li>
+            </ul>
+            <button class="btn btn-accent" style="width:100%;">Выбрать</button>
+          </article>
+
+          <article class="tariff">
+            <div class="tariff-name">Fleet</div>
+            <div class="tariff-price">Индив. <span></span></div>
+            <p class="caption">Для компаний от 5 автомобилей.</p>
+            <ul class="caption">
+              <li>Единый счёт</li>
+              <li>API и отчётность</li>
+              <li>Выделенные разъёмы</li>
+            </ul>
+            <button class="btn btn-ghost" style="width:100%;">Связаться</button>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- App -->
+    <section id="app" class="section section-pad">
+      <div class="container">
+        <div class="app-grid">
+          <div>
+            <span class="label">Приложение</span>
+            <h2 class="display-md" style="margin-top:16px; margin-bottom:24px;">Управляйте зарядкой из телефона</h2>
+            <p class="caption" style="max-width:440px; margin-bottom:28px;">Стартуйте сессию дистанционно, следите за прогрессом и получайте уведомление, когда батарея готова.</p>
+            <a href="#" class="btn btn-accent">Скачать приложение</a>
+          </div>
+          <div class="phone">
+            <div class="phone-screen">
+              <div class="phone-bar">
+                <span>VOLT</span>
+                <span>84%</span>
+              </div>
+              <div class="phone-charge">
+                <div class="charge-ring">
+                  <div class="charge-pct">84%</div>
+                </div>
+              </div>
+              <div class="phone-info">
+                <div class="value">12 мин до 80%</div>
+                <div class="label">Станция «Ленинградка»</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="section section-pad">
+      <div class="container">
+        <span class="label">FAQ</span>
+        <h2 class="display-md" style="margin-top:16px; margin-bottom:48px;">Вопросы и ответы</h2>
+        <div class="faq-list" id="faqList"></div>
+      </div>
+    </section>
+
+    <!-- Fleet form -->
+    <section id="fleet" class="section section-pad">
+      <div class="container">
+        <div style="text-align:center; max-width:600px; margin:0 auto 48px;">
+          <span class="label">Флоту</span>
+          <h2 class="display-md" style="margin-top:16px;">Подключить парк</h2>
+          <p class="caption" style="margin-top:16px;">Расскажите о количестве автомобилей и маршрутах — подготовим предложение.</p>
+        </div>
+        <form class="fleet-form" id="fleetForm">
+          <div class="fleet-grid">
+            <div class="fleet-field">
+              <label for="fleetName">Имя</label>
+              <input type="text" id="fleetName" required>
+            </div>
+            <div class="fleet-field">
+              <label for="fleetCompany">Компания</label>
+              <input type="text" id="fleetCompany" required>
+            </div>
+            <div class="fleet-field">
+              <label for="fleetEmail">Email</label>
+              <input type="email" id="fleetEmail" required>
+            </div>
+            <div class="fleet-field">
+              <label for="fleetCount">Количество авто</label>
+              <select id="fleetCount" required>
+                <option value="">Выберите</option>
+                <option value="5-10">5–10</option>
+                <option value="11-50">11–50</option>
+                <option value="50+">50+</option>
+              </select>
+            </div>
+          </div>
+          <div class="fleet-field">
+            <label for="fleetMessage">Комментарий</label>
+            <textarea id="fleetMessage"></textarea>
+          </div>
+          <button type="submit" class="btn btn-accent" style="width:100%;">Отправить запрос</button>
+        </form>
+      </div>
+    </section>
+
+  </main>
+
+  <footer id="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="logo" style="margin-bottom:16px;">VOLT</div>
+          <p class="caption">Сеть быстрой зарядки.<br>Энергия как жидкость.</p>
+        </div>
+        <div>
+          <div class="label" style="margin-bottom:16px;">Продукт</div>
+          <ul class="caption">
+            <li><a href="#stations">Станции</a></li>
+            <li><a href="#tariffs">Тарифы</a></li>
+            <li><a href="#app">Приложение</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="label" style="margin-bottom:16px;">Компания</div>
+          <ul class="caption">
+            <li><a href="#">О нас</a></li>
+            <li><a href="#">Карьера</a></li>
+            <li><a href="#">Пресса</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="label" style="margin-bottom:16px;">Поддержка</div>
+          <ul class="caption">
+            <li><a href="#">Помощь</a></li>
+            <li><a href="#">Контакты</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-wordmark">VOLT</div>
+    </div>
+  </footer>
+
+  <script>
+    (function(){
+      'use strict';
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const isCoarse = window.matchMedia('(pointer:coarse)').matches;
+      const $ = s => document.querySelector(s);
+      const $$ = s => Array.from(document.querySelectorAll(s));
+
+      // Stations data
+      const STATIONS = [
+        { name:'Ленинградка', addr:'Ленинградское ш., 15', ports:8, power:'150 кВт' },
+        { name:'ТТК Север', addr:'ТТК, вл. 18', ports:6, power:'120 кВт' },
+        { name:'Садовое', addr:'Садовое кольцо, 32', ports:10, power:'180 кВт' },
+        { name:'Южный порт', addr:'Южнопортовая ул., 7', ports:4, power:'90 кВт' },
+        { name:'Белая дача', addr:'МКАД, 14 км', ports:12, power:'200 кВт' },
+        { name:'Химки', addr:'Юбилейный пр., 33', ports:6, power:'120 кВт' }
+      ];
+
+      // Render stations
+      $('#stationsGrid').innerHTML = STATIONS.map(s => `
+        <article class="station-card">
+          <div class="station-status"><i></i> Доступна</div>
+          <h4>${s.name}</h4>
+          <p class="caption">${s.addr}</p>
+          <div class="station-meta" style="margin-top:16px;">
+            <span>${s.ports} разъёмов · ${s.power}</span>
+          </div>
+        </article>
+      `).join('');
+
+      // Spotlight follow
+      if(!isCoarse){
+        $$('.station-card').forEach(card => {
+          card.addEventListener('mousemove', e => {
+            const r = card.getBoundingClientRect();
+            card.style.setProperty('--mx', ((e.clientX - r.left)/r.width*100)+'%');
+            card.style.setProperty('--my', ((e.clientY - r.top)/r.height*100)+'%');
+          });
+        });
+      }
+
+      // FAQ
+      const FAQ = [
+        { q:'Как начать зарядку?', a:'Отсканируйте QR-код на разъёме или выберите станцию в приложении. Оплата происходит автоматически после завершения сессии.' },
+        { q:'Какие разъёмы поддерживаются?', a:'CCS2, CHAdeMO и Type 2. На каждой станции указаны доступные стандарты и текущая мощность.' },
+        { q:'Нужно ли устанавливать приложение?', a:'Нет, можно заряжаться через веб-версию. Приложение даёт бронирование разъёма и push-уведомления.' },
+        { q:'Есть ли абонемент для компаний?', a:'Да, тариф Fleet предполагает единый счёт, API-интеграцию и выделенные разъёмы. Оставьте заявку ниже.' }
+      ];
+      $('#faqList').innerHTML = FAQ.map((f,i) => `
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">${f.q}</button>
+          <div class="faq-a"><div class="faq-a-inner"><p>${f.a}</p></div></div>
+        </div>
+      `).join('');
+      $$('.faq-q').forEach(btn => btn.addEventListener('click', () => {
+        const item = btn.closest('.faq-item');
+        const open = item.classList.contains('is-open');
+        $$('.faq-item').forEach(fi => { fi.classList.remove('is-open'); fi.querySelector('.faq-q').setAttribute('aria-expanded','false'); });
+        if(!open){ item.classList.add('is-open'); btn.setAttribute('aria-expanded','true'); }
+      }));
+
+      // Calculator
+      function updateCalc(){
+        const km = +$('#km').value;
+        const petrol = +$('#petrol').value;
+        const tariff = +$('#tariff').value;
+        $('#kmVal').textContent = km + ' км';
+        $('#petrolVal').textContent = petrol + ' ₽/л';
+        $('#tariffVal').textContent = tariff + ' ₽/кВт·ч';
+        const petrolCost = (km/100)*8*petrol;
+        const elecCost = (km/100)*18*tariff;
+        const save = Math.max(0, Math.round(petrolCost - elecCost));
+        $('#savings').textContent = save.toLocaleString('ru-RU') + ' ₽';
+      }
+      $$('#calculator input').forEach(i => i.addEventListener('input', updateCalc));
+      updateCalc();
+
+      // Fleet form
+      $('#fleetForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const btn = $('#fleetForm button[type="submit"]');
+        btn.textContent = 'Запрос отправлен';
+        btn.disabled = true;
+      });
+
+      // Particle canvas
+      const canvas = $('#particleCanvas');
+      const ctx = canvas.getContext('2d');
+      let particles = [];
+      let w, h, rafId;
+      const maxParticles = isCoarse ? 25 : 55;
+
+      function resize(){
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight;
+      }
+      function createParticle(){
+        return {
+          x: Math.random()*w, y: h + Math.random()*40,
+          vx: (Math.random()-.5)*.4, vy: -(.6 + Math.random()*1.2),
+          life: 1, size: 1 + Math.random()*2,
+          targetX: w/2 + (Math.random()-.5)*120
+        };
+      }
+      function drawParticles(){
+        ctx.clearRect(0,0,w,h);
+        if(document.hidden) { rafId = requestAnimationFrame(drawParticles); return; }
+        particles.forEach((p,i) => {
+          p.x += (p.targetX - p.x)*.008 + p.vx;
+          p.y += p.vy;
+          p.life -= .003;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+          ctx.fillStyle = `rgba(0,229,201,${p.life*.6})`;
+          ctx.fill();
+          if(p.life <= 0 || p.y < -20) particles[i] = createParticle();
+        });
+        rafId = requestAnimationFrame(drawParticles);
+      }
+      if(!reducedMotion){
+        resize();
+        for(let i=0;i<maxParticles;i++) particles.push(createParticle());
+        drawParticles();
+        window.addEventListener('resize', resize, {passive:true});
+      }
+
+      // Lenis + GSAP
+      const motionOK = !reducedMotion && window.gsap && window.ScrollTrigger && window.Lenis;
+      if(motionOK){
+        const lenis = new Lenis({ lerp:0.1, smoothWheel:true });
+        window.__lenis = lenis;
+        lenis.on('scroll', ScrollTrigger.update);
+        gsap.ticker.add((time) => { lenis.raf(time * 1000); });
+        gsap.ticker.lagSmoothing(0);
+        gsap.registerPlugin(ScrollTrigger);
+
+        ScrollTrigger.create({
+          start:'top -80', onUpdate:(self)=>{
+            $('#header').classList.toggle('is-scrolled', self.progress > 0);
+          }
+        });
+
+        // Liquid level
+        gsap.to('#liquidFill', {
+          scaleY:1, ease:'none',
+          scrollTrigger:{ trigger:'body', start:'top top', end:'bottom bottom', scrub:.5 }
+        });
+
+        // Stats count up
+        $$('.stat-value').forEach(el => {
+          const target = +el.dataset.count;
+          gsap.fromTo(el, {textContent:0}, {
+            textContent: target, duration:2, ease:'power2.out', snap:{textContent:1},
+            scrollTrigger:{ trigger:el, start:'top 85%' }
+          });
+        });
+
+        // Hero text
+        gsap.fromTo('#hero h1, #hero p, #hero .btn', {opacity:0, y:30}, {
+          opacity:1, y:0, duration:1, stagger:.12, ease:'power3.out', delay:.2
+        });
+
+        // Sections reveal
+        gsap.utils.toArray('.section-pad').forEach(sec => {
+          const content = sec.querySelectorAll('h2, .stations-grid, .calc-grid, .tariffs-grid, .faq-list, .fleet-form, .app-grid');
+          gsap.fromTo(content, {opacity:0, y:30}, {
+            opacity:1, y:0, duration:.9, stagger:.1, ease:'power3.out',
+            scrollTrigger:{ trigger:sec, start:'top 75%' }
+          });
+        });
+      } else {
+        $$('.stat-value').forEach(el => el.textContent = el.dataset.count);
+      }
+    })();
+  </script>
+</body>
+</html>

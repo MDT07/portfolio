@@ -1,0 +1,37 @@
+---
+title: "NORDE — Object Biographies"
+description: "A Scandinavian storefront as a museum archive: material passport, provenance map, inventory ledger, and cart. Self-contained HTML."
+tags: ["HTML", "CSS", "JavaScript", "E-commerce", "Editorial"]
+year: "2026"
+role: "Design & Development"
+stack: ["HTML5", "CSS3", "Vanilla JS", "GSAP", "Lenis", "MapLibre"]
+cover: "/images/works/norde-cover.png"
+demo: "/templates/norde/index.html"
+featured: true
+---
+
+## Problem
+
+Standard clothing and homeware stores show a catalog but do not tell the story of a thing. For a niche Scandinavian brand, it is important to convey material origin, makers, and lifecycle — while keeping a working storefront.
+
+## Solution
+
+The **Object Biographies** concept: every object has a biography. The hero is a large specification card for the flagship. Followed by a manifest, a MapLibre provenance map, a material passport, an inventory ledger with accordion, a journal, and an archive club.
+
+## Inside
+
+- **Hero** — specimen card with object fields
+- **Manifest** — 3 archive principles
+- **Provenance map** — MapLibre with material routes
+- **Material passport** — 4 cards with progress bars
+- **Inventory ledger** — 8 objects, accordion, size selector, cart
+- **Journal** — notes on materials
+- **Archive club** — subscribe to passports of new objects
+
+## Stack
+
+A single `index.html`: GSAP + ScrollTrigger + Lenis, MapLibre GL JS for the map, Howler for optional sound. Cart keyed by `id::size`, drawer with focus management. Fonts: Cormorant Garamond, Source Sans 3, IBM Plex Mono.
+
+## Result
+
+Editorial ecommerce that sells not just the product but its history. QA covers specimen card, map, ledger, cart, drawer, and accessibility.

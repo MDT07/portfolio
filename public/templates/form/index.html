@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FORM — Sectional Monument</title>
+  <meta name="description" content="Архитектурное бюро. Форма следует за смыслом через срез массы.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+  <style>
+    :root {
+      --stone: #E8E4DF;
+      --concrete: #4A4A48;
+      --rust: #B7410E;
+      --shadow: #1A1918;
+      --cut-light: #F5F3EF;
+      --rule: rgba(26,25,24,.10);
+      --rule-2: rgba(26,25,24,.06);
+
+      --font-display: 'Outfit', system-ui, sans-serif;
+      --font-body: 'Inter', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
+      --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+
+      --header-h: 72px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    html { scroll-behavior: auto; }
+    body {
+      font-family: var(--font-body);
+      background: var(--stone);
+      color: var(--shadow);
+      font-size: 15px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    ::selection { background: var(--rust); color: #fff; }
+
+    h1, h2, h3, h4, p, figure, ul, ol { margin: 0; }
+    ul, ol { padding: 0; list-style: none; }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; }
+    img { max-width: 100%; display: block; }
+
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+    }
+
+    /* Header */
+    #header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: var(--header-h);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px;
+      border-bottom: 1px solid transparent;
+      transition: background .3s, border-color .3s;
+    }
+    #header.is-scrolled { background: rgba(232,228,223,.94); backdrop-filter: blur(8px); border-color: var(--rule); }
+    .logo {
+      font-family: var(--font-display); font-size: 22px; font-weight: 600;
+      letter-spacing: .06em; line-height: 1; text-transform: uppercase;
+    }
+    .nav-links { display: flex; gap: 32px; }
+    .nav-links a {
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+      position: relative; padding-bottom: 4px;
+    }
+    .nav-links a::after {
+      content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 1px; background: var(--rust);
+      transition: width .35s var(--ease-out);
+    }
+    .nav-links a:hover::after { width: 100%; }
+    @media (max-width: 768px) { .nav-links { display: none; } }
+
+    /* Cursor knife */
+    #cursor-knife {
+      position: fixed; pointer-events: none; z-index: 90; opacity: 0;
+      transition: opacity .2s;
+    }
+    #cursor-knife .h, #cursor-knife .v {
+      position: absolute; background: var(--rust);
+    }
+    #cursor-knife .h { width: 40px; height: 1px; left: -20px; top: 0; }
+    #cursor-knife .v { width: 1px; height: 40px; left: 0; top: -20px; }
+    #cursor-knife .coord {
+      position: absolute; left: 14px; top: 14px;
+      font-family: var(--font-mono); font-size: 9px; letter-spacing: .08em;
+      color: var(--concrete); white-space: nowrap;
+    }
+    #cursor-knife.is-active { opacity: 1; }
+
+    /* Typography */
+    .display-xl {
+      font-family: var(--font-display); font-size: clamp(52px, 9vw, 130px);
+      line-height: .9; font-weight: 500; letter-spacing: -.03em; text-transform: uppercase;
+    }
+    .display-lg {
+      font-family: var(--font-display); font-size: clamp(36px, 5vw, 72px);
+      line-height: 1; font-weight: 500; letter-spacing: -.02em;
+    }
+    .display-md {
+      font-family: var(--font-display); font-size: clamp(28px, 3.5vw, 48px);
+      line-height: 1.05; font-weight: 500;
+    }
+    .title { font-family: var(--font-display); font-size: 22px; line-height: 1.15; font-weight: 600; }
+    .label {
+      font-family: var(--font-mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase;
+      color: var(--concrete);
+    }
+    .mono { font-family: var(--font-mono); }
+    .caption { font-size: 13px; line-height: 1.55; color: var(--concrete); }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+      height: 52px; padding: 0 28px;
+      font-family: var(--font-body); font-size: 13px; font-weight: 500; letter-spacing: .02em;
+      border: 1px solid var(--shadow); color: var(--shadow);
+      transition: background .25s, color .25s;
+    }
+    .btn:hover { background: var(--shadow); color: var(--stone); }
+    .btn-accent { background: var(--rust); border-color: var(--rust); color: #fff; }
+    .btn-accent:hover { background: #9A3810; }
+    .btn-ghost { border-color: var(--rule); color: var(--concrete); }
+    .btn-ghost:hover { background: var(--cut-light); color: var(--shadow); }
+
+    /* Sections */
+    .section { position: relative; width: 100%; }
+    .section-pad { padding: 120px 32px; }
+    @media (max-width: 768px) { .section-pad { padding: 80px 20px; } }
+    .container { width: 100%; max-width: 1440px; margin: 0 auto; }
+
+    /* Hero */
+    #hero {
+      min-height: 100svh;
+      display: flex; align-items: stretch;
+      padding-top: var(--header-h);
+    }
+    .hero-band {
+      position: relative; width: 100%; display: grid;
+      grid-template-columns: 1fr 1fr; min-height: 100svh;
+    }
+    @media (max-width: 900px) { .hero-band { grid-template-columns: 1fr; } }
+    .hero-facade {
+      position: relative; overflow: hidden;
+      background: var(--cut-light);
+      display: flex; align-items: flex-end; padding: 48px;
+    }
+    .hero-facade img {
+      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+      filter: grayscale(1) contrast(1.05) brightness(.95);
+    }
+    .hero-facade .overlay {
+      position: absolute; inset: 0; background: rgba(26,25,24,.35);
+    }
+    .hero-facade-text { position: relative; z-index: 2; }
+    .hero-facade-text .label { color: rgba(255,255,255,.7); margin-bottom: 16px; }
+    .hero-facade-text h1 { color: #fff; }
+    .hero-section {
+      position: relative; overflow: hidden;
+      background: var(--stone);
+      display: flex; flex-direction: column; justify-content: space-between; padding: 48px;
+      border-left: 1px solid var(--rule);
+    }
+    @media (max-width: 900px) { .hero-section { border-left: none; border-top: 1px solid var(--rule); } }
+    .hero-section img {
+      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+      filter: grayscale(1) sepia(.15) contrast(1.05);
+    }
+    .section-plane {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: var(--stone);
+      transform-origin: left center;
+      z-index: 2;
+    }
+    .hero-section-body { position: relative; z-index: 3; }
+    .hero-section-body .label { margin-bottom: 16px; display: block; }
+    .hero-section-body p { max-width: 420px; margin-bottom: 28px; }
+
+    /* Dimension annotations */
+    .dims { margin-top: 40px; }
+    .dim {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 18px;
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: .06em;
+    }
+    .dim-line { flex: 1; height: 1px; background: var(--rule); position: relative; }
+    .dim-line::after {
+      content: ''; position: absolute; right: 0; top: -2px; width: 5px; height: 5px;
+      border-top: 1px solid var(--concrete); border-right: 1px solid var(--concrete);
+      transform: rotate(45deg);
+    }
+    .dim svg { width: 100%; height: 20px; }
+    .dim svg line, .dim svg polyline {
+      stroke: var(--concrete); stroke-width: 1; fill: none;
+      stroke-dasharray: 120; stroke-dashoffset: 120;
+    }
+    .dim.is-drawn svg line, .dim.is-drawn svg polyline { stroke-dashoffset: 0; transition: stroke-dashoffset 1.2s var(--ease-out); }
+
+    /* Section bands */
+    .band {
+      border-top: 1px solid var(--rule);
+      display: grid; grid-template-columns: 60% 40%;
+      min-height: 80svh;
+    }
+    @media (max-width: 900px) { .band { grid-template-columns: 1fr; } }
+    .band-reveal { position: relative; overflow: hidden; }
+    .band-reveal img {
+      width: 100%; height: 100%; object-fit: cover;
+      filter: grayscale(1) contrast(1.04);
+    }
+    .band-content {
+      padding: 64px; display: flex; flex-direction: column; justify-content: center;
+      border-left: 1px solid var(--rule);
+    }
+    @media (max-width: 900px) { .band-content { border-left: none; border-top: 1px solid var(--rule); } }
+    .band-content .label { margin-bottom: 20px; }
+    .band-content h3 { margin-bottom: 20px; }
+    .band-content p { max-width: 440px; margin-bottom: 28px; }
+
+    .band.alt { grid-template-columns: 40% 60%; }
+    @media (max-width: 900px) { .band.alt { grid-template-columns: 1fr; } }
+    .band.alt .band-content { border-left: none; border-right: 1px solid var(--rule); }
+    @media (max-width: 900px) { .band.alt .band-content { border-right: none; } }
+
+    /* Material strip */
+    #materials { background: var(--shadow); color: var(--stone); }
+    #materials .label { color: rgba(232,228,223,.6); }
+    .mat-strip {
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; background: rgba(255,255,255,.08);
+      margin-top: 48px;
+    }
+    @media (max-width: 900px) { .mat-strip { grid-template-columns: repeat(2, 1fr); } }
+    .mat-cell {
+      aspect-ratio: 1; position: relative; overflow: hidden;
+      background: var(--shadow); cursor: pointer;
+      display: flex; flex-direction: column; justify-content: flex-end; padding: 24px;
+      transition: background .3s;
+    }
+    .mat-cell:hover { background: #252422; }
+    .mat-cell img {
+      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+      opacity: .45; transform: scale(1.05);
+      transition: transform .8s var(--ease-out), opacity .4s;
+    }
+    .mat-cell:hover img { transform: scale(1.15); opacity: .65; }
+    .mat-cell span { position: relative; z-index: 2; font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+
+    /* Services */
+    .services-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px;
+    }
+    @media (max-width: 1024px) { .services-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 640px) { .services-grid { grid-template-columns: 1fr; } }
+    .service {
+      border-top: 1px solid var(--rule); padding-top: 24px;
+    }
+    .service-num { font-family: var(--font-mono); font-size: 11px; color: var(--rust); margin-bottom: 14px; }
+    .service h4 { font-family: var(--font-display); font-size: 20px; font-weight: 600; margin-bottom: 10px; }
+
+    /* Contact */
+    #contact { background: var(--shadow); color: var(--stone); }
+    .contact-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 64px;
+    }
+    @media (max-width: 900px) { .contact-grid { grid-template-columns: 1fr; } }
+    .contact-form { display: grid; gap: 20px; }
+    .contact-form label {
+      font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+      color: rgba(232,228,223,.6); display: block; margin-bottom: 6px;
+    }
+    .contact-form input, .contact-form textarea {
+      width: 100%; background: transparent; border: 1px solid rgba(232,228,223,.18);
+      padding: 14px 16px; color: var(--stone); font-family: var(--font-body); font-size: 15px;
+      outline: none; transition: border-color .2s;
+    }
+    .contact-form input:focus, .contact-form textarea:focus { border-color: var(--rust); }
+    .contact-form textarea { min-height: 140px; resize: vertical; }
+    .form-error { color: var(--rust); font-size: 12px; min-height: 18px; }
+
+    /* Footer */
+    #footer { border-top: 1px solid var(--rule); padding: 80px 32px 40px; }
+    .footer-grid {
+      display: grid; grid-template-columns: 2fr repeat(3, 1fr); gap: 48px;
+    }
+    @media (max-width: 900px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 640px) { .footer-grid { grid-template-columns: 1fr; } }
+    .footer-wordmark {
+      font-family: var(--font-display); font-size: clamp(64px, 14vw, 180px);
+      line-height: .85; font-weight: 500; text-transform: uppercase;
+      opacity: .06; grid-column: 1 / -1; margin-top: 60px; user-select: none;
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .001ms !important; animation-iteration-count: 1 !important;
+        transition-duration: .001ms !important;
+      }
+      #cursor-knife, .section-plane { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="cursor-knife" aria-hidden="true">
+    <div class="h"></div>
+    <div class="v"></div>
+    <div class="coord">X:000 Y:000</div>
+  </div>
+
+  <header id="header">
+    <a href="#top" class="logo">FORM</a>
+    <nav class="nav-links" aria-label="Основная">
+      <a href="#works">Проекты</a>
+      <a href="#materials">Материалы</a>
+      <a href="#services">Услуги</a>
+      <a href="#contact">Контакты</a>
+    </nav>
+    <button class="btn btn-ghost" style="height:40px; padding:0 18px; font-size:12px;">Начать проект</button>
+  </header>
+
+  <main id="top">
+
+    <!-- Hero -->
+    <section id="hero" class="section">
+      <div class="hero-band">
+        <div class="hero-facade">
+          <img src="https://images.unsplash.com/photo-1486718448742-163732cd1544?auto=format&w=1600&q=80" alt="Фасад здания" fetchpriority="high">
+          <div class="overlay"></div>
+          <div class="hero-facade-text">
+            <span class="label">Архитектурное бюро</span>
+            <h1 class="display-xl">Форма<br>следует за<br>смыслом</h1>
+          </div>
+        </div>
+        <div class="hero-section">
+          <img src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&w=1200&q=80" alt="Архитектурный срез">
+          <div class="section-plane" id="sectionPlane"></div>
+          <div class="hero-section-body">
+            <span class="label">Срез массы</span>
+            <p class="body-lg">Мы проектируем здания как последовательность сечений: фасад — масса, внутри — программа, свет и движение.</p>
+            <div class="dims">
+              <div class="dim">
+                <svg viewBox="0 0 200 20" preserveAspectRatio="none">
+                  <line x1="0" y1="10" x2="200" y2="10"/>
+                  <polyline points="0,5 0,15"/>
+                  <polyline points="200,5 200,15"/>
+                </svg>
+                <span>42 м</span>
+              </div>
+              <div class="dim">
+                <svg viewBox="0 0 200 20" preserveAspectRatio="none">
+                  <line x1="0" y1="10" x2="160" y2="10"/>
+                  <polyline points="0,5 0,15"/>
+                  <polyline points="160,5 160,15"/>
+                </svg>
+                <span>18 м</span>
+              </div>
+              <div class="dim">
+                <svg viewBox="0 0 200 20" preserveAspectRatio="none">
+                  <line x1="0" y1="10" x2="120" y2="10"/>
+                  <polyline points="0,5 0,15"/>
+                  <polyline points="120,5 120,15"/>
+                </svg>
+                <span>6 этажей</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Works -->
+    <section id="works" class="section">
+      <article class="band">
+        <div class="band-reveal">
+          <img src="https://images.unsplash.com/photo-1511818966892-d7d671e672a2?auto=format&w=1200&q=80" alt="Музей Платформа">
+        </div>
+        <div class="band-content">
+          <span class="label">01 / Музей «Платформа»</span>
+          <h3 class="display-md">Промышленный корпус, рассечённый светом</h3>
+          <p class="caption">Переосмысление депо 1920-х годов. Центральный атриум разрезает здание по диагонали, вытягивая естественное освещение вглубь.</p>
+          <a href="#" class="btn btn-ghost">Смотреть срез</a>
+        </div>
+      </article>
+
+      <article class="band alt">
+        <div class="band-content">
+          <span class="label">02 / Вокзал «Южный»</span>
+          <h3 class="display-md">Потолок как навесная плоскость</h3>
+          <p class="caption">Пассажирский терминал с двумя горизонтальными плитами: нижняя — перрон, верхняя — крыша. Между ними — воздух и свет.</p>
+          <a href="#" class="btn btn-ghost">Смотреть срез</a>
+        </div>
+        <div class="band-reveal">
+          <img src="https://images.unsplash.com/photo-1487958449943-2429e8be8625?auto=format&w=1200&q=80" alt="Вокзал Южный">
+        </div>
+      </article>
+
+      <article class="band">
+        <div class="band-reveal">
+          <img src="https://images.unsplash.com/photo-1479839672679-a46483c0e7c8?auto=format&w=1200&q=80" alt="Терминал Старая гавань">
+        </div>
+        <div class="band-content">
+          <span class="label">03 / Терминал «Старая гавань»</span>
+          <h3 class="display-md">Массив на набережной</h3>
+          <p class="caption">Бетонный монолит, поднятый над уровнем воды. Внутри — логистика, снаружи — общественная лестница и смотровая площадка.</p>
+          <a href="#" class="btn btn-ghost">Смотреть срез</a>
+        </div>
+      </article>
+    </section>
+
+    <!-- Materials -->
+    <section id="materials" class="section section-pad">
+      <div class="container">
+        <span class="label">Материальная палитра</span>
+        <h2 class="display-md" style="margin-top:16px; max-width:600px;">Каждый материал несёт нагрузку и характер</h2>
+        <div class="mat-strip">
+          <div class="mat-cell" data-mat="concrete">
+            <img src="https://images.unsplash.com/photo-1505567745926-ba89000d255a?auto=format&w=600&q=80" alt="Бетон">
+            <span>Бетон</span>
+          </div>
+          <div class="mat-cell" data-mat="wood">
+            <img src="https://images.unsplash.com/photo-1516961642265-531546e84af2?auto=format&w=600&q=80" alt="Дуб">
+            <span>Дуб</span>
+          </div>
+          <div class="mat-cell" data-mat="steel">
+            <img src="https://images.unsplash.com/photo-1566220386476-1d2e8b6b0e1e?auto=format&w=600&q=80" alt="Сталь">
+            <span>Сталь</span>
+          </div>
+          <div class="mat-cell" data-mat="glass">
+            <img src="https://images.unsplash.com/photo-1495573542832-e3391100d8e3?auto=format&w=600&q=80" alt="Стекло">
+            <span>Стекло</span>
+          </div>
+          <div class="mat-cell" data-mat="terracotta">
+            <img src="https://images.unsplash.com/photo-1600607686527-6fb886090705?auto=format&w=600&q=80" alt="Терракotta">
+            <span>Терракота</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Services -->
+    <section id="services" class="section section-pad">
+      <div class="container">
+        <div class="services-grid">
+          <div class="service">
+            <div class="service-num">01</div>
+            <h4>Архитектура</h4>
+            <p class="caption">Концепция, эскизы, рабочая документация и авторский надзор.</p>
+          </div>
+          <div class="service">
+            <div class="service-num">02</div>
+            <h4>Интерьеры</h4>
+            <p class="caption">Пространственное решение, материалы, мебель и свет.</p>
+          </div>
+          <div class="service">
+            <div class="service-num">03</div>
+            <h4>Мастер-план</h4>
+            <p class="caption">Градостроительные стратегии и развитие территорий.</p>
+          </div>
+          <div class="service">
+            <div class="service-num">04</div>
+            <h4>Экспертиза</h4>
+            <p class="caption">Аудит существующих решений и консультации по материалам.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact" class="section section-pad">
+      <div class="container">
+        <div class="contact-grid">
+          <div>
+            <span class="label">Контакты</span>
+            <h2 class="display-md" style="margin-top:16px;">Обсудить проект</h2>
+            <p class="caption" style="margin-top:20px; max-width:360px;">Расскажите о задаче. Мы ответим в течение двух рабочих дней с предложением по этапам.</p>
+            <div style="margin-top:40px; font-family:var(--font-mono); font-size:12px; line-height:2; color:rgba(232,228,223,.7);">
+              <div>hello@form.archi</div>
+              <div>+7 495 000 00 00</div>
+              <div>Москва, Большой Конюшковский пер., 2</div>
+            </div>
+          </div>
+          <form class="contact-form" id="contactForm">
+            <div>
+              <label for="name">Имя</label>
+              <input type="text" id="name" name="name" required>
+              <div class="form-error"></div>
+            </div>
+            <div>
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" required>
+              <div class="form-error"></div>
+            </div>
+            <div>
+              <label for="message">О проекте</label>
+              <textarea id="message" name="message" required></textarea>
+              <div class="form-error"></div>
+            </div>
+            <button type="submit" class="btn btn-accent">Отправить запрос</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer id="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="logo" style="margin-bottom:16px;">FORM</div>
+          <p class="caption">Архитектурное бюро.<br>Форма следует за смыслом.</p>
+        </div>
+        <div>
+          <div class="label" style="margin-bottom:16px;">Навигация</div>
+          <ul class="caption">
+            <li><a href="#works">Проекты</a></li>
+            <li><a href="#materials">Материалы</a></li>
+            <li><a href="#services">Услуги</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="label" style="margin-bottom:16px;">Соцсети</div>
+          <ul class="caption">
+            <li><a href="#">Instagram</a></li>
+            <li><a href="#">Behance</a></li>
+            <li><a href="#">Pinterest</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="label" style="margin-bottom:16px;">Офис</div>
+          <ul class="caption">
+            <li>Москва</li>
+            <li>Пн–Пт 10:00–19:00</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-wordmark">FORM</div>
+    </div>
+  </footer>
+
+  <script>
+    (function(){
+      'use strict';
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const $ = s => document.querySelector(s);
+      const $$ = s => Array.from(document.querySelectorAll(s));
+
+      // Cursor knife
+      if(!reducedMotion && window.matchMedia('(pointer:fine)').matches){
+        const knife = $('#cursor-knife');
+        const coord = knife.querySelector('.coord');
+        document.addEventListener('mousemove', e => {
+          knife.style.left = e.clientX + 'px';
+          knife.style.top = e.clientY + 'px';
+          coord.textContent = `X:${String(e.clientX).padStart(4,'0')} Y:${String(e.clientY).padStart(4,'0')}`;
+        });
+        $$('a, button, .mat-cell').forEach(el => {
+          el.addEventListener('mouseenter', () => knife.classList.remove('is-active'));
+          el.addEventListener('mouseleave', () => knife.classList.add('is-active'));
+        });
+        knife.classList.add('is-active');
+      }
+
+      // Contact form validation
+      $('#contactForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const form = e.target;
+        let ok = true;
+        ['name','email','message'].forEach(id => {
+          const el = form.querySelector('#'+id);
+          const err = el.nextElementSibling;
+          err.textContent = '';
+          if(!el.value.trim()){ err.textContent = 'Заполните поле'; ok=false; }
+          if(id==='email' && el.value && !el.value.includes('@')){ err.textContent='Введите корректный email'; ok=false; }
+        });
+        if(ok){
+          const btn = form.querySelector('button[type="submit"]');
+          btn.textContent = 'Отправлено';
+          btn.disabled = true;
+        }
+      });
+
+      // Lenis + GSAP
+      const motionOK = !reducedMotion && window.gsap && window.ScrollTrigger && window.Lenis;
+      if(motionOK){
+        const lenis = new Lenis({ lerp:0.1, smoothWheel:true });
+        window.__lenis = lenis;
+        lenis.on('scroll', ScrollTrigger.update);
+        gsap.ticker.add((time) => { lenis.raf(time * 1000); });
+        gsap.ticker.lagSmoothing(0);
+        gsap.registerPlugin(ScrollTrigger);
+
+        ScrollTrigger.create({
+          start:'top -80', onUpdate:(self)=>{
+            $('#header').classList.toggle('is-scrolled', self.progress > 0);
+          }
+        });
+
+        // Hero section-plane cut reveal
+        gsap.to('#sectionPlane', {
+          scaleX: 0,
+          transformOrigin: 'right center',
+          ease: 'power2.inOut',
+          scrollTrigger: { trigger:'#hero', start:'top top', end:'+=120%', scrub:1 }
+        });
+
+        // Hero dims draw
+        ScrollTrigger.create({
+          trigger:'.dims', start:'top 80%',
+          onEnter: () => $$('.dim').forEach((d,i) => setTimeout(()=>d.classList.add('is-drawn'), i*180))
+        });
+
+        // Band reveals
+        $$('.band').forEach(band => {
+          const img = band.querySelector('.band-reveal img');
+          gsap.fromTo(img, {scale:1.15}, {
+            scale:1, ease:'none',
+            scrollTrigger:{ trigger:band, start:'top bottom', end:'bottom top', scrub:true }
+          });
+          gsap.fromTo(band.querySelector('.band-content'), {opacity:0, y:40}, {
+            opacity:1, y:0, duration:1, ease:'power3.out',
+            scrollTrigger:{ trigger:band, start:'top 70%' }
+          });
+        });
+
+        // Material strip cells
+        gsap.fromTo('.mat-cell', {opacity:0, y:30}, {
+          opacity:1, y:0, duration:.8, stagger:.1, ease:'power3.out',
+          scrollTrigger:{ trigger:'#materials', start:'top 75%' }
+        });
+
+        // Services
+        gsap.fromTo('.service', {opacity:0, y:24}, {
+          opacity:1, y:0, duration:.8, stagger:.12, ease:'power3.out',
+          scrollTrigger:{ trigger:'#services', start:'top 75%' }
+        });
+
+        // Contact
+        gsap.fromTo('#contact .display-md, #contact .caption, .contact-form', {opacity:0, y:30}, {
+          opacity:1, y:0, duration:.9, stagger:.15, ease:'power3.out',
+          scrollTrigger:{ trigger:'#contact', start:'top 75%' }
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

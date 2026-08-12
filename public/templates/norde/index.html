@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NORDE — Object Biographies</title>
+  <meta name="description" content="Скандинавские объекты с биографией: материал, происхождение, жизненный цикл.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+  <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+  <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #F6F4F0;
+      --paper-2: #EEEBE5;
+      --ink: #1C1917;
+      --ink-2: #3E3834;
+      --ink-3: #6B6058;
+      --iron: #A44A3F;
+      --iron-2: #8A3D34;
+      --beeswax: #E6A65D;
+      --pencil: #C9C5BE;
+      --pencil-2: #E0DDD6;
+      --rule: rgba(28,25,23,.10);
+      --rule-2: rgba(28,25,23,.06);
+      --shadow: rgba(28,25,23,.08);
+
+      --font-display: 'Cormorant Garamond', Georgia, serif;
+      --font-body: 'Source Sans 3', system-ui, sans-serif;
+      --font-mono: 'IBM Plex Mono', monospace;
+
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
+      --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+
+      --header-h: 64px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html, body { margin: 0; padding: 0; }
+    html { scroll-behavior: auto; }
+    body {
+      font-family: var(--font-body);
+      background: var(--paper);
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      overflow-x: hidden;
+    }
+
+    ::selection { background: var(--beeswax); color: var(--ink); }
+
+    h1, h2, h3, h4, p, figure, ul, ol { margin: 0; }
+    ul, ol { padding: 0; list-style: none; }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; }
+    img { max-width: 100%; display: block; }
+
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+    }
+
+    /* Preloader */
+    #preloader {
+      position: fixed; inset: 0; z-index: 1000;
+      background: var(--paper);
+      display: flex; align-items: center; justify-content: center;
+    }
+    #preloader.is-done { pointer-events: none; opacity: 0; transition: opacity .6s var(--ease-out); }
+    .preloader-stamp {
+      width: 120px; height: 120px; border: 2px solid var(--iron);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: .15em; text-transform: uppercase;
+      color: var(--iron); position: relative;
+    }
+    .preloader-stamp::after {
+      content: ''; position: absolute; inset: 6px; border: 1px dashed var(--iron);
+      border-radius: 50%; opacity: .5;
+    }
+
+    /* Header */
+    #header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: var(--header-h);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px;
+      border-bottom: 1px solid transparent;
+      transition: background .3s, border-color .3s;
+    }
+    #header.is-scrolled {
+      background: rgba(246,244,240,.92);
+      backdrop-filter: blur(8px);
+      border-color: var(--rule);
+    }
+    .logo {
+      font-family: var(--font-display); font-size: 22px; font-weight: 600;
+      letter-spacing: .04em; line-height: 1;
+    }
+    .header-meta {
+      display: flex; align-items: center; gap: 20px;
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--ink-3);
+    }
+    .header-actions { display: flex; align-items: center; gap: 14px; }
+    .icon-btn {
+      width: 40px; height: 40px;
+      display: flex; align-items: center; justify-content: center;
+      border: 1px solid var(--rule); border-radius: 50%;
+      transition: border-color .2s, background .2s;
+      position: relative;
+    }
+    .icon-btn:hover { border-color: var(--ink-2); background: var(--paper-2); }
+    .icon-btn svg { width: 18px; height: 18px; stroke: var(--ink-2); }
+    #cartCount {
+      position: absolute; top: -2px; right: -2px;
+      min-width: 18px; height: 18px; padding: 0 5px;
+      background: var(--iron); color: #fff;
+      font-family: var(--font-mono); font-size: 10px; font-weight: 500;
+      border-radius: 9px; display: none; align-items: center; justify-content: center;
+    }
+    #cartCount.is-visible { display: flex; }
+    #cartCount.pulse { animation: pulseBadge .35s var(--ease-spring); }
+    @keyframes pulseBadge {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.25); }
+      100% { transform: scale(1); }
+    }
+
+    /* Custom cursor loupe */
+    #loupe {
+      position: fixed; width: 120px; height: 120px;
+      border: 1px solid var(--iron); border-radius: 50%;
+      pointer-events: none; z-index: 90; opacity: 0;
+      background: var(--paper);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-mono); font-size: 9px; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--iron); transform: translate(-50%, -50%) scale(.8);
+      transition: opacity .2s, transform .2s var(--ease-out);
+    }
+    #loupe.is-active { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+    /* Typography */
+    .display-xl {
+      font-family: var(--font-display); font-size: clamp(48px, 8vw, 112px);
+      line-height: .92; font-weight: 500; letter-spacing: -.02em;
+    }
+    .display-lg {
+      font-family: var(--font-display); font-size: clamp(36px, 5.5vw, 72px);
+      line-height: 1; font-weight: 500; letter-spacing: -.01em;
+    }
+    .display-md {
+      font-family: var(--font-display); font-size: clamp(28px, 3.5vw, 48px);
+      line-height: 1.05; font-weight: 500;
+    }
+    .title { font-family: var(--font-display); font-size: 24px; line-height: 1.1; font-weight: 600; }
+    .label {
+      font-family: var(--font-mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase;
+      color: var(--ink-3);
+    }
+    .mono { font-family: var(--font-mono); }
+    .caption {
+      font-size: 13px; line-height: 1.5; color: var(--ink-3);
+    }
+    .body-lg { font-size: 18px; line-height: 1.6; }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+      height: 48px; padding: 0 24px;
+      font-family: var(--font-body); font-size: 13px; font-weight: 500; letter-spacing: .02em;
+      border: 1px solid var(--ink); color: var(--ink);
+      transition: background .25s, color .25s, border-color .25s;
+    }
+    .btn:hover { background: var(--ink); color: var(--paper); }
+    .btn-accent { background: var(--iron); border-color: var(--iron); color: #fff; }
+    .btn-accent:hover { background: var(--iron-2); border-color: var(--iron-2); }
+    .btn-ghost { border-color: var(--rule); color: var(--ink-2); }
+    .btn-ghost:hover { background: var(--paper-2); color: var(--ink); }
+
+    /* Section scaffolding */
+    .section { position: relative; width: 100%; }
+    .section-pad { padding: 120px 24px; }
+    @media (max-width: 768px) { .section-pad { padding: 80px 20px; } }
+
+    .container {
+      width: 100%; max-width: 1360px; margin: 0 auto;
+    }
+    .grid-12 {
+      display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px;
+    }
+
+    /* Hero */
+    #hero {
+      min-height: 100svh;
+      display: flex; align-items: center;
+      padding: calc(var(--header-h) + 40px) 24px 80px;
+    }
+    .hero-inner { width: 100%; max-width: 1360px; margin: 0 auto; }
+    .specimen-card {
+      border: 1px solid var(--rule);
+      background: var(--paper);
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      min-height: 70svh;
+    }
+    @media (max-width: 900px) {
+      .specimen-card { grid-template-columns: 1fr; }
+    }
+    .specimen-media {
+      position: relative; overflow: hidden;
+      background: var(--paper-2);
+    }
+    .specimen-media img {
+      width: 100%; height: 100%; object-fit: cover;
+      filter: grayscale(1) sepia(.18) contrast(1.04) brightness(1.02);
+    }
+    .specimen-stamp {
+      position: absolute; bottom: 24px; right: 24px;
+      width: 80px; height: 80px; border: 1.5px solid var(--iron);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      color: var(--iron); font-family: var(--font-mono); font-size: 9px;
+      letter-spacing: .08em; text-transform: uppercase; text-align: center;
+      opacity: 0; transform: scale(1.4);
+    }
+    .specimen-stamp.is-stamped { animation: stampIn .5s var(--ease-out) forwards; }
+    @keyframes stampIn {
+      to { opacity: 1; transform: scale(1) rotate(-6deg); }
+    }
+    .specimen-body {
+      padding: 48px;
+      display: flex; flex-direction: column; justify-content: space-between;
+      border-left: 1px solid var(--rule);
+    }
+    @media (max-width: 900px) { .specimen-body { border-left: none; border-top: 1px solid var(--rule); } }
+    .specimen-row {
+      display: flex; justify-content: space-between; align-items: baseline;
+      padding: 14px 0; border-bottom: 1px solid var(--rule-2);
+      opacity: 0; transform: translateY(12px);
+    }
+    .specimen-row .label { flex: 0 0 140px; }
+    .specimen-row .value {
+      flex: 1; text-align: right;
+      font-family: var(--font-body); font-size: 15px; color: var(--ink);
+    }
+    .specimen-title {
+      font-family: var(--font-display); font-size: clamp(32px, 4vw, 56px);
+      font-weight: 600; line-height: 1; margin: 24px 0;
+    }
+    .specimen-price {
+      font-family: var(--font-mono); font-size: 18px; letter-spacing: .04em;
+      color: var(--iron); margin-bottom: 24px;
+    }
+
+    /* Manifest */
+    .manifest-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 48px;
+    }
+    @media (max-width: 900px) { .manifest-grid { grid-template-columns: 1fr; gap: 32px; } }
+    .manifest-item { border-top: 1px solid var(--rule); padding-top: 24px; }
+    .manifest-num {
+      font-family: var(--font-mono); font-size: 12px; color: var(--iron); margin-bottom: 16px;
+    }
+    .manifest-item h3 {
+      font-family: var(--font-display); font-size: 28px; font-weight: 600; margin-bottom: 12px;
+    }
+
+    /* Provenance map */
+    #provenance { background: var(--paper-2); }
+    .provenance-header { margin-bottom: 48px; }
+    .provenance-header .label { margin-bottom: 16px; display: block; }
+    #map {
+      width: 100%; height: 520px; border: 1px solid var(--rule); background: #E8E6E0;
+    }
+    .map-legend {
+      margin-top: 24px; display: flex; flex-wrap: wrap; gap: 16px;
+      font-family: var(--font-mono); font-size: 11px; color: var(--ink-3);
+    }
+    .map-legend span { display: flex; align-items: center; gap: 8px; }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--iron); }
+
+    /* Material passport */
+    .passport-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;
+    }
+    @media (max-width: 1024px) { .passport-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 640px) { .passport-grid { grid-template-columns: 1fr; } }
+    .passport-card {
+      border: 1px solid var(--rule); padding: 24px;
+      transition: border-color .25s, transform .25s var(--ease-out);
+      cursor: pointer;
+    }
+    .passport-card:hover { border-color: var(--iron); transform: translateY(-4px); }
+    .passport-card .label { margin-bottom: 16px; display: block; }
+    .passport-card h4 {
+      font-family: var(--font-display); font-size: 24px; font-weight: 600; margin-bottom: 12px;
+    }
+    .passport-bar {
+      height: 3px; background: var(--rule-2); margin-top: 16px; overflow: hidden;
+    }
+    .passport-bar i {
+      display: block; height: 100%; width: 0; background: var(--beeswax);
+      transition: width 1s var(--ease-out);
+    }
+    .passport-card.is-in-view .passport-bar i { width: var(--bar); }
+
+    /* Ledger / catalog */
+    .ledger-header { margin-bottom: 48px; }
+    .ledger-row {
+      border-top: 1px solid var(--rule);
+      overflow: hidden;
+      transition: background .2s;
+    }
+    .ledger-row:hover { background: var(--paper-2); }
+    .ledger-summary {
+      display: grid; grid-template-columns: 100px 2fr 1fr 140px 160px;
+      align-items: center; gap: 24px; padding: 22px 0;
+      cursor: pointer;
+    }
+    @media (max-width: 900px) {
+      .ledger-summary { grid-template-columns: 60px 1fr auto; gap: 12px; }
+      .ledger-summary .ledger-material, .ledger-summary .ledger-price { display: none; }
+    }
+    .ledger-unit { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); }
+    .ledger-name { font-family: var(--font-display); font-size: 22px; font-weight: 600; }
+    .ledger-material { font-size: 14px; color: var(--ink-3); }
+    .ledger-price { font-family: var(--font-mono); font-size: 15px; }
+    .ledger-toggle {
+      width: 40px; height: 40px; border: 1px solid var(--rule); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      transition: transform .3s var(--ease-out), border-color .2s;
+    }
+    .ledger-row.is-open .ledger-toggle { transform: rotate(45deg); border-color: var(--iron); }
+    .ledger-sheet {
+      display: grid; grid-template-rows: 0fr;
+      transition: grid-template-rows .5s var(--ease-out);
+    }
+    .ledger-row.is-open .ledger-sheet { grid-template-rows: 1fr; }
+    .ledger-sheet-inner { overflow: hidden; }
+    .ledger-detail {
+      display: grid; grid-template-columns: 240px 1fr;
+      gap: 40px; padding: 24px 0 48px;
+    }
+    @media (max-width: 900px) { .ledger-detail { grid-template-columns: 1fr; } }
+    .ledger-detail img {
+      width: 100%; aspect-ratio: 4/5; object-fit: cover;
+      filter: grayscale(1) sepia(.15) contrast(1.03);
+    }
+    .ledger-specs { margin-bottom: 24px; }
+    .ledger-specs li {
+      display: flex; justify-content: space-between; padding: 10px 0;
+      border-bottom: 1px solid var(--rule-2); font-size: 14px;
+    }
+    .ledger-specs li span:first-child { color: var(--ink-3); font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; }
+    .size-select {
+      display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 20px;
+    }
+    .size-btn {
+      min-width: 44px; height: 36px; padding: 0 12px;
+      border: 1px solid var(--rule); font-family: var(--font-mono); font-size: 12px;
+      transition: border-color .2s, background .2s;
+    }
+    .size-btn:hover, .size-btn.is-active {
+      border-color: var(--iron); background: rgba(164,74,63,.08);
+    }
+
+    /* Journal */
+    #journal { background: var(--ink); color: var(--paper); }
+    #journal .label, #journal .caption { color: var(--pencil); }
+    .journal-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+    }
+    @media (max-width: 900px) { .journal-grid { grid-template-columns: 1fr; } }
+    .journal-card {
+      border-top: 1px solid rgba(246,244,240,.14); padding-top: 24px;
+    }
+    .journal-card h4 { font-family: var(--font-display); font-size: 24px; margin-bottom: 12px; }
+    .journal-card p { color: var(--pencil); margin-bottom: 20px; }
+
+    /* Club */
+    .club-card {
+      border: 1px solid var(--rule); padding: 48px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center;
+    }
+    @media (max-width: 900px) { .club-card { grid-template-columns: 1fr; } }
+    .club-form { display: flex; gap: 12px; }
+    .club-form input {
+      flex: 1; height: 48px; padding: 0 16px; border: 1px solid var(--rule);
+      font-family: var(--font-body); font-size: 15px; background: transparent;
+      outline: none; transition: border-color .2s;
+    }
+    .club-form input:focus { border-color: var(--iron); }
+
+    /* Footer */
+    #footer {
+      border-top: 1px solid var(--rule); padding: 80px 24px 40px;
+    }
+    .footer-grid {
+      display: grid; grid-template-columns: 2fr repeat(3, 1fr); gap: 48px;
+    }
+    @media (max-width: 900px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 640px) { .footer-grid { grid-template-columns: 1fr; } }
+    .footer-wordmark {
+      font-family: var(--font-display); font-size: clamp(64px, 12vw, 160px);
+      line-height: .85; font-weight: 500; opacity: .08;
+      grid-column: 1 / -1; margin-top: 60px; user-select: none;
+    }
+
+    /* Drawer overlay */
+    #overlay {
+      position: fixed; inset: 0; z-index: 190;
+      background: rgba(28,25,23,.35);
+      opacity: 0; pointer-events: none;
+      transition: opacity .35s var(--ease-out);
+    }
+    #overlay.is-open { opacity: 1; pointer-events: auto; }
+
+    #drawer {
+      position: fixed; top: 0; right: 0; bottom: 0; z-index: 200;
+      width: min(460px, 100vw);
+      background: var(--paper);
+      border-left: 1px solid var(--rule);
+      transform: translateX(100%);
+      transition: transform .45s var(--ease-out);
+      display: flex; flex-direction: column;
+    }
+    #drawer.is-open { transform: translateX(0); }
+    .drawer-head {
+      height: var(--header-h); padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--rule);
+    }
+    .drawer-body { flex: 1; overflow-y: auto; padding: 24px; }
+    .drawer-foot { padding: 24px; border-top: 1px solid var(--rule); }
+    .drawer-empty {
+      height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: var(--ink-3); text-align: center;
+    }
+    .drawer-item {
+      display: grid; grid-template-columns: 72px 1fr auto; gap: 16px;
+      padding: 16px 0; border-bottom: 1px solid var(--rule-2);
+    }
+    .drawer-item img { width: 72px; height: 90px; object-fit: cover; filter: grayscale(1) sepia(.15); }
+    .drawer-item-info h5 { font-family: var(--font-display); font-size: 16px; margin-bottom: 4px; }
+    .drawer-item-info p { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); }
+    .drawer-qty {
+      display: flex; align-items: center; gap: 10px;
+      font-family: var(--font-mono); font-size: 12px;
+    }
+    .drawer-qty button {
+      width: 28px; height: 28px; border: 1px solid var(--rule);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .drawer-line {
+      display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px;
+    }
+    .drawer-line.total {
+      font-family: var(--font-mono); font-size: 16px; font-weight: 500;
+      border-top: 1px solid var(--rule); padding-top: 16px; margin-top: 16px;
+    }
+
+    /* Receipt */
+    #receipt {
+      display: none; padding: 24px;
+      text-align: center;
+    }
+    #receipt.is-active { display: block; }
+    .receipt-stamp {
+      width: 100px; height: 100px; margin: 0 auto 24px;
+      border: 2px solid var(--iron); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--iron); font-family: var(--font-mono); font-size: 10px;
+      letter-spacing: .08em; text-transform: uppercase;
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .001ms !important; animation-iteration-count: 1 !important;
+        transition-duration: .001ms !important;
+      }
+      #preloader, #loupe, .specimen-stamp { display: none !important; }
+      .ledger-sheet { grid-template-rows: 1fr !important; }
+      .ledger-row.is-open .ledger-toggle { transform: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Preloader -->
+  <div id="preloader" role="status" aria-live="polite">
+    <div class="preloader-stamp">NORDE</div>
+  </div>
+
+  <!-- Loupe -->
+  <div id="loupe" aria-hidden="true">Увеличить</div>
+
+  <!-- Header -->
+  <header id="header">
+    <a href="#top" class="logo">NORDE</a>
+    <div class="header-meta">
+      <span>Объекты с биографией</span>
+      <span id="clock">00:00</span>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" id="soundToggle" aria-pressed="false" aria-label="Включить звук">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+      </button>
+      <button class="icon-btn" id="cartBtn" aria-label="Корзина">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M6 6h15l-1.5 9h-12z"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M6 6L5 3H2"/></svg>
+        <span id="cartCount">0</span>
+      </button>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <!-- Hero -->
+    <section id="hero" class="section">
+      <div class="hero-inner">
+        <div class="specimen-card">
+          <div class="specimen-media">
+            <img id="heroImg" src="https://images.unsplash.com/photo-1558171813-4c088753af8f?auto=format&w=1200&q=80" alt="Пальто из шерсти на вешалке" fetchpriority="high">
+            <div class="specimen-stamp" id="heroStamp">Архив<br>2026</div>
+          </div>
+          <div class="specimen-body">
+            <div>
+              <span class="label">Спецификация объекта</span>
+              <h1 class="specimen-title" id="heroName">Пальто из шерсти</h1>
+              <div class="specimen-price" id="heroPrice">24 900 ₽</div>
+            </div>
+            <div>
+              <div class="specimen-row"><span class="label">Инвентарный №</span><span class="value" id="heroUnit">Unit n°041</span></div>
+              <div class="specimen-row"><span class="label">Происхождение</span><span class="value" id="heroOrigin">Новая Зеландия — Россия</span></div>
+              <div class="specimen-row"><span class="label">Материал</span><span class="value" id="heroMaterial">100% мериносовая шерсть</span></div>
+              <div class="specimen-row"><span class="label">Срок жизни</span><span class="value">15–20 лет</span></div>
+              <div style="margin-top:24px; display:flex; gap:12px;">
+                <button class="btn btn-accent" id="heroAdd">Добавить в архив</button>
+                <a href="#ledger" class="btn btn-ghost">Каталог</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Manifest -->
+    <section id="manifest" class="section section-pad">
+      <div class="container">
+        <div class="manifest-grid">
+          <div class="manifest-item">
+            <div class="manifest-num">01</div>
+            <h3>Материал прежде марки</h3>
+            <p class="caption">Каждый объект начинается с сырья. Мы публикуем происхождение волокон, дубления кожи и выделки ткани.</p>
+          </div>
+          <div class="manifest-item">
+            <div class="manifest-num">02</div>
+            <h3>Биография, а не описание</h3>
+            <p class="caption">Вещь имеет географию, мастера и срок службы. Карточка объекта — это паспорт, а не рекламный текст.</p>
+          </div>
+          <div class="manifest-item">
+            <div class="manifest-num">03</div>
+            <h3>Архив вместо сезона</h3>
+            <p class="caption">Мы не обновляем коллекции каждые шесть недель. Объекты остаются в архиве, пока не изнашиваются.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Provenance map -->
+    <section id="provenance" class="section section-pad">
+      <div class="container">
+        <div class="provenance-header">
+          <span class="label">География материалов</span>
+          <h2 class="display-md">Происхождение</h2>
+        </div>
+        <div id="map" aria-label="Карта происхождения материалов"></div>
+        <div class="map-legend">
+          <span><i class="legend-dot"></i> Новая Зеландия — шерсть</span>
+          <span><i class="legend-dot" style="background:var(--beeswax)"></i> Бельгия — лён</span>
+          <span><i class="legend-dot" style="background:var(--ink-3)"></i> Италия — кожа</span>
+          <span><i class="legend-dot" style="background:#3F6212"></i> Турция — хлопок</span>
+          <span><i class="legend-dot" style="background:#67E8F9"></i> Копенгаген — сборка</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Material passport -->
+    <section id="passport" class="section section-pad">
+      <div class="container">
+        <div class="ledger-header">
+          <span class="label">Паспорт материалов</span>
+          <h2 class="display-md">Из чего сделано</h2>
+        </div>
+        <div class="passport-grid">
+          <article class="passport-card" data-loupe="Шерсть мериноса">
+            <span class="label">01</span>
+            <h4>Мериносовая шерсть</h4>
+            <p class="caption">Новая Зеландия. Тонкое волокно 18,5 мкм, натуральная терморегуляция.</p>
+            <div class="passport-bar"><i style="--bar:92%"></i></div>
+          </article>
+          <article class="passport-card" data-loupe="Бельгийский лён">
+            <span class="label">02</span>
+            <h4>Бельгийский лён</h4>
+            <p class="caption">Фландрия. Выращен без орошения, мягкий после каменной стирки.</p>
+            <div class="passport-bar"><i style="--bar:78%"></i></div>
+          </article>
+          <article class="passport-card" data-loupe="Итальянская кожа">
+            <span class="label">03</span>
+            <h4>Растительное дубление</h4>
+            <p class="caption">Тоскана. Кожа дубится 40 дней дубильными веществами из каштана.</p>
+            <div class="passport-bar"><i style="--bar:65%"></i></div>
+          </article>
+          <article class="passport-card" data-loupe="Турецкий хлопок">
+            <span class="label">04</span>
+            <h4>Органический хлопок</h4>
+            <p class="caption">Эгейский регион. Ручной сбор, длинное волокно для плотности.</p>
+            <div class="passport-bar"><i style="--bar:84%"></i></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Ledger / catalog -->
+    <section id="ledger" class="section section-pad">
+      <div class="container">
+        <div class="ledger-header">
+          <span class="label">Инвентарная ведомость</span>
+          <h2 class="display-md">Архив объектов</h2>
+        </div>
+        <div id="ledgerList"></div>
+      </div>
+    </section>
+
+    <!-- Journal -->
+    <section id="journal" class="section section-pad">
+      <div class="container">
+        <div class="ledger-header">
+          <span class="label">Журнал архива</span>
+          <h2 class="display-md">Заметки к материалам</h2>
+        </div>
+        <div class="journal-grid" id="journalGrid"></div>
+      </div>
+    </section>
+
+    <!-- Club -->
+    <section id="club" class="section section-pad">
+      <div class="container">
+        <div class="club-card">
+          <div>
+            <span class="label">Архивный клуб</span>
+            <h2 class="display-md">Получать паспорта новых объектов</h2>
+            <p class="caption" style="margin-top:12px;">Раз в месяц — письмо с биографией материала, картой происхождения и уходом.</p>
+          </div>
+          <form class="club-form" id="clubForm">
+            <input type="email" placeholder="email@example.com" required aria-label="Email">
+            <button type="submit" class="btn btn-accent">Подписаться</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer id="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="logo" style="margin-bottom:16px;">NORDE</div>
+          <p class="caption">Скандинавские объекты с биографией.<br>Материал, происхождение, жизненный цикл.</p>
+        </div>
+        <div>
+          <div class="label" style="margin-bottom:16px;">Архив</div>
+          <ul class="caption">
+            <li><a href="#ledger">Каталог</a></li>
+            <li><a href="#provenance">Происхождение</a></li>
+            <li><a href="#passport">Материалы</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="label" style="margin-bottom:16px;">Информация</div>
+          <ul class="caption">
+            <li><a href="#">Доставка</a></li>
+            <li><a href="#">Возврат</a></li>
+            <li><a href="#">Уход</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="label" style="margin-bottom:16px;">Контакты</div>
+          <ul class="caption">
+            <li><a href="mailto:archive@norde.co">archive@norde.co</a></li>
+            <li>Копенгаген / Москва</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-wordmark">NORDE</div>
+    </div>
+  </footer>
+
+  <!-- Overlay -->
+  <div id="overlay" data-close-drawer></div>
+
+  <!-- Drawer -->
+  <aside id="drawer" aria-label="Корзина">
+    <div class="drawer-head">
+      <span class="title" style="font-size:18px;">Архивный лист</span>
+      <button class="icon-btn" data-close-drawer aria-label="Закрыть корзину">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="drawer-body" id="drawerBody">
+      <div id="drawerItems"></div>
+      <div id="receipt">
+        <div class="receipt-stamp">Принято</div>
+        <h3 class="display-md" style="margin-bottom:8px;">Акт оформлен</h3>
+        <p class="caption">Объекты переданы на комплектацию. Письмо с подтверждением отправлено.</p>
+      </div>
+    </div>
+    <div class="drawer-foot" id="drawerFoot"></div>
+  </aside>
+
+  <script>
+    (function(){
+      'use strict';
+
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const $ = (s, c=document) => c.querySelector(s);
+      const $$ = (s, c=document) => Array.from(c.querySelectorAll(s));
+      const fmt = n => n.toLocaleString('ru-RU');
+
+      // Products
+      const PRODUCTS = [
+        { id:1, name:'Пальто из шерсти', unit:'Unit n°041', cat:'odezhda', price:24900,
+          img:'https://images.unsplash.com/photo-1558171813-4c088753af8f?auto=format&w=800&q=80',
+          origin:'Новая Зеландия — Россия', material:'100% мериносовая шерсть', stock:12,
+          desc:'Пальто сшито из мериносовой шерсти новозеландского происхождения. Плотное двухслойное плетение сохраняет тепло при влажной погоде. Подкладка из вискозы.',
+          meta:'<li><span>Вес</span><span>1,4 кг</span></li><li><span>Сезон</span><span>осень / зима</span></li><li><span>Уход</span><span>химчистка</span></li>' },
+        { id:2, name:'Футболка Heavyweight', unit:'Unit n°042', cat:'odezhda', price:3900,
+          img:'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&w=800&q=80',
+          origin:'Турция', material:'100% органический хлопок', stock:34,
+          desc:'Плотная футболка 280 г/м² из длинноволокнистого хлопка Эгейского региона. Прямой крой, двойная строчка.',
+          meta:'<li><span>Плотность</span><span>280 г/м²</span></li><li><span>Крой</span><span>прямой</span></li><li><span>Уход</span><span>стирка 30°C</span></li>' },
+        { id:3, name:'Кеды Court Low', unit:'Unit n°043', cat:'obuv', price:14900,
+          img:'https://images.unsplash.com/photo-1607522370275-f14206abe5d3?auto=format&w=800&q=80',
+          origin:'Италия — Португалия', material:'Кожа растительного дубления', stock:18,
+          desc:'Низкие кеды с верхом из тосканской кожи, дубленой 40 дней в каштановом экстракте. Подошва из каучука.',
+          meta:'<li><span>Дубление</span><span>растительное</span></li><li><span>Подошва</span><span>каучук</span></li><li><span>Уход</span><span>крем для кожи</span></li>' },
+        { id:4, name:'Кроссовки Retro Runner', unit:'Unit n°044', cat:'obuv', price:11900,
+          img:'https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&w=800&q=80',
+          origin:'Италия — Румыния', material:'Замша, сетка, резина', stock:22,
+          desc:'Ретро-силуэт с панелями из итальянской замши и дышащей сеткой. Легкая промежуточная подошва EVA.',
+          meta:'<li><span>Верх</span><span>замша / сетка</span></li><li><span>Промежуточная подошва</span><span>EVA</span></li><li><span>Уход</span><span>щётка для замши</span></li>' },
+        { id:5, name:'Рюкзак Canvas 20L', unit:'Unit n°045', cat:'aksessuary', price:8900,
+          img:'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&w=800&q=80',
+          origin:'Бельгия — Польша', material:'Лён, хлопок, латунь', stock:15,
+          desc:'Рюкзак 20 литров из бельгийского льна и плотного хлопка. Фурнитура — латунь. Внутренний карман для ноутбука.',
+          meta:'<li><span>Объём</span><span>20 л</span></li><li><span>Фурнитура</span><span>латунь</span></li><li><span>Уход</span><span>сухая чистка</span></li>' },
+        { id:6, name:'Часы Minimal 36', unit:'Unit n°046', cat:'aksessuary', price:16900,
+          img:'https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&w=800&q=80',
+          origin:'Япония', material:'Нержавеющая сталь, сапфировое стекло', stock:9,
+          desc:'Механизм Miyota 821A. Корпус 36 мм из нержавеющей стали. Сапфировое стекло, ремешок из растительно-дубленой кожи.',
+          meta:'<li><span>Механизм</span><span>Miyota 821A</span></li><li><span>Стекло</span><span>сапфировое</span></li><li><span>Ремешок</span><span>кожа</span></li>' },
+        { id:7, name:'Кресло Rattan Lounge', unit:'Unit n°047', cat:'dom', price:32900,
+          img:'https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?auto=format&w=800&q=80',
+          origin:'Индонезия — Дания', material:'Ротанг, дуб, лён', stock:6,
+          desc:'Кресло с ротанговой спинкой ручного плетения и дубовым каркасом. Подушка из льна.',
+          meta:'<li><span>Каркас</span><span>дуб</span></li><li><span>Плетение</span><span>ротанг</span></li><li><span>Сборка</span><span>не требуется</span></li>' },
+        { id:8, name:'Диван Modular 2-Seat', unit:'Unit n°048', cat:'dom', price:89900,
+          img:'https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&w=800&q=80',
+          origin:'Литва', material:'Лён, пух, древесина', stock:3,
+          desc:'Модульный двухместный диван с каркасом из берёзовой фанеры. Обивка — лён, наполнитель — пух и перо.',
+          meta:'<li><span>Каркас</span><span>берёза</span></li><li><span>Наполнитель</span><span>пух / перо</span></li><li><span>Обивка</span><span>съёмная</span></li>' }
+      ];
+
+      const CATS = { odezhda:'Одежда', obuv:'Обувь', aksessuary:'Аксессуары', dom:'Дом' };
+      const SIZES = {
+        odezhda:['XS','S','M','L','XL'],
+        obuv:['40','41','42','43','44'],
+        aksessuary:['One size'],
+        dom:['One size']
+      };
+      const FREE_DELIVERY = 10000, DELIVERY_COST = 490;
+
+      const ARTICLES = [
+        { id:'a1', title:'Почему шерсть мериноса не колется', date:'12 августа 2026',
+          text:'Тонкота волокна мериноса измеряется в микронах. Чем тоньше волокно, тем мягче оно ощущается на коже. Шерсть 18,5 мкм не колется, потому что волокно гнётся, а не ломается.' },
+        { id:'a2', title:'Растительное дубление: 40 дней', date:'05 августа 2026',
+          text:'В отличие от хромового дубления, растительное занимает недели, но даёт коже, которая стареет красиво. Каштановый экстракт создаёт тёплый коричневый оттенок.' },
+        { id:'a3', title:'Лён без орошения', date:'28 июля 2026',
+          text:'Бельгийский лён растёт на дождевой воде. Это делает его одним из самых устойчивых текстильных волокон: нет искусственного орошения, нет исчерпания грунтовых вод.' }
+      ];
+
+      const ORIGINS = [
+        { name:'Новая Зеландия', coords:[174.7762,-41.2865], mat:'Шерсть', color:'#A44A3F' },
+        { name:'Бельгия', coords:[4.3517,50.8503], mat:'Лён', color:'#E6A65D' },
+        { name:'Италия', coords:[11.2558,43.7696], mat:'Кожа', color:'#6B6058' },
+        { name:'Турция', coords:[27.1428,38.4237], mat:'Хлопок', color:'#3F6212' },
+        { name:'Копенгаген', coords:[12.5683,55.6761], mat:'Сборка', color:'#67E8F9' }
+      ];
+
+      // State
+      const state = { cart:[], selectedSizes:{} };
+      const cartKey = (id, size) => id + '::' + size;
+
+      // Sound
+      const soundEnabled = () => $('#soundToggle').getAttribute('aria-pressed') === 'true';
+      function playStamp(){}
+      $('#soundToggle').addEventListener('click', () => {
+        const btn = $('#soundToggle');
+        const on = btn.getAttribute('aria-pressed') === 'false';
+        btn.setAttribute('aria-pressed', String(on));
+        btn.setAttribute('aria-label', on ? 'Звук включён' : 'Включить звук');
+      });
+
+      // Clock
+      function updateClock(){
+        const now = new Date();
+        $('#clock').textContent = now.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Copenhagen'}) + ' CPH';
+      }
+      updateClock(); setInterval(updateClock, 60000);
+
+      // Cart
+      function addToCart(id, size){
+        if(!size) size = SIZES[PRODUCTS.find(p=>p.id===id).cat][0];
+        const k = cartKey(id, size);
+        const existing = state.cart.find(i => cartKey(i.id,i.size) === k);
+        if(existing) existing.qty++; else state.cart.push({id, size, qty:1});
+        renderCart(); pulseCounter();
+        openDrawer();
+      }
+      function cartTotals(){
+        const subtotal = state.cart.reduce((s,i)=>s + PRODUCTS.find(p=>p.id===i.id).price*i.qty, 0);
+        const delivery = subtotal >= FREE_DELIVERY || subtotal === 0 ? 0 : DELIVERY_COST;
+        return { count: state.cart.reduce((s,i)=>s+i.qty,0), subtotal, delivery, total: subtotal + delivery };
+      }
+      function renderCart(){
+        const body = $('#drawerItems');
+        const receipt = $('#receipt');
+        const foot = $('#drawerFoot');
+        const totals = cartTotals();
+        $('#cartCount').textContent = totals.count;
+        $('#cartCount').classList.toggle('is-visible', totals.count > 0);
+
+        if(state.cart.length === 0){
+          body.innerHTML = '<div class="drawer-empty"><p>Архивный лист пуст</p><p class="caption">Добавьте объект, чтобы оформить акт</p></div>';
+          receipt.classList.remove('is-active');
+          foot.innerHTML = '';
+          return;
+        }
+        receipt.classList.remove('is-active');
+        body.innerHTML = state.cart.map(i => {
+          const p = PRODUCTS.find(x=>x.id===i.id);
+          return `<div class="drawer-item">
+            <img src="${p.img}" alt="" loading="lazy">
+            <div class="drawer-item-info">
+              <h5>${p.name}</h5>
+              <p>${p.unit} · ${i.size}</p>
+              <p>${fmt(p.price)} ₽</p>
+            </div>
+            <div class="drawer-qty">
+              <button data-act="dec" data-key="${cartKey(i.id,i.size)}" aria-label="Уменьшить">−</button>
+              <span>${i.qty}</span>
+              <button data-act="inc" data-key="${cartKey(i.id,i.size)}" aria-label="Увеличить">+</button>
+            </div>
+          </div>`;
+        }).join('');
+        foot.innerHTML = `
+          <div class="drawer-line"><span>Подытог</span><span>${fmt(totals.subtotal)} ₽</span></div>
+          <div class="drawer-line"><span>Доставка</span><span>${totals.delivery === 0 ? 'Бесплатно' : fmt(totals.delivery)+' ₽'}</span></div>
+          <div class="drawer-line total"><span>Итого</span><span>${fmt(totals.total)} ₽</span></div>
+          <button class="btn btn-accent" id="checkoutBtn" style="width:100%; margin-top:16px;">Оформить акт</button>
+        `;
+        $('#checkoutBtn').addEventListener('click', checkout);
+        body.querySelectorAll('button[data-act]').forEach(b => b.addEventListener('click', handleCartAction));
+      }
+      function handleCartAction(e){
+        const key = e.currentTarget.dataset.key;
+        const act = e.currentTarget.dataset.act;
+        const idx = state.cart.findIndex(i => cartKey(i.id,i.size) === key);
+        if(idx === -1) return;
+        if(act === 'inc') state.cart[idx].qty++;
+        else state.cart[idx].qty--;
+        if(state.cart[idx].qty <= 0) state.cart.splice(idx, 1);
+        renderCart();
+      }
+      function pulseCounter(){ const b=$('#cartCount'); b.classList.remove('pulse'); void b.offsetWidth; b.classList.add('pulse'); }
+      function openDrawer(){
+        $('#drawer').classList.add('is-open');
+        $('#overlay').classList.add('is-open');
+        document.body.style.overflow='hidden';
+        if(window.__lenis) window.__lenis.stop();
+      }
+      function closeDrawer(){
+        $('#drawer').classList.remove('is-open');
+        $('#overlay').classList.remove('is-open');
+        document.body.style.overflow='';
+        if(window.__lenis) window.__lenis.start();
+      }
+      function checkout(){
+        playStamp();
+        $('#drawerItems').innerHTML = '';
+        $('#drawerFoot').innerHTML = '';
+        $('#receipt').classList.add('is-active');
+        state.cart = [];
+        $('#cartCount').classList.remove('is-visible');
+      }
+      $('#cartBtn').addEventListener('click', openDrawer);
+      $('#overlay').addEventListener('click', closeDrawer);
+      $$('[data-close-drawer]').forEach(b => b.addEventListener('click', closeDrawer));
+      document.addEventListener('keydown', e => { if(e.key === 'Escape') closeDrawer(); });
+
+      // Hero add
+      $('#heroAdd').addEventListener('click', () => addToCart(1, SIZES.odezhda[2]));
+
+      // Ledger
+      function renderLedger(){
+        $('#ledgerList').innerHTML = PRODUCTS.map((p,i) => {
+          const selected = state.selectedSizes[p.id] || SIZES[p.cat][0];
+          return `<article class="ledger-row" data-id="${p.id}">
+            <div class="ledger-summary" role="button" tabindex="0" aria-expanded="false">
+              <span class="ledger-unit">${p.unit}</span>
+              <span class="ledger-name">${p.name}</span>
+              <span class="ledger-material">${p.material}</span>
+              <span class="ledger-price">${fmt(p.price)} ₽</span>
+              <span class="ledger-toggle"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.2" fill="none"/></svg></span>
+            </div>
+            <div class="ledger-sheet"><div class="ledger-sheet-inner">
+              <div class="ledger-detail">
+                <img src="${p.img}" alt="${p.name}" loading="lazy">
+                <div>
+                  <p class="body-lg" style="margin-bottom:20px;">${p.desc}</p>
+                  <ul class="ledger-specs">${p.meta}</ul>
+                  <div class="label" style="margin-bottom:8px;">Размер</div>
+                  <div class="size-select">
+                    ${SIZES[p.cat].map(s => `<button class="size-btn ${s===selected?'is-active':''}" data-size="${s}">${s}</button>`).join('')}
+                  </div>
+                  <button class="btn btn-accent add-from-sheet" data-id="${p.id}">Добавить в архив — ${fmt(p.price)} ₽</button>
+                </div>
+              </div>
+            </div></div>
+          </article>`;
+        }).join('');
+
+        $$('.ledger-row').forEach(row => {
+          const summary = row.querySelector('.ledger-summary');
+          summary.addEventListener('click', () => toggleSheet(row));
+          summary.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSheet(row); } });
+        });
+        $$('.size-btn').forEach(btn => btn.addEventListener('click', e => {
+          e.stopPropagation();
+          const row = btn.closest('.ledger-row');
+          const id = +row.dataset.id;
+          state.selectedSizes[id] = btn.dataset.size;
+          row.querySelectorAll('.size-btn').forEach(b => b.classList.remove('is-active'));
+          btn.classList.add('is-active');
+        }));
+        $$('.add-from-sheet').forEach(btn => btn.addEventListener('click', e => {
+          e.stopPropagation();
+          const id = +btn.dataset.id;
+          addToCart(id, state.selectedSizes[id] || SIZES[PRODUCTS.find(p=>p.id===id).cat][0]);
+        }));
+      }
+      function toggleSheet(row){
+        const wasOpen = row.classList.contains('is-open');
+        $$('.ledger-row').forEach(r => { r.classList.remove('is-open'); r.querySelector('.ledger-summary').setAttribute('aria-expanded','false'); });
+        if(!wasOpen){
+          row.classList.add('is-open');
+          row.querySelector('.ledger-summary').setAttribute('aria-expanded','true');
+          if(window.__lenis) window.__lenis.scrollTo(row, {offset:-120, duration:.8});
+        }
+      }
+      renderLedger();
+
+      // Journal
+      function renderJournal(){
+        $('#journalGrid').innerHTML = ARTICLES.map(a => `<article class="journal-card">
+          <span class="label">${a.date}</span>
+          <h4>${a.title}</h4>
+          <p>${a.text}</p>
+          <button class="btn btn-ghost" style="height:40px; padding:0 18px;">Читать</button>
+        </article>`).join('');
+      }
+      renderJournal();
+
+      // Club form
+      $('#clubForm').addEventListener('submit', e => {
+        e.preventDefault();
+        playStamp();
+        const btn = $('#clubForm button');
+        btn.textContent = 'Подписано';
+        btn.disabled = true;
+      });
+
+      // Loupe
+      if(!reducedMotion && window.matchMedia('(pointer:fine)').matches){
+        const loupe = $('#loupe');
+        document.addEventListener('mousemove', e => {
+          loupe.style.left = e.clientX + 'px';
+          loupe.style.top = e.clientY + 'px';
+        });
+        $$('[data-loupe], .passport-card, .ledger-row').forEach(el => {
+          el.addEventListener('mouseenter', () => {
+            loupe.textContent = el.dataset.loupe || el.querySelector('.ledger-name')?.textContent || 'Смотреть';
+            loupe.classList.add('is-active');
+          });
+          el.addEventListener('mouseleave', () => loupe.classList.remove('is-active'));
+        });
+      }
+
+      // MapLibre map
+      function initMap(){
+        try {
+          const map = new maplibregl.Map({
+            container: 'map',
+            style: {
+              version:8, sources:{}, layers:[{
+                id:'bg', type:'background',
+                paint:{'background-color':'#E8E6E0'}
+              }]
+            },
+            center:[20,48], zoom:2.2,
+            interactive:false,
+            attributionControl:false
+          });
+          map.on('load', () => {
+            ORIGINS.forEach(o => {
+              new maplibregl.Marker({ color:o.color }).setLngLat(o.coords).addTo(map);
+            });
+            const coords = ORIGINS.map(o => o.coords);
+            map.addSource('routes', { type:'geojson', data: {
+              type:'FeatureCollection',
+              features: coords.slice(0,-1).map(c => ({
+                type:'Feature',
+                geometry:{ type:'LineString', coordinates:[c, coords[coords.length-1]] }
+              }))
+            }});
+            map.addLayer({
+              id:'routes', type:'line', source:'routes',
+              paint:{ 'line-color':'#A44A3F', 'line-width':1.5, 'line-dasharray':[4,3] }
+            });
+          });
+        } catch(e) {}
+      }
+      initMap();
+
+      // Preloader
+      window.addEventListener('load', () => {
+        setTimeout(() => {
+          $('#preloader').classList.add('is-done');
+          if(!reducedMotion) $('#heroStamp').classList.add('is-stamped');
+          else $('#heroStamp').style.opacity='1';
+        }, 600);
+      });
+
+      // Lenis + GSAP
+      const motionOK = !reducedMotion && window.gsap && window.ScrollTrigger && window.Lenis;
+      if(motionOK){
+        const lenis = new Lenis({ lerp:0.1, smoothWheel:true });
+        window.__lenis = lenis;
+        lenis.on('scroll', ScrollTrigger.update);
+        gsap.ticker.add((time) => { lenis.raf(time * 1000); });
+        gsap.ticker.lagSmoothing(0);
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Header scroll state
+        ScrollTrigger.create({
+          start:'top -80', onUpdate:(self)=>{
+            $('#header').classList.toggle('is-scrolled', self.direction === 1 || self.progress > 0);
+          }
+        });
+
+        // Hero specimen rows typewriter reveal
+        gsap.fromTo('.specimen-row', {opacity:0, y:12}, {
+          opacity:1, y:0, duration:.8, stagger:.12, ease:'power3.out', delay:.4
+        });
+
+        // Manifest items
+        gsap.fromTo('.manifest-item', {opacity:0, y:30}, {
+          opacity:1, y:0, duration:.9, stagger:.18, ease:'power3.out',
+          scrollTrigger:{ trigger:'#manifest', start:'top 75%' }
+        });
+
+        // Passport bars
+        ScrollTrigger.batch('.passport-card', {
+          onEnter: batch => batch.forEach(el => el.classList.add('is-in-view')),
+          start:'top 80%'
+        });
+
+        // Ledger cascade
+        gsap.fromTo('.ledger-row', {opacity:0, y:24}, {
+          opacity:1, y:0, duration:.7, stagger:.08, ease:'power3.out',
+          scrollTrigger:{ trigger:'#ledger', start:'top 75%' }
+        });
+
+        // Journal cards
+        gsap.fromTo('.journal-card', {opacity:0, y:30}, {
+          opacity:1, y:0, duration:.8, stagger:.15, ease:'power3.out',
+          scrollTrigger:{ trigger:'#journal', start:'top 75%' }
+        });
+
+      } else {
+        document.querySelectorAll('.specimen-row, .manifest-item, .journal-card, .ledger-row').forEach(el => {
+          el.style.opacity='1'; el.style.transform='none';
+        });
+      }
+
+    })();
+  </script>
+</body>
+</html>
