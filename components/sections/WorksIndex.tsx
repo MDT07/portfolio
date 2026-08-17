@@ -21,11 +21,13 @@ export default function WorksIndex({ lang, dict }: WorksIndexProps) {
     title: w.frontmatter.title,
     year: w.frontmatter.year,
     tags: w.frontmatter.tags.slice(0, 3),
-    cover: w.frontmatter.cover,
   }));
 
   return (
-    <section className="py-24 md:py-32">
+    <section
+      id="works"
+      className="min-h-[100svh] scroll-mt-16 border-t border-surface-3 py-24 md:py-32"
+    >
       <Container>
         <Reveal>
           <div className="flex items-center gap-4">

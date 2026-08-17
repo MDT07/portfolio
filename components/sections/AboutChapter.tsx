@@ -9,7 +9,10 @@ import type { Dictionary } from "@/lib/dictionaries/ru";
  */
 export default function AboutChapter({ dict }: { dict: Dictionary }) {
   return (
-    <section className="py-24 md:py-32">
+    <section
+      id="principles"
+      className="flex min-h-[100svh] scroll-mt-16 items-center border-t border-surface-3 py-24 md:py-32"
+    >
       <Container>
         <Reveal>
           <div className="flex items-center gap-4">

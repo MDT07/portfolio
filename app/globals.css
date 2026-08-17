@@ -27,6 +27,10 @@
   color-scheme: dark;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 [data-theme="light"] {
   --color-surface-0: #ffffff;
   --color-surface-1: #fafafa;

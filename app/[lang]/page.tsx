@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
-import CinematicPage from "@/components/sections/CinematicPage";
-import { SceneProvider } from "@/components/providers/SceneProvider";
-import { getDictionary, isLocale, type Locale } from "@/lib/i18n";
-import { getAllWorks } from "@/lib/mdx";
+import PosterHero from "@/components/sections/PosterHero";
+import AboutChapter from "@/components/sections/AboutChapter";
+import WorksIndex from "@/components/sections/WorksIndex";
+import { getDictionary, isLocale } from "@/lib/i18n";
 
 export default async function Home({
   params,
@@ -12,19 +12,12 @@ export default async function Home({
   const { lang } = await params;
   if (!isLocale(lang)) notFound();
   const dict = getDictionary(lang);
-  const works = getAllWorks(lang as Locale).map((w) => ({
-    slug: w.slug,
-    title: w.frontmatter.title,
-    year: w.frontmatter.year,
-    tags: w.frontmatter.tags.slice(0, 3),
-    cover: w.frontmatter.cover,
-    role: w.frontmatter.role,
-    featured: w.frontmatter.featured,
-  }));
 
   return (
-    <SceneProvider>
-      <CinematicPage dict={dict} lang={lang as Locale} works={works} />
-    </SceneProvider>
+    <div className="about-flow">
+      <PosterHero dict={dict} />
+      <AboutChapter dict={dict} />
+      <WorksIndex lang={lang} dict={dict} />
+    </div>
   );
 }

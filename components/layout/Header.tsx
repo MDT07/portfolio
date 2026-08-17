@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import LangSwitcher from "@/components/ui/LangSwitcher";
-import SoundToggle from "@/components/ui/SoundToggle";
 import { stripLocale, withLocale, type Locale } from "@/lib/i18n";
 import type { Dictionary } from "@/lib/dictionaries/ru";
 import { cn } from "@/lib/utils";
@@ -74,7 +73,6 @@ export default function Header({ lang, dict }: HeaderProps) {
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
-          <SoundToggle label={dict.common.sound} />
           <LangSwitcher lang={lang} label={dict.common.language} />
           <ThemeToggle label={dict.common.theme} />
         </div>
@@ -122,7 +120,6 @@ export default function Header({ lang, dict }: HeaderProps) {
             </Link>
           ))}
           <div className="mt-3 flex items-center gap-2 border-t border-surface-3 pt-4">
-            <SoundToggle label={dict.common.sound} />
             <LangSwitcher lang={lang} label={dict.common.language} />
             <ThemeToggle label={dict.common.theme} />
           </div>

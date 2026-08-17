@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
-import Lenis from "lenis";
+import { usePathname } from "next/navigation";
+import type Lenis from "lenis";
+import { stripLocale } from "@/lib/i18n";
 
 /**
  * Тактильный скролл (Lenis). Отключается при prefers-reduced-motion.
@@ -11,28 +13,41 @@ export default function SmoothScroll({
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+  const isAboutPage = stripLocale(pathname || "/").path === "/";
+
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (
+      isAboutPage ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
       return;
     }
 
-    const lenis = new Lenis({
-      duration: 1.05,
-      smoothWheel: true,
+    let disposed = false;
+    let lenis: Lenis | null = null;
+    let rafId = 0;
+
+    void import("lenis").then(({ default: LenisController }) => {
+      if (disposed) return;
+      lenis = new LenisController({
+        duration: 1.05,
+        smoothWheel: true,
+      });
+
+      const raf = (time: number) => {
+        lenis?.raf(time);
+        rafId = requestAnimationFrame(raf);
+      };
+      rafId = requestAnimationFrame(raf);
     });
 
-    let rafId = 0;
-    const raf = (time: number) => {
-      lenis.raf(time);
-      rafId = requestAnimationFrame(raf);
-    };
-    rafId = requestAnimationFrame(raf);
-
     return () => {
+      disposed = true;
       cancelAnimationFrame(rafId);
-      lenis.destroy();
+      lenis?.destroy();
     };
-  }, []);
+  }, [isAboutPage]);
 
   return <>{children}</>;
 }

@@ -13,7 +13,7 @@ interface FooterWrapperProps {
 export default function FooterWrapper({ lang, dict }: FooterWrapperProps) {
   const pathname = usePathname();
   const { path: currentPath } = stripLocale(pathname || "/");
-  const isImmersivePage = currentPath === "/" || currentPath === "/ai-works";
+  const isImmersivePage = currentPath === "/ai-works";
 
   if (isImmersivePage) return null;
   return <PosterFooter lang={lang} dict={dict} />;
