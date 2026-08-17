@@ -13,6 +13,7 @@ import TechScene from "@/components/sections/TechScene";
 import ContactScene from "@/components/sections/ContactScene";
 import type { Dictionary } from "@/lib/dictionaries/ru";
 import type { Locale } from "@/lib/i18n";
+import { CINEMATIC_SCROLL_VH } from "@/lib/scenes";
 
 interface WorkPreview {
   slug: string;
@@ -31,17 +32,16 @@ interface CinematicPageProps {
 }
 
 export default function CinematicPage({ dict, lang, works }: CinematicPageProps) {
-  const { reducedMotion } = useScene();
+  const { reducedMotion, scenes, scrollContainerRef } = useScene();
 
   if (reducedMotion) {
     return <StaticFallback dict={dict} lang={lang} works={works} />;
   }
 
   return (
-    <div className="cinematic-page" style={{ height: "700vh" }}>
+    <div ref={scrollContainerRef} className="cinematic-page" data-cinematic-scroll>
       <CanvasEnvironment />
       <CameraRig>
-        <section id="scene-portal" className="cinematic-scene" aria-label="Portal" />
         <CinematicHero dict={dict} />
         <CapabilitiesScene dict={dict} />
         <SpatialWorksScene dict={dict} lang={lang} works={works} />
@@ -49,6 +49,18 @@ export default function CinematicPage({ dict, lang, works }: CinematicPageProps)
         <TechScene dict={dict} />
         <ContactScene dict={dict} />
       </CameraRig>
+      <div className="cinematic-scroll-track" aria-hidden="true">
+        {scenes.map((scene) => (
+          <section
+            key={scene.id}
+            id={`scene-scroll-${scene.id}`}
+            data-scene-track={scene.id}
+            style={{
+              minHeight: `${Math.round((scene.end - scene.start) * CINEMATIC_SCROLL_VH)}dvh`,
+            }}
+          />
+        ))}
+      </div>
       <SceneNav />
       <CustomCursor />
     </div>

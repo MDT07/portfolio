@@ -39,7 +39,7 @@ export default function SpatialWorksScene({ dict, lang = "ru", works }: SpatialW
             {featuredWorks.map((w) => (
               <a
                 key={w.slug}
-                href={`/${lang === "ru" ? "" : lang + "/"}works/${w.slug}`}
+                href={w.slug === "ai" ? `/${lang === "ru" ? "" : lang + "/"}ai-works` : `/${lang === "ru" ? "" : lang + "/"}works/${w.slug}`}
                 className="group block overflow-hidden border border-surface-3 bg-surface-1"
               >
                 <div className="relative aspect-[16/10] overflow-hidden">
@@ -78,7 +78,7 @@ export default function SpatialWorksScene({ dict, lang = "ru", works }: SpatialW
       id="scene-works"
       className="cinematic-scene"
       aria-label={dict.works.title}
-      style={{ opacity, pointerEvents: isActive ? "auto" : "none" }}
+      style={{ opacity, visibility: isActive ? "visible" : "hidden", pointerEvents: isActive ? "auto" : "none" }}
     >
       <div className="mx-auto w-full max-w-7xl px-6 md:px-12">
         <div className="mb-12">
@@ -97,7 +97,7 @@ export default function SpatialWorksScene({ dict, lang = "ru", works }: SpatialW
           {featuredWorks.map((w, i) => (
             <a
               key={w.slug}
-              href={`/${lang === "ru" ? "" : lang + "/"}works/${w.slug}`}
+              href={w.slug === "ai" ? `/${lang === "ru" ? "" : lang + "/"}ai-works` : `/${lang === "ru" ? "" : lang + "/"}works/${w.slug}`}
               className="group relative shrink-0 scroll-snap-align-start"
               style={{
                 width: "min(72vw, 560px)",

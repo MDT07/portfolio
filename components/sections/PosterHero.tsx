@@ -189,7 +189,7 @@ export default function PosterHero({ lang, dict }: PosterHeroProps) {
             transition={{ duration: 0.9, ease: CINE_EASE }}
           >
             <p className="font-mono text-[11px] uppercase tracking-widest text-text-tertiary">
-              dev<span className="text-accent">.</span>developer
+              {siteConfig.name}
             </p>
             <div className="flex items-end justify-between">
               <p className="font-display leading-none tabular-nums text-[26vw] md:text-[14vw]">

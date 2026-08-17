@@ -27,9 +27,10 @@ function WorkCard({
   i: number;
 }) {
   const { frontmatter: w } = work;
+  const href = work.slug === "ai" ? "/ai-works" : `/works/${work.slug}`;
   return (
     <Reveal i={i} variant="tiltIn" className="h-full">
-      <Link href={withLocale(lang, `/works/${work.slug}`)} className="block h-full">
+      <Link href={withLocale(lang, href)} className="block h-full">
         <Card className="group flex h-full cursor-pointer flex-col">
           <div className="relative mb-4 aspect-[16/10] overflow-hidden rounded-md bg-surface-2">
             <Image

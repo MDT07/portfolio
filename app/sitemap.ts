@@ -5,7 +5,7 @@ import { getWorkSlugs } from "@/lib/mdx";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = siteConfig.url;
-  const staticPages = ["", "/works"];
+  const staticPages = ["", "/works", "/ai-works"];
   const workPages = getWorkSlugs().map((slug) => `/works/${slug}`);
 
   const all = [...staticPages, ...workPages];

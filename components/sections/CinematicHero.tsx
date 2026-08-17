@@ -6,8 +6,8 @@ import { interpolateCamera } from "@/lib/scenes";
 import type { Dictionary } from "@/lib/dictionaries/ru";
 
 export default function CinematicHero({ dict }: { dict: Dictionary }) {
-  const { scene, localProgress, reducedMotion } = useScene();
-  const isActive = scene.id === "hero" || scene.id === "portal";
+  const { scene, localProgress, reducedMotion, goToScene, scenes } = useScene();
+  const isActive = scene.id === "hero";
   const [clock, setClock] = useState("");
   const clockRef = useRef<HTMLSpanElement>(null);
 
@@ -55,6 +55,7 @@ export default function CinematicHero({ dict }: { dict: Dictionary }) {
       aria-label={dict.hero.label}
       style={{
         opacity,
+        visibility: isActive ? "visible" : "hidden",
         pointerEvents: isActive ? "auto" : "none",
       }}
     >
@@ -99,10 +100,10 @@ export default function CinematicHero({ dict }: { dict: Dictionary }) {
 
         <div className="mt-10 flex flex-wrap items-center gap-4">
           <a
-            href="#scene-works"
+            href="#scene-scroll-works"
             onClick={(e) => {
               e.preventDefault();
-              document.getElementById("scene-works")?.scrollIntoView({ behavior: "smooth" });
+              goToScene(scenes.findIndex((item) => item.id === "works"));
             }}
             className="inline-flex items-center rounded-full bg-accent px-6 py-3 font-mono text-sm font-medium text-white transition-colors hover:bg-accent-hover"
           >

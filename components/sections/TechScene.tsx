@@ -51,7 +51,7 @@ export default function TechScene({ dict }: { dict: Dictionary }) {
       id="scene-tech"
       className="cinematic-scene"
       aria-label="Technology stack"
-      style={{ opacity, pointerEvents: isActive ? "auto" : "none" }}
+      style={{ opacity, visibility: isActive ? "visible" : "hidden", pointerEvents: isActive ? "auto" : "none" }}
     >
       <div className="mx-auto w-full max-w-6xl px-6 md:px-12">
         <p className="font-mono text-[11px] uppercase tracking-widest text-text-tertiary">{dict.tech}</p>

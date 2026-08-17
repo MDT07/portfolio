@@ -107,16 +107,27 @@ html.lenis body {
 /* ---------- Cinematic homepage layer ---------- */
 .cinematic-page {
   position: relative;
+  display: grid;
 }
 
 .cinematic-camera {
-  position: fixed;
-  inset: 0;
+  position: sticky;
+  top: 0;
+  grid-area: 1 / 1;
+  align-self: start;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   perspective: 1200px;
   overflow: hidden;
   z-index: 2;
+}
+
+.cinematic-scroll-track {
+  grid-area: 1 / 1;
+  position: relative;
+  z-index: 0;
+  pointer-events: none;
 }
 
 .cinematic-world {
@@ -138,7 +149,6 @@ html.lenis body {
   align-items: center;
   transform-style: preserve-3d;
   backface-visibility: hidden;
-  transition: opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* Fallback: when reduced motion is on, cinematic camera is hidden and scenes flow normally. */

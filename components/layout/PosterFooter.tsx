@@ -25,6 +25,7 @@ export default function PosterFooter({ lang, dict }: PosterFooterProps) {
   const menu = [
     { path: "/", label: dict.nav.about },
     { path: "/works", label: dict.nav.works },
+    { path: "/ai-works", label: dict.nav.aiWorks },
   ];
 
   return (
@@ -51,7 +52,7 @@ export default function PosterFooter({ lang, dict }: PosterFooterProps) {
               href={withLocale(lang, "/")}
               className="font-mono text-sm font-medium tracking-wider"
             >
-              dev<span className="text-accent">.</span>developer
+              {siteConfig.name}
             </Link>
             <p className="mt-3 text-sm leading-relaxed text-text-tertiary">
               {dict.footer.tagline}
@@ -98,7 +99,7 @@ export default function PosterFooter({ lang, dict }: PosterFooterProps) {
         className="select-none overflow-hidden border-t border-surface-3"
       >
         <p className="-mb-[0.16em] whitespace-nowrap text-center font-display text-[min(10vw,9rem)] uppercase leading-[0.8]">
-          dev.developer
+          {siteConfig.name}
         </p>
       </div>
 

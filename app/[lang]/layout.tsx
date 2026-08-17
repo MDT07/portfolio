@@ -40,10 +40,23 @@ export async function generateMetadata({
   return {
     metadataBase: new URL(siteConfig.url),
     title: {
-      default: `${siteConfig.name} — ${dict.hero.label}`,
+      default: siteConfig.name,
       template: `%s — ${siteConfig.name}`,
     },
     description: dict.hero.subtitle,
+    applicationName: siteConfig.name,
+    openGraph: {
+      type: "website",
+      siteName: siteConfig.name,
+      title: siteConfig.name,
+      description: dict.hero.subtitle,
+      locale: lang === "ru" ? "ru_RU" : "en_US",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: siteConfig.name,
+      description: dict.hero.subtitle,
+    },
     alternates: {
       languages: { ru: "/", en: "/en" },
     },

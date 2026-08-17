@@ -78,7 +78,7 @@ export default function WorksIndexClient({
           custom={i}
         >
           <Link
-            href={withLocale(lang, `/works/${w.slug}`)}
+            href={withLocale(lang, w.slug === "ai" ? "/ai-works" : `/works/${w.slug}`)}
             onMouseEnter={() => setHover(i)}
             className="group grid gap-2 border-t border-surface-3 py-7 md:grid-cols-12 md:items-baseline md:gap-6 md:py-9"
           >

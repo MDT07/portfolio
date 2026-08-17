@@ -42,7 +42,7 @@ export default function ExperimentsScene({ dict }: { dict: Dictionary }) {
       id="scene-lab"
       className="cinematic-scene"
       aria-label="Experiments"
-      style={{ opacity, pointerEvents: isActive ? "auto" : "none" }}
+      style={{ opacity, visibility: isActive ? "visible" : "hidden", pointerEvents: isActive ? "auto" : "none" }}
     >
       <div className="mx-auto w-full max-w-6xl px-6 md:px-12">
         <p className="font-mono text-[11px] uppercase tracking-widest text-text-tertiary">{dict.lab}</p>

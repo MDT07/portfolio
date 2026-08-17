@@ -18,10 +18,6 @@ export interface Scene {
   /** Scroll range on the global page (0–1) */
   start: number;
   end: number;
-  /** Whether the section is pinned during its active range */
-  pinned: boolean;
-  /** Optional extra scroll distance when pinned (in vh) */
-  pinDistance?: number;
   /** Camera path local to the scene */
   camera: CameraKeyframe[];
   /** i18n key for labels */
@@ -29,45 +25,31 @@ export interface Scene {
 }
 
 /** Total cinematic scroll length expressed as a multiplier of viewport height. */
-export const CINEMATIC_SCROLL_VH = 1400;
+export const CINEMATIC_SCROLL_VH = 700;
 
 /** Scene metadata used by the camera rig and scene navigation. */
 export function getScenes(): Scene[] {
   return [
     {
-      id: "portal",
+      id: "hero",
       index: 0,
       start: 0,
-      end: 0.05,
-      pinned: true,
-      pinDistance: 100,
+      end: 0.25,
       camera: [
         { progress: 0, scale: 1, opacity: 1 },
-        { progress: 1, scale: 1.05, opacity: 0 },
-      ],
-      labelKey: "nav.about",
-    },
-    {
-      id: "hero",
-      index: 1,
-      start: 0.05,
-      end: 0.25,
-      pinned: true,
-      pinDistance: 300,
-      camera: [
-        { progress: 0, scale: 4, rotateX: 4, rotateY: -6, x: "18vw", y: "12vh" },
-        { progress: 0.35, scale: 1.6, rotateX: 2, rotateY: -2, x: "6vw", y: "4vh" },
+        { progress: 0.12, scale: 1.05, opacity: 0 },
+        { progress: 0.13, scale: 4, rotateX: 4, rotateY: -6, x: "18vw", y: "12vh", opacity: 0 },
+        { progress: 0.28, scale: 4, rotateX: 4, rotateY: -6, x: "18vw", y: "12vh", opacity: 1 },
+        { progress: 0.55, scale: 1.6, rotateX: 2, rotateY: -2, x: "6vw", y: "4vh", opacity: 1 },
         { progress: 1, scale: 1, rotateX: 0, rotateY: 0, x: "0", y: "0" },
       ],
       labelKey: "nav.about",
     },
     {
       id: "capabilities",
-      index: 2,
+      index: 1,
       start: 0.25,
       end: 0.45,
-      pinned: true,
-      pinDistance: 300,
       camera: [
         { progress: 0, x: "0", y: "0", rotateY: 0 },
         { progress: 0.5, x: "-25vw", y: "0", rotateY: 6 },
@@ -77,11 +59,9 @@ export function getScenes(): Scene[] {
     },
     {
       id: "works",
-      index: 3,
+      index: 2,
       start: 0.45,
       end: 0.65,
-      pinned: true,
-      pinDistance: 400,
       camera: [
         { progress: 0, z: "0", x: "0", rotateY: 0 },
         { progress: 0.5, z: "-30vh", x: "-30vw", rotateY: -8 },
@@ -91,11 +71,9 @@ export function getScenes(): Scene[] {
     },
     {
       id: "lab",
-      index: 4,
+      index: 3,
       start: 0.65,
       end: 0.8,
-      pinned: true,
-      pinDistance: 250,
       camera: [
         { progress: 0, scale: 0.9, rotateX: 4, rotateY: -10 },
         { progress: 0.5, scale: 1, rotateX: 0, rotateY: 0 },
@@ -105,11 +83,9 @@ export function getScenes(): Scene[] {
     },
     {
       id: "tech",
-      index: 5,
+      index: 4,
       start: 0.8,
       end: 0.9,
-      pinned: true,
-      pinDistance: 200,
       camera: [
         { progress: 0, y: "-40vh", rotateX: 12 },
         { progress: 0.5, y: "0", rotateX: 0 },
@@ -119,10 +95,9 @@ export function getScenes(): Scene[] {
     },
     {
       id: "contact",
-      index: 6,
+      index: 5,
       start: 0.9,
       end: 1,
-      pinned: false,
       camera: [
         { progress: 0, scale: 1.05, opacity: 0 },
         { progress: 0.25, scale: 1, opacity: 1 },

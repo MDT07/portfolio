@@ -4,7 +4,7 @@
  */
 export const siteConfig = {
   /** Бренд портфолио */
-  name: "dev.developer",
+  name: "CV Эмир Семенов [ПРОФИ.РУ]",
   /** Домен-заглушка (заменить при появлении своего) */
   domain: "dev-developer.vercel.app",
   url: "https://dev-developer.vercel.app",

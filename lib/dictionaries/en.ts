@@ -4,6 +4,7 @@ export const en: Dictionary = {
   nav: {
     about: "About",
     works: "Works",
+    aiWorks: "AI works",
   },
   common: {
     openDemo: "Open demo",
@@ -17,6 +18,7 @@ export const en: Dictionary = {
     theme: "Theme",
     language: "Language",
     sound: "Sound",
+    aiWorksFrame: "Interactive AI Works page",
   },
   hero: {
     label: "Frontend Developer · E-commerce",

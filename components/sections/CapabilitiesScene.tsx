@@ -38,7 +38,7 @@ export default function CapabilitiesScene({ dict }: { dict: Dictionary }) {
       id="scene-capabilities"
       className="cinematic-scene"
       aria-label={dict.manifesto.title}
-      style={{ opacity, pointerEvents: isActive ? "auto" : "none" }}
+      style={{ opacity, visibility: isActive ? "visible" : "hidden", pointerEvents: isActive ? "auto" : "none" }}
     >
       <div className="mx-auto flex w-full max-w-7xl flex-col px-6 md:px-12">
         <div className="mb-16">

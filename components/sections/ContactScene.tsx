@@ -35,7 +35,7 @@ export default function ContactScene({ dict }: { dict: Dictionary }) {
       id="scene-contact"
       className="cinematic-scene"
       aria-label={dict.cta.title}
-      style={{ opacity, pointerEvents: isActive ? "auto" : "none" }}
+      style={{ opacity, visibility: isActive ? "visible" : "hidden", pointerEvents: isActive ? "auto" : "none" }}
     >
       <div className="mx-auto w-full max-w-4xl px-6 text-center md:px-12">
         <h2 className="font-display text-[clamp(2.5rem,7vw,6rem)] leading-tight">

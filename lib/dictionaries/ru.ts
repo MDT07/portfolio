@@ -2,6 +2,7 @@ export const ru = {
   nav: {
     about: "Обо мне",
     works: "Работы",
+    aiWorks: "AI работы",
   },
   common: {
     openDemo: "Открыть демо",
@@ -15,6 +16,7 @@ export const ru = {
     theme: "Тема",
     language: "Язык",
     sound: "Звук",
+    aiWorksFrame: "Интерактивная страница AI Works",
   },
   hero: {
     label: "Frontend Developer · E-commerce",

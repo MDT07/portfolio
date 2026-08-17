@@ -8,7 +8,7 @@ import {
   useRef,
   useState,
 } from "react";
-import type { ReactNode } from "react";
+import type { ReactNode, RefObject } from "react";
 import { getScenes, getSceneState, type Scene } from "@/lib/scenes";
 import { useReducedMotion, useCoarsePointer, useLowPower } from "@/lib/hooks";
 
@@ -39,6 +39,8 @@ interface SceneContextValue {
   goToScene: (index: number) => void;
   /** All scene metadata */
   scenes: Scene[];
+  /** Physical scroll container for the cinematic page */
+  scrollContainerRef: RefObject<HTMLDivElement | null>;
 }
 
 const SceneContext = createContext<SceneContextValue | null>(null);
@@ -61,15 +63,12 @@ export function SceneProvider({ children }: SceneProviderProps) {
   const lastScrollRef = useRef(0);
   const lastTimeRef = useRef(0);
   const rafRef = useRef(0);
+  const velocityRef = useRef(0);
+  const progressRef = useRef(0);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!cinematic) return;
-
-    const onScroll = () => {
-      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = maxScroll > 0 ? window.scrollY / maxScroll : 0;
-      setGlobalProgress(Math.max(0, Math.min(1, progress)));
-    };
 
     const onPointerMove = (e: PointerEvent) => {
       setCursor({
@@ -85,21 +84,31 @@ export function SceneProvider({ children }: SceneProviderProps) {
 
       const currentScroll = window.scrollY;
       const targetVelocity = (currentScroll - lastScrollRef.current) / dt;
-      setVelocity((prev) => prev + (targetVelocity - prev) * 0.08);
+      const nextVelocity = velocityRef.current + (targetVelocity - velocityRef.current) * 0.08;
+      velocityRef.current = Math.abs(nextVelocity) < 0.01 ? 0 : nextVelocity;
+      setVelocity(velocityRef.current);
       lastScrollRef.current = currentScroll;
+
+      const container = scrollContainerRef.current;
+      if (container) {
+        const rect = container.getBoundingClientRect();
+        const scrollDistance = Math.max(1, rect.height - window.innerHeight);
+        const progress = Math.max(0, Math.min(1, -rect.top / scrollDistance));
+        if (Math.abs(progress - progressRef.current) > 0.0001) {
+          progressRef.current = progress;
+          setGlobalProgress(progress);
+        }
+      }
 
       rafRef.current = requestAnimationFrame(loop);
     };
 
-    window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("pointermove", onPointerMove, { passive: true });
-    onScroll();
     lastScrollRef.current = window.scrollY;
     lastTimeRef.current = performance.now();
     rafRef.current = requestAnimationFrame(loop);
 
     return () => {
-      window.removeEventListener("scroll", onScroll);
       window.removeEventListener("pointermove", onPointerMove);
       cancelAnimationFrame(rafRef.current);
     };
@@ -112,9 +121,12 @@ export function SceneProvider({ children }: SceneProviderProps) {
 
   const goToScene = (index: number) => {
     const target = scenes[index];
-    if (!target) return;
-    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-    const targetScroll = target.start * maxScroll;
+    const container = scrollContainerRef.current;
+    if (!target || !container) return;
+    const rect = container.getBoundingClientRect();
+    const containerTop = window.scrollY + rect.top;
+    const scrollDistance = Math.max(1, rect.height - window.innerHeight);
+    const targetScroll = containerTop + target.start * scrollDistance;
     window.scrollTo({ top: targetScroll, behavior: reducedMotion ? "auto" : "smooth" });
   };
 
@@ -132,6 +144,7 @@ export function SceneProvider({ children }: SceneProviderProps) {
     setSound,
     goToScene,
     scenes,
+    scrollContainerRef,
   };
 
   return (

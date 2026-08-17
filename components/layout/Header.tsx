@@ -9,6 +9,7 @@ import SoundToggle from "@/components/ui/SoundToggle";
 import { stripLocale, withLocale, type Locale } from "@/lib/i18n";
 import type { Dictionary } from "@/lib/dictionaries/ru";
 import { cn } from "@/lib/utils";
+import { siteConfig } from "@/lib/config";
 
 interface HeaderProps {
   lang: Locale;
@@ -31,6 +32,7 @@ export default function Header({ lang, dict }: HeaderProps) {
   const links = [
     { path: "/", label: dict.nav.about },
     { path: "/works", label: dict.nav.works },
+    { path: "/ai-works", label: dict.nav.aiWorks },
   ];
 
   const isActive = (path: string) =>
@@ -48,13 +50,13 @@ export default function Header({ lang, dict }: HeaderProps) {
       <div className="mx-auto flex h-full max-w-[1200px] items-center justify-between px-6 md:px-12">
         <Link
           href={withLocale(lang, "/")}
-          className="font-mono text-sm font-medium tracking-wider text-text-primary"
+          className="whitespace-nowrap font-mono text-xs font-medium tracking-wide text-text-primary lg:text-sm"
         >
-          dev<span className="text-accent">.</span>developer
+          {siteConfig.name}
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden items-center gap-7 md:flex" aria-label="Main">
+        <nav className="hidden items-center gap-5 md:flex lg:gap-7" aria-label="Main">
           {links.map((link) => (
             <Link
               key={link.path}

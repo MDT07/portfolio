@@ -14,6 +14,16 @@ const nextConfig: NextConfig = {
         destination: "/en/works/norde",
         permanent: true,
       },
+      {
+        source: "/works/ai",
+        destination: "/ai-works",
+        permanent: true,
+      },
+      {
+        source: "/en/works/ai",
+        destination: "/en/ai-works",
+        permanent: true,
+      },
     ];
   },
 };
