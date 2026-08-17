@@ -1,54 +1,170 @@
 @import "tailwindcss";
 
-/*
- * Токены по DESIGN.md.
- * Тёмная — дефолт (:root), светлая — через [data-theme="light"].
- * Tailwind 4 генерирует утилиты из этих var(), поэтому
- * переопределение переменных переключает тему без пересборки.
- */
+/* Warm editorial paper is the default; the dark theme keeps the same hierarchy. */
 @theme {
   --font-display: var(--font-prata), Georgia, serif;
-  --color-surface-0: #0a0a0a;
-  --color-surface-1: #111111;
-  --color-surface-2: #1a1a1a;
-  --color-surface-3: #242424;
-  --color-text-primary: #ededed;
-  --color-text-secondary: #a1a1a1;
-  --color-text-tertiary: #666666;
-  --color-accent: #0070f3;
-  --color-accent-hover: #0060df;
-  --color-accent-subtle: #0c2d4d;
+  --color-surface-0: #f4f0e8;
+  --color-surface-1: #eee9df;
+  --color-surface-2: #e5ded2;
+  --color-surface-3: #cec5b7;
+  --color-text-primary: #1d2024;
+  --color-text-secondary: #595f65;
+  --color-text-tertiary: #777875;
+  --color-accent: #173f82;
+  --color-accent-hover: #0f3169;
+  --color-accent-subtle: #dce4f1;
   --color-success: #17c964;
   --color-error: #f31260;
   --color-warning: #f5a524;
 }
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 html {
   scroll-behavior: smooth;
 }
 
-[data-theme="light"] {
-  --color-surface-0: #ffffff;
-  --color-surface-1: #fafafa;
-  --color-surface-2: #f5f5f5;
-  --color-surface-3: #e5e5e5;
-  --color-text-primary: #171717;
-  --color-text-secondary: #737373;
-  --color-text-tertiary: #a3a3a3;
-  --color-accent: #0070f3;
-  --color-accent-hover: #0060df;
-  --color-accent-subtle: #e8f1fe;
-  color-scheme: light;
+[data-theme="dark"] {
+  --color-surface-0: #111416;
+  --color-surface-1: #171a1d;
+  --color-surface-2: #1e2226;
+  --color-surface-3: #353b40;
+  --color-text-primary: #f0ede6;
+  --color-text-secondary: #adb2b7;
+  --color-text-tertiary: #7d858b;
+  --color-accent: #82a8ef;
+  --color-accent-hover: #a5c0f3;
+  --color-accent-subtle: #1b2d4b;
+  color-scheme: dark;
 }
 
 body {
   background: var(--color-surface-0);
   color: var(--color-text-primary);
   font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+.editorial-label {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+}
+
+.editorial-link {
+  color: var(--color-text-primary);
+  text-decoration: underline;
+  text-decoration-color: var(--color-surface-3);
+  text-underline-offset: 0.35em;
+  transition: color 150ms ease, text-decoration-color 150ms ease;
+}
+
+.editorial-link:hover {
+  color: var(--color-accent);
+  text-decoration-color: var(--color-accent);
+}
+
+.ai-process-flow {
+  display: flex;
+  align-items: stretch;
+}
+
+.ai-process-step {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 0;
+  align-items: center;
+}
+
+.ai-process-node {
+  min-height: 10.5rem;
+  min-width: 0;
+  flex: 1 1 0;
+  border: 1px solid var(--color-surface-3);
+  padding: 1rem;
+  background: var(--color-surface-1);
+}
+
+.ai-process-connector {
+  position: relative;
+  display: block;
+  width: 1.75rem;
+  flex: 0 0 1.75rem;
+  overflow: hidden;
+}
+
+.ai-process-connector::before,
+.ai-process-stroke {
+  position: absolute;
+  top: calc(50% - 1px);
+  left: 0;
+  width: 100%;
+  height: 1px;
+  content: "";
+}
+
+.ai-process-connector::before {
+  background: var(--color-surface-3);
+}
+
+.ai-process-stroke {
+  width: 60%;
+  background: var(--color-accent);
+  opacity: 0;
+  transform: translateX(-100%);
+  animation: process-stroke-x 240ms ease-out both;
+}
+
+.ai-process-step:nth-child(2) .ai-process-stroke { animation-delay: 220ms; }
+.ai-process-step:nth-child(3) .ai-process-stroke { animation-delay: 440ms; }
+.ai-process-step:nth-child(4) .ai-process-stroke { animation-delay: 660ms; }
+
+@keyframes process-stroke-x {
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { opacity: 0; transform: translateX(170%); }
+}
+
+@keyframes process-stroke-y {
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(170%); }
+}
+
+@media (max-width: 767px) {
+  .ai-process-flow,
+  .ai-process-step {
+    display: block;
+  }
+
+  .ai-process-node {
+    min-height: 0;
+  }
+
+  .ai-process-connector {
+    width: 100%;
+    height: 1.5rem;
+  }
+
+  .ai-process-connector::before,
+  .ai-process-stroke {
+    top: 0;
+    left: calc(50% - 1px);
+    width: 1px;
+    height: 100%;
+  }
+
+  .ai-process-stroke {
+    width: 1px;
+    height: 60%;
+    transform: translateY(-100%);
+    animation-name: process-stroke-y;
+  }
 }
 
 ::selection {
@@ -105,6 +221,12 @@ html.lenis body {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .ai-process-stroke {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1;
   }
 }
 

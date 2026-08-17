@@ -17,7 +17,9 @@ export default function ContactScene({ dict }: { dict: Dictionary }) {
           <h2 className="font-display text-4xl md:text-6xl">{dict.cta.title}</h2>
           <p className="mx-auto mt-6 max-w-xl text-text-secondary">{dict.cta.subtitle}</p>
           <a
-            href={`mailto:${siteConfig.email}`}
+            href={siteConfig.telegramUrl}
+            target="_blank"
+            rel="noreferrer"
             className="mt-8 inline-flex items-center rounded-full bg-accent px-8 py-4 font-mono text-base font-medium text-white transition-colors hover:bg-accent-hover"
           >
             {dict.cta.button}
@@ -46,7 +48,9 @@ export default function ContactScene({ dict }: { dict: Dictionary }) {
         </p>
         <MagneticButton>
           <a
-            href={`mailto:${siteConfig.email}`}
+            href={siteConfig.telegramUrl}
+            target="_blank"
+            rel="noreferrer"
             className="inline-flex items-center rounded-full bg-accent px-8 py-4 font-mono text-base font-medium text-white transition-colors hover:bg-accent-hover"
             data-cursor="expand"
           >
@@ -61,17 +65,11 @@ export default function ContactScene({ dict }: { dict: Dictionary }) {
               <p className="mt-1 text-sm text-text-secondary">{dict.footer.tagline}</p>
             </div>
             <div className="flex items-center gap-6">
-              <a href={siteConfig.githubUrl} className="font-mono text-xs uppercase tracking-wider text-text-secondary hover:text-text-primary">
-                GitHub
-              </a>
-              <a href={siteConfig.telegramUrl} className="font-mono text-xs uppercase tracking-wider text-text-secondary hover:text-text-primary">
+              <a href={siteConfig.telegramUrl} target="_blank" rel="noreferrer" className="font-mono text-xs uppercase tracking-wider text-text-secondary hover:text-text-primary">
                 Telegram
               </a>
-              <a href={siteConfig.linkedinUrl} className="font-mono text-xs uppercase tracking-wider text-text-secondary hover:text-text-primary">
-                LinkedIn
-              </a>
-              <a href={`mailto:${siteConfig.email}`} className="font-mono text-xs uppercase tracking-wider text-text-secondary hover:text-text-primary">
-                Email
+              <a href={siteConfig.profiUrl} target="_blank" rel="noreferrer" className="font-mono text-xs uppercase tracking-wider text-text-secondary hover:text-text-primary">
+                Profi.ru
               </a>
             </div>
             <p className="font-mono text-xs text-text-tertiary">

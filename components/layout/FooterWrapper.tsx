@@ -1,8 +1,5 @@
-"use client";
-
-import { usePathname } from "next/navigation";
 import PosterFooter from "@/components/layout/PosterFooter";
-import { stripLocale, type Locale } from "@/lib/i18n";
+import type { Locale } from "@/lib/i18n";
 import type { Dictionary } from "@/lib/dictionaries/ru";
 
 interface FooterWrapperProps {
@@ -11,10 +8,5 @@ interface FooterWrapperProps {
 }
 
 export default function FooterWrapper({ lang, dict }: FooterWrapperProps) {
-  const pathname = usePathname();
-  const { path: currentPath } = stripLocale(pathname || "/");
-  const isImmersivePage = currentPath === "/ai-works";
-
-  if (isImmersivePage) return null;
   return <PosterFooter lang={lang} dict={dict} />;
 }

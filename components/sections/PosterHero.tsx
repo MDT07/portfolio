@@ -89,7 +89,9 @@ export default function PosterHero({ dict }: PosterHeroProps) {
               </span>
             </a>
             <a
-              href={`mailto:${siteConfig.email}`}
+              href={siteConfig.telegramUrl}
+              target="_blank"
+              rel="noreferrer"
               className="text-base text-text-secondary underline decoration-surface-3 underline-offset-8 transition-colors hover:text-text-primary"
             >
               {dict.hero.ctaSecondary}

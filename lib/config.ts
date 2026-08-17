@@ -1,21 +1,15 @@
 /**
  * Единая конфигурация сайта.
- * Все контакты — заглушки: заменить значения здесь, и они обновятся везде.
+ * Публичные контакты сайта.
  */
 export const siteConfig = {
   /** Бренд портфолио */
   name: "CV Эмир Семенов [ПРОФИ.РУ]",
-  /** Домен-заглушка (заменить при появлении своего) */
   domain: "dev-developer.vercel.app",
   url: "https://dev-developer.vercel.app",
 
-  /** Контакты (заглушки) */
-  email: "hello@dev-developer.dev",
-  telegramHandle: "@dev_developer",
-  telegramUrl: "https://t.me/dev_developer",
-  githubHandle: "dev-developer",
-  githubUrl: "https://github.com/dev-developer",
-  linkedinUrl: "https://www.linkedin.com/in/dev-developer",
+  telegramUrl: "https://t.me/EMIR_000",
+  profiUrl: "https://profi.ru/profile/SemenovEZ",
 } as const;
 
 export type SiteConfig = typeof siteConfig;

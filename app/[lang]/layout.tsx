@@ -63,9 +63,6 @@ export async function generateMetadata({
   };
 }
 
-/** Anti-FOUC: тема применяется до первой отрисовки */
-const themeInit = `(function(){try{var t=localStorage.getItem("theme");if(t!=="light"&&t!=="dark"){t=window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";}document.documentElement.dataset.theme=t;}catch(e){document.documentElement.dataset.theme="dark";}})();`;
-
 export default async function RootLayout({
   children,
   params,
@@ -80,16 +77,12 @@ export default async function RootLayout({
   return (
     <html
       lang={lang}
-      data-theme="dark"
+      data-theme="light"
       suppressHydrationWarning
       className={`${inter.variable} ${jetbrainsMono.variable} ${prata.variable} h-full antialiased`}
     >
       <head>
-        <Script
-          id="theme-init"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{ __html: themeInit }}
-        />
+        <Script id="theme-init" src="/theme-init.js" strategy="beforeInteractive" />
       </head>
       <body className="flex min-h-full flex-col bg-surface-0 text-text-primary">
         <SmoothScroll>

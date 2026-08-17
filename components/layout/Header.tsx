@@ -42,14 +42,14 @@ export default function Header({ lang, dict }: HeaderProps) {
       className={cn(
         "fixed left-0 right-0 top-0 z-50 h-16 border-b transition-colors duration-200",
         scrolled || menuOpen
-          ? "border-surface-3 bg-surface-0/80 backdrop-blur-xl"
+          ? "border-surface-3 bg-surface-0"
           : "border-transparent bg-transparent"
       )}
     >
       <div className="mx-auto flex h-full max-w-[1200px] items-center justify-between px-6 md:px-12">
         <Link
           href={withLocale(lang, "/")}
-          className="whitespace-nowrap font-mono text-xs font-medium tracking-wide text-text-primary lg:text-sm"
+          className="max-w-[12rem] truncate whitespace-nowrap font-mono text-[11px] font-medium tracking-wide text-text-primary lg:max-w-none lg:text-xs"
         >
           {siteConfig.name}
         </Link>
@@ -63,7 +63,7 @@ export default function Header({ lang, dict }: HeaderProps) {
               className={cn(
                 "relative py-1 text-sm transition-colors duration-150",
                 isActive(link.path)
-                  ? "text-text-primary after:absolute after:-bottom-0.5 after:left-0 after:h-0.5 after:w-full after:bg-accent"
+                  ? "text-text-primary after:absolute after:-bottom-0.5 after:left-0 after:h-px after:w-full after:bg-accent"
                   : "text-text-secondary hover:text-text-primary"
               )}
             >
@@ -79,10 +79,12 @@ export default function Header({ lang, dict }: HeaderProps) {
 
         {/* Mobile burger */}
         <button
+          type="button"
           onClick={() => setMenuOpen(!menuOpen)}
           className="flex h-10 w-10 items-center justify-center md:hidden"
           aria-label="Menu"
           aria-expanded={menuOpen}
+          aria-controls="mobile-navigation"
         >
           <div className="flex flex-col gap-1.5">
             <span
@@ -103,7 +105,10 @@ export default function Header({ lang, dict }: HeaderProps) {
 
       {/* Mobile nav */}
       {menuOpen && (
-        <nav className="border-b border-surface-3 bg-surface-0 px-6 pb-4 md:hidden">
+        <nav
+          id="mobile-navigation"
+          className="border-b border-surface-3 bg-surface-0 px-6 pb-4 md:hidden"
+        >
           {links.map((link) => (
             <Link
               key={link.path}
