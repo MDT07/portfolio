@@ -1,0 +1,36 @@
+---
+title: "AURA — Neobank & Payment Wallet"
+description: "Money that moves in real time: cards, currency conversion, and spending analytics in one wallet."
+tags: ["HTML", "CSS", "JavaScript", "Fintech", "Canvas"]
+year: "2026"
+role: "Design & Development"
+stack: ["HTML5", "CSS3", "Vanilla JS", "GSAP", "Lenis", "Canvas 2D"]
+cover: "/images/works/aura-cover.png"
+demo: "/templates/aura/index.html"
+featured: false
+---
+
+## Problem
+
+Fintech landing pages are often overloaded with gradients, phone mockups, and empty slogans. The goal was to convey trust and speed through engineering aesthetics and live numbers rather than decoration.
+
+## Solution
+
+The **AURA** concept is a neobank as a trading terminal. Dark precision, monochrome base with an electric violet accent (#7C5CFF), engineered typography Sora + Inter + JetBrains Mono. The hero shows a kinetic balance card backed by Canvas spending rings that rotate on scroll.
+
+## What's inside
+
+- **Hero** — balance card with count-up amount and Canvas spending rings
+- **Features** — 4 product cards
+- **Card studio** — interactive color and material selector for the card
+- **Converter** — currency exchange with mock rate and copy-to-clipboard
+- **Security** — 3 security layers
+- **Early access** — waitlist form
+
+## Architecture & stack
+
+Single `index.html`: GSAP + ScrollTrigger + Lenis for scroll and reveals, CSS custom properties for tokens. Canvas 2D for spending rings, vanilla JS for the card studio, converter, and form. Fonts: Sora, Inter, JetBrains Mono.
+
+## Result
+
+A self-contained demo template for a neobank. QA verifies boot, fonts, Canvas rings, card studio, converter, and absence of horizontal overflow.

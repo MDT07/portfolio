@@ -629,7 +629,148 @@ body::after{ /* зерно */
   <div class="strata"></div>
 
   <!-- 007 КОНТАКТЫ -->
-  <section class="chapter" id="contact">
+  <!-- Investor Calculator -->
+<section class="chapter" id="investor">
+  <div class="ch-marker"><span class="idx">006</span><span>/ Инвесторам</span><span class="rule"></span><span class="tag">Investor</span></div>
+  <div class="container">
+    <div class="investor-calc">
+      <div class="calc-inputs">
+        <div class="calc-field">
+          <label>Площадь участка (соток)</label>
+          <input type="range" id="invArea" min="10" max="500" value="50" step="5">
+          <div class="calc-val" id="invAreaVal">50 соток</div>
+        </div>
+        <div class="calc-field">
+          <label>Стоимость сотки (тыс. ₽)</label>
+          <input type="range" id="invPrice" min="100" max="2000" value="400" step="50">
+          <div class="calc-val" id="invPriceVal">400 тыс. ₽</div>
+        </div>
+        <div class="calc-field">
+          <label>Этажность</label>
+          <input type="range" id="invFloors" min="3" max="25" value="12" step="1">
+          <div class="calc-val" id="invFloorsVal">12 этажей</div>
+        </div>
+        <div class="calc-field">
+          <label>Цена продажи м² (тыс. ₽)</label>
+          <input type="range" id="invSell" min="80" max="600" value="180" step="10">
+          <div class="calc-val" id="invSellVal">180 тыс. ₽/м²</div>
+        </div>
+      </div>
+      <div class="calc-results">
+        <h4>Прогноз проекта</h4>
+        <div class="calc-big" id="invProfit">0 <span>млн ₽</span></div>
+        <div class="calc-row"><span class="cl">Срок реализации</span><span class="cv" id="invTerm">24 мес</span></div>
+        <div class="calc-row"><span class="cl">IRR</span><span class="cv" style="color:var(--accent)" id="invIRR">28%</span></div>
+        <div class="calc-row"><span class="cl">Окупаемость</span><span class="cv" style="color:var(--accent)" id="invPayback">18 мес</span></div>
+        <div class="calc-row"><span class="cl">ROI</span><span class="cv" style="color:var(--accent)" id="invROI">145%</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Live Construction Metrics -->
+<section class="chapter" style="padding-top:0">
+  <div class="container">
+    <div class="live-metrics">
+      <div class="live-metric">
+        <div class="lm-icon">◉</div>
+        <div class="lm-val" id="lm1">0<span class="lm-pulse"></span></div>
+        <div class="lm-label">Объектов в работе</div>
+      </div>
+      <div class="live-metric">
+        <div class="lm-icon">◈</div>
+        <div class="lm-val" id="lm2">0</div>
+        <div class="lm-label">м² в строительстве</div>
+      </div>
+      <div class="live-metric">
+        <div class="lm-icon">◍</div>
+        <div class="lm-val" id="lm3">0%</div>
+        <div class="lm-label">Средняя готовность</div>
+      </div>
+      <div class="live-metric">
+        <div class="lm-icon">⬡</div>
+        <div class="lm-val" id="lm4">0<span class="lm-pulse"></span></div>
+        <div class="lm-label">Бригад на площадках</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+.investor-calc{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:40px}
+.calc-inputs{display:flex;flex-direction:column;gap:18px}
+.calc-field label{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px}
+.calc-field input[type="range"]{width:100%;height:4px;border-radius:2px;background:var(--line);outline:none;-webkit-appearance:none;appearance:none}
+.calc-field input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--accent);cursor:pointer}
+.calc-val{font-family:var(--mono);font-size:16px;font-weight:500;color:var(--ink);margin-top:6px}
+.calc-results{padding:28px;border-radius:12px;background:var(--bg);border:1px solid var(--line);display:flex;flex-direction:column;gap:14px}
+.calc-results h4{font-family:var(--serif);font-weight:600;font-size:18px;margin-bottom:4px}
+.calc-big{font-family:var(--mono);font-size:42px;font-weight:500;color:var(--accent)}
+.calc-big span{font-size:14px;color:var(--ink3)}
+.calc-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.calc-row:last-child{border-bottom:none}
+.calc-row .cl{font-size:13px;color:var(--ink2)}
+.calc-row .cv{font-family:var(--mono);font-size:15px;font-weight:500}
+.live-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.live-metric{padding:24px;text-align:center;background:var(--card);border:1px solid var(--line);border-radius:12px;transition:transform .3s}
+.live-metric:hover{transform:translateY(-4px)}
+.live-metric .lm-icon{font-size:28px;margin-bottom:10px;color:var(--accent)}
+.live-metric .lm-val{font-family:var(--mono);font-size:28px;font-weight:500;color:var(--ink)}
+.live-metric .lm-label{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin-top:6px}
+.lm-pulse{width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block;margin-left:6px;animation:pulse 2s ease-in-out infinite}
+@media(max-width:900px){.investor-calc{grid-template-columns:1fr}.live-metrics{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.live-metrics{grid-template-columns:1fr}}
+</style>
+
+<script>
+(function(){
+function fmt(n){return n.toLocaleString('ru-RU')}
+function calcInv(){
+  var area=parseInt(document.getElementById('invArea').value,10);
+  var price=parseInt(document.getElementById('invPrice').value,10);
+  var floors=parseInt(document.getElementById('invFloors').value,10);
+  var sell=parseInt(document.getElementById('invSell').value,10);
+  document.getElementById('invAreaVal').textContent=area+' соток';
+  document.getElementById('invPriceVal').textContent=price+' тыс. ₽';
+  document.getElementById('invFloorsVal').textContent=floors+' этажей';
+  document.getElementById('invSellVal').textContent=sell+' тыс. ₽/м²';
+  var landCost=area*price*1000;
+  var buildCost=area*100*floors*65000;
+  var totalCost=landCost+buildCost;
+  var revenue=area*100*floors*0.75*sell*1000;
+  var profit=revenue-totalCost;
+  var roi=Math.round((profit/totalCost)*100);
+  var irr=Math.min(45,Math.round(12+roi*0.15));
+  var term=Math.max(18,Math.round(36-floors*0.6));
+  var payback=Math.max(12,Math.round(term*0.7));
+  document.getElementById('invProfit').innerHTML=fmt(Math.round(profit/1000000))+' <span>млн ₽</span>';
+  document.getElementById('invTerm').textContent=term+' мес';
+  document.getElementById('invIRR').textContent=irr+'%';
+  document.getElementById('invPayback').textContent=payback+' мес';
+  document.getElementById('invROI').textContent=roi+'%';
+}
+['invArea','invPrice','invFloors','invSell'].forEach(function(id){
+  document.getElementById(id).addEventListener('input',calcInv);
+});
+calcInv();
+
+var liveVals={sites:7,area:184000,ready:62,teams:34};
+function updateLive(){
+  liveVals.sites=Math.max(5,Math.min(12,liveVals.sites+Math.round((Math.random()-0.5)*2)));
+  liveVals.area=Math.max(120000,Math.min(250000,liveVals.area+Math.round((Math.random()-0.5)*8000)));
+  liveVals.ready=Math.max(30,Math.min(95,liveVals.ready+Math.round((Math.random()-0.5)*3)));
+  liveVals.teams=Math.max(20,Math.min(50,liveVals.teams+Math.round((Math.random()-0.5)*4)));
+  document.getElementById('lm1').innerHTML=liveVals.sites+'<span class="lm-pulse"></span>';
+  document.getElementById('lm2').textContent=fmt(liveVals.area);
+  document.getElementById('lm3').textContent=liveVals.ready+'%';
+  document.getElementById('lm4').innerHTML=liveVals.teams+'<span class="lm-pulse"></span>';
+}
+setInterval(updateLive,4000);
+updateLive();
+})();
+</script>
+
+<section class="chapter" id="contact">
     <div class="ch-marker"><span class="idx">007</span><span>/ Контакты</span><span class="rule"></span><span class="tag">Contact</span></div>
     <h2 class="ch-title lines">
       <span class="hl"><span class="hl-i">Обсудим</span></span>

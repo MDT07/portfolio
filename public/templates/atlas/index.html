@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ATLAS — экспедиционный атлас</title>
+<meta name="description" content="ATLAS — экспедиционный travel-клуб. Малые группы, редкие маршруты, сильнейшие гиды. Интерактивный атлас с 3D-рельефом.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Onest:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/maplibre-gl@5.3.1/dist/maplibre-gl.js"></script>
+<link href="https://unpkg.com/maplibre-gl@5.3.1/dist/maplibre-gl.css" rel="stylesheet" />
+<style>
+:root{
+  --paper:#F5F0E8; --paper-2:#EDE7DB; --paper-3:#E5DCC8;
+  --ink:#2C2416; --ink-2:#5C4D3C; --ink-3:#8A7B6B;
+  --line:#D4C9B8; --line-strong:#B8A88E;
+  --accent:#E85D04; --accent-soft:rgba(232,93,4,.12);
+  --accent-hover:#D15100;
+  --dark:#1A1714; --dark-ink:#F5F0E8; --dark-ink-2:rgba(245,240,232,.62);
+  --dark-line:rgba(245,240,232,.16);
+  --serif:"Cormorant",Georgia,serif;
+  --sans:"Onest",system-ui,sans-serif;
+  --mono:"JetBrains Mono",monospace;
+  --ease-cine:cubic-bezier(0.65,0,0.35,1);
+  --container:1280px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+::selection{background:var(--accent);color:#fff}
+button{font-family:inherit;cursor:pointer;background:none;border:none;color:inherit}
+input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+img{display:block;max-width:100%}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:5px;border:2px solid var(--paper)}
+::-webkit-scrollbar-track{background:transparent}
+
+/* MapLibre */
+#map{position:fixed;inset:0;z-index:0;width:100%;height:100vh}
+.maplibregl-canvas{outline:none}
+.maplibregl-control-container{display:none}
+
+/* Grid overlay — координатная сетка */
+.grid-overlay{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.04;
+  background-image:
+    repeating-linear-gradient(0deg,transparent,transparent 99px,var(--ink) 99px,var(--ink) 100px),
+    repeating-linear-gradient(90deg,transparent,transparent 99px,var(--ink) 99px,var(--ink) 100px);
+}
+
+/* Content layer */
+.content{position:relative;z-index:2}
+.wrap{max-width:var(--container);margin:0 auto;padding:0 48px}
+.mono{font-family:var(--mono)}
+.label{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.label b{color:var(--accent);font-weight:500}
+
+/* Header */
+header{position:fixed;top:0;left:0;right:0;z-index:60;transition:background .3s,border-color .3s,backdrop-filter .3s;border-bottom:1px solid transparent}
+header.solid{background:rgba(245,240,232,.9);backdrop-filter:blur(12px);border-bottom-color:var(--line)}
+.hd-in{display:flex;align-items:center;gap:32px;height:68px}
+.logo{font-family:var(--serif);font-size:24px;font-weight:700;letter-spacing:.12em;color:var(--ink)}
+.logo i{color:var(--accent);font-style:normal}
+nav.main{display:flex;gap:22px;margin-left:auto}
+nav.main a{color:var(--ink-2);font-size:13px;font-weight:500;transition:color .2s;text-decoration:none}
+nav.main a:hover{color:var(--ink)}
+.hd-meta{font-family:var(--mono);font-size:10px;color:var(--ink-3);letter-spacing:.08em}
+.btn{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 20px;border-radius:6px;font-weight:600;font-size:13.5px;border:1px solid transparent;transition:all .2s}
+.btn-acc{background:var(--accent);color:#fff}
+.btn-acc:hover{background:var(--accent-hover);transform:translateY(-1px)}
+.btn-ghost{border-color:var(--line-strong);color:var(--ink)}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+.btn:active{transform:scale(.97)}
+
+/* Sections — transparent to show map */
+section{position:relative;min-height:100vh;display:flex;align-items:center}
+.sec{padding:120px 0}
+.sec-card{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:48px;box-shadow:0 8px 32px rgba(44,36,22,.08)}
+.sec-card-dark{background:var(--dark);color:var(--dark-ink);border-color:var(--dark-line)}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:24px;margin-bottom:40px;flex-wrap:wrap}
+.sec-title{font-family:var(--serif);font-size:clamp(32px,4.4vw,56px);font-weight:600;line-height:1.08;letter-spacing:-.01em}
+.sec-title em{font-style:italic;color:var(--accent)}
+
+/* Hero */
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end;padding-bottom:80px}
+.hero-kicker{display:flex;gap:14px;align-items:center;margin-bottom:22px}
+.hero-kicker .rule{width:56px;height:1px;background:var(--accent)}
+h1.hero-title{font-family:var(--serif);font-weight:600;font-size:clamp(48px,7.2vw,104px);line-height:1.02;letter-spacing:-.01em;max-width:14ch;color:var(--ink)}
+h1.hero-title em{font-style:italic;color:var(--accent)}
+.hero-meta{display:flex;gap:28px;margin-top:30px;flex-wrap:wrap}
+.hero-meta span{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
+.hero-meta b{color:var(--ink);font-weight:500}
+.scroll-cue{position:absolute;right:48px;bottom:40px;z-index:10;display:flex;flex-direction:column;align-items:center;gap:10px;color:var(--ink-3)}
+.scroll-cue .line{width:1px;height:56px;background:var(--line-strong);position:relative;overflow:hidden}
+.scroll-cue .line::after{content:"";position:absolute;top:-40%;left:0;width:100%;height:40%;background:var(--accent);animation:cue 2.2s var(--ease-cine) infinite}
+@keyframes cue{to{top:130%}}
+.scroll-cue span{font-family:var(--mono);font-size:10px;letter-spacing:.2em;writing-mode:vertical-rl}
+
+/* Route sections */
+.route-sec{min-height:100vh;display:flex;align-items:center;padding:80px 0}
+.route-card{max-width:520px;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:40px;box-shadow:0 12px 48px rgba(44,36,22,.1)}
+.route-card-dark{background:var(--dark);color:var(--dark-ink);border-color:var(--dark-line)}
+.route-num{font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--accent);margin-bottom:12px}
+.route-name{font-family:var(--serif);font-size:clamp(28px,3.2vw,44px);font-weight:600;line-height:1.1;margin-bottom:16px}
+.route-name em{font-style:italic;color:var(--accent)}
+.route-coords{font-family:var(--mono);font-size:12px;color:var(--ink-3);margin-bottom:20px;display:flex;gap:16px;flex-wrap:wrap}
+.route-coords span{display:flex;gap:6px;align-items:center}
+.route-coords .coord-dot{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.route-desc{font-size:14px;line-height:1.65;color:var(--ink-2);margin-bottom:24px}
+.route-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+.route-meta-item{text-align:center;padding:12px;background:var(--paper-2);border-radius:8px}
+.route-meta-item .rmv{font-family:var(--mono);font-size:20px;font-weight:500;color:var(--accent)}
+.route-meta-item .rml{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-top:4px}
+.route-stamp{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border:2px solid var(--accent);border-radius:4px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent);transform:rotate(-2deg)}
+
+/* Stamp decorative */
+.stamp{position:absolute;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);border:2px solid var(--accent);padding:6px 12px;border-radius:3px;transform:rotate(-8deg);opacity:.6;pointer-events:none}
+
+/* Manifesto */
+.mani{border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.mani-grid{display:grid;grid-template-columns:1.25fr 1fr;gap:80px;align-items:start}
+.mani-text{font-family:var(--serif);font-size:clamp(22px,2.4vw,32px);line-height:1.35;font-weight:500}
+.mani-text em{color:var(--accent);font-style:italic}
+.counters{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line)}
+.counter{background:var(--paper);padding:28px 26px}
+.counter .cv{font-family:var(--mono);font-size:36px;font-weight:500;color:var(--accent);font-variant-numeric:tabular-nums}
+.counter .cl{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-top:6px}
+
+/* CTA */
+.cta-block{border:1px solid var(--line);border-radius:20px;padding:80px 60px;text-align:center;background:
+  radial-gradient(600px 300px at 50% -10%,var(--accent-soft),transparent 70%)}
+.cta-block h2{font-family:var(--serif);font-size:clamp(32px,4.4vw,60px);font-weight:600;line-height:1.08}
+.cta-block h2 em{color:var(--accent);font-style:italic}
+.cta-block p{color:var(--ink-2);margin:18px auto 30px;max-width:480px}
+
+/* Footer */
+footer{border-top:1px solid var(--line);padding:44px 0 36px;margin-top:0;background:var(--paper)}
+.ft{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;align-items:center}
+.ft .links{display:flex;gap:20px}
+.ft a{color:var(--ink-3);font-size:12.5px;text-decoration:none}
+.ft a:hover{color:var(--accent)}
+
+/* Reveal */
+.rv{opacity:0;transform:translateY(26px);transition:opacity .8s cubic-bezier(.22,.61,.21,1),transform .8s cubic-bezier(.22,.61,.21,1)}
+.rv.in{opacity:1;transform:none}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .rv{opacity:1;transform:none;transition:none}
+  .scroll-cue .line::after{animation:none}
+  html{scroll-behavior:auto}
+}
+
+/* Mobile */
+@media(max-width:1100px){
+  .mani-grid{grid-template-columns:1fr;gap:44px}
+  .route-meta{grid-template-columns:1fr 1fr 1fr}
+}
+@media(max-width:760px){
+  .wrap{padding:0 20px}
+  .sec{padding:76px 0}
+  .sec-card{padding:28px}
+  .route-card{padding:28px}
+  nav.main{display:none}
+  .hd-meta{display:none}
+  .scroll-cue{display:none}
+  .hero-in{padding-bottom:60px}
+  .route-meta{grid-template-columns:1fr 1fr}
+  .cta-block{padding:56px 24px}
+}
+</style>
+</head>
+<body>
+
+<!-- MapLibre 3D Map -->
+<div id="map"></div>
+<div class="grid-overlay"></div>
+
+<!-- Content -->
+<div class="content">
+
+<header id="hd">
+  <div class="wrap hd-in">
+    <div class="logo">ATLAS<i>.</i></div>
+    <nav class="main">
+      <a href="#expeditions">Маршруты</a>
+      <a href="#club">Клуб</a>
+      <a href="#cta">Заявка</a>
+    </nav>
+    <span class="hd-meta">55.75°N 37.61°E · МСК</span>
+    <button class="btn btn-acc" data-book="">Заявка</button>
+  </div>
+</header>
+
+<!-- Hero -->
+<section class="hero" id="hero" data-route="pamir">
+  <div class="wrap">
+    <div class="hero-kicker rv"><span class="rule"></span><span class="label"><b>01</b> · Экспедиционный атлас · с 2014</span></div>
+    <h1 class="hero-title rv">Планета ближе,<br>чем <em>кажется</em></h1>
+    <div class="hero-meta rv">
+      <span><b>6</b> маршрутов</span>
+      <span><b>4</b> континента</span>
+      <span>группы до <b>8</b> человек</span>
+      <span><b>96%</b> возвращаются</span>
+    </div>
+  </div>
+  <div class="scroll-cue"><span>SCROLL</span><div class="line"></div></div>
+</section>
+
+<!-- Route: Pamir -->
+<section class="route-sec" id="expeditions" data-route="pamir">
+  <div class="wrap" style="display:flex;justify-content:flex-start">
+    <div class="route-card rv">
+      <div class="route-num">ЭКСПЕДИЦИЯ 01</div>
+      <h2 class="route-name">Памир.<br><em>Кровельник мира</em></h2>
+      <div class="route-coords">
+        <span><span class="coord-dot"></span>39.5°N 72.0°E</span>
+        <span>↗ 4200 м</span>
+        <span>12 дней</span>
+      </div>
+      <p class="route-desc">Трек по Фанским горам к базовому лагерю пика Энергия. Перевалы Алаудин и Чимтарга, ночёвки у ледников, радиальные выходы к пикам Замок и Энергия.</p>
+      <div class="route-meta">
+        <div class="route-meta-item"><div class="rmv">12</div><div class="rml">дней</div></div>
+        <div class="route-meta-item"><div class="rmv">4200</div><div class="rml">метров</div></div>
+        <div class="route-meta-item"><div class="rmv">Сложно</div><div class="rml">уровень</div></div>
+      </div>
+      <div class="route-stamp">✓ ПРОВЕРЕНО · АВГ 2026</div>
+    </div>
+  </div>
+  <div class="stamp" style="top:15%;right:10%">ЭКСПЕДИЦИЯ №01</div>
+</section>
+
+<!-- Route: Svalbard -->
+<section class="route-sec" data-route="svalbard">
+  <div class="wrap" style="display:flex;justify-content:flex-end">
+    <div class="route-card route-card-dark rv">
+      <div class="route-num">ЭКСПЕДИЦИЯ 02</div>
+      <h2 class="route-name">Шпицберген.<br><em>Пограничье льда</em></h2>
+      <div class="route-coords" style="color:var(--dark-ink-2)">
+        <span><span class="coord-dot"></span>78.2°N 15.6°E</span>
+        <span>↗ 800 м</span>
+        <span>8 дней</span>
+      </div>
+      <p class="route-desc" style="color:var(--dark-ink-2)">Экспедиция на снегоходах к временному ледовому лагерю. Ледяные пещеры Исфьорда, северное сияние, полярная ночь.</p>
+      <div class="route-meta">
+        <div class="route-meta-item" style="background:rgba(245,240,232,.08)"><div class="rmv">8</div><div class="rml">дней</div></div>
+        <div class="route-meta-item" style="background:rgba(245,240,232,.08)"><div class="rmv">−25°</div><div class="rml">°C</div></div>
+        <div class="route-meta-item" style="background:rgba(245,240,232,.08)"><div class="rmv">Средне</div><div class="rml">уровень</div></div>
+      </div>
+      <div class="route-stamp">✓ ПРОВЕРЕНО · МАР 2026</div>
+    </div>
+  </div>
+  <div class="stamp" style="top:20%;left:8%">АРКТИЧЕСКИЙ ШТАМП</div>
+</section>
+
+<!-- Route: Sahara -->
+<section class="route-sec" data-route="sahara">
+  <div class="wrap" style="display:flex;justify-content:flex-start">
+    <div class="route-card rv">
+      <div class="route-num">ЭКСПЕДИЦИЯ 03</div>
+      <h2 class="route-name">Сахара.<br><em>Дороги караванов</em></h2>
+      <div class="route-coords">
+        <span><span class="coord-dot"></span>31.0°N 4.0°W</span>
+        <span>↗ 1500 м</span>
+        <span>9 дней</span>
+      </div>
+      <p class="route-desc">Классический маршрут из Марракеша к дюнам Эрг-Шебби. Касба Айт-Бен-Хадду, ущелье Тодра, ночёвки в берберских домах, верблюды и караван-сараи.</p>
+      <div class="route-meta">
+        <div class="route-meta-item"><div class="rmv">9</div><div class="rml">дней</div></div>
+        <div class="route-meta-item"><div class="rmv">45°</div><div class="rml">°C</div></div>
+        <div class="route-meta-item"><div class="rmv">Легко</div><div class="rml">уровень</div></div>
+      </div>
+      <div class="route-stamp">✓ ПРОВЕРЕНО · ОКТ 2026</div>
+    </div>
+  </div>
+</section>
+
+<!-- Route: Azores -->
+<section class="route-sec" data-route="azores">
+  <div class="wrap" style="display:flex;justify-content:flex-end">
+    <div class="route-card route-card-dark rv">
+      <div class="route-num">ЭКСПЕДИЦИЯ 04</div>
+      <h2 class="route-name">Азоры.<br><em>Кратеры и киты</em></h2>
+      <div class="route-coords" style="color:var(--dark-ink-2)">
+        <span><span class="coord-dot"></span>38.5°N 28.0°W</span>
+        <span>↗ 2351 м</span>
+        <span>10 дней</span>
+      </div>
+      <p class="route-desc" style="color:var(--dark-ink-2)">Яхтинг и трекинг по островам Сан-Мигел и Пику. Кальдера Сете-Сидадеш, восхождение на вулкан, вийтвотчинг с биологами.</p>
+      <div class="route-meta">
+        <div class="route-meta-item" style="background:rgba(245,240,232,.08)"><div class="rmv">10</div><div class="rml">дней</div></div>
+        <div class="route-meta-item" style="background:rgba(245,240,232,.08)"><div class="rmv">2351</div><div class="rml">метров</div></div>
+        <div class="route-meta-item" style="background:rgba(245,240,232,.08)"><div class="rmv">Средне</div><div class="rml">уровень</div></div>
+      </div>
+      <div class="route-stamp">✓ ПРОВЕРЕНО · МАЙ 2026</div>
+    </div>
+  </div>
+</section>
+
+<!-- Route: Altai -->
+<section class="route-sec" data-route="altai">
+  <div class="wrap" style="display:flex;justify-content:flex-start">
+    <div class="route-card rv">
+      <div class="route-num">ЭКСПЕДИЦИЯ 05</div>
+      <h2 class="route-name">Алтай.<br><em>Белуха в кадре</em></h2>
+      <div class="route-coords">
+        <span><span class="coord-dot"></span>50.0°N 86.5°E</span>
+        <span>↗ 2500 м</span>
+        <span>7 дней</span>
+      </div>
+      <p class="route-desc">Фотоэкспедиция к подножию Белухи с лагерем Аккем. Рассветные выходы к Кара-Тюрек, долина Семи озёр, разбор кадров с фотографом.</p>
+      <div class="route-meta">
+        <div class="route-meta-item"><div class="rmv">7</div><div class="rml">дней</div></div>
+        <div class="route-meta-item"><div class="rmv">2500</div><div class="rml">метров</div></div>
+        <div class="route-meta-item"><div class="rmv">Средне</div><div class="rml">уровень</div></div>
+      </div>
+      <div class="route-stamp">✓ ПРОВЕРЕНО · ИЮЛ 2026</div>
+    </div>
+  </div>
+</section>
+
+<!-- Route: Lofoten -->
+<section class="route-sec" data-route="lofoten">
+  <div class="wrap" style="display:flex;justify-content:flex-end">
+    <div class="route-card route-card-dark rv">
+      <div class="route-num">ЭКСПЕДИЦИЯ 06</div>
+      <h2 class="route-name">Лофотены.<br><em>Северная волна</em></h2>
+      <div class="route-coords" style="color:var(--dark-ink-2)">
+        <span><span class="coord-dot"></span>68.2°N 13.5°E</span>
+        <span>↗ 900 м</span>
+        <span>8 дней</span>
+      </div>
+      <p class="route-desc" style="color:var(--dark-ink-2)">Сёрф-кэмп и хайкинг на архипелаге за полярным кругом. Сёрф-сессии утром, трекинг на Рыкен, рыбацкие рорбу, северное сияние.</p>
+      <div class="route-meta">
+        <div class="route-meta-item" style="background:rgba(245,240,232,.08)"><div class="rmv">8</div><div class="rml">дней</div></div>
+        <div class="route-meta-item" style="background:rgba(245,240,232,.08)"><div class="rmv">8°</div><div class="rml">°C</div></div>
+        <div class="route-meta-item" style="background:rgba(245,240,232,.08)"><div class="rmv">Легко</div><div class="rml">уровень</div></div>
+      </div>
+      <div class="route-stamp">✓ ПРОВЕРЕНО · СЕН 2026</div>
+    </div>
+  </div>
+</section>
+
+<!-- Manifesto -->
+<section class="sec mani" id="club">
+  <div class="wrap">
+    <div class="label rv" style="margin-bottom:44px"><b>07</b> · Почему ATLAS</div>
+    <div class="mani-grid">
+      <div class="mani-text rv">
+        Мы не продаём туры. Мы строим <em>маршруты</em>, по которым сами ходим годами: ночёвки там, где заканчивается связь, рассветы, ради которых встают в пять, и команда, которая знает, <em>зачем</em> идёт дальше.
+      </div>
+      <div class="counters rv">
+        <div class="counter"><div class="cv" data-n="12">0</div><div class="cl">лет на маршрутах</div></div>
+        <div class="counter"><div class="cv" data-n="240">0</div><div class="cl">экспедиций проведено</div></div>
+        <div class="counter"><div class="cv" data-n="12">0</div><div class="cl">гидов в команде</div></div>
+        <div class="counter"><div class="cv" data-n="43">0</div><div class="cl">страны на карте</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="sec" id="cta">
+  <div class="wrap">
+    <div class="cta-block rv">
+      <h2>Следующая экспедиция — <em>ваша</em></h2>
+      <p>Оставьте заявку — куратор клуба позвонит в течение дня, подберёт маршрут под ваш уровень и ответит на всё.</p>
+      <button class="btn btn-acc" style="height:48px;padding:0 32px;font-size:14.5px" data-book="">Оставить заявку</button>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="wrap ft">
+    <div class="logo" style="font-size:18px">ATLAS<i>.</i></div>
+    <div class="links"><a href="#expeditions">Маршруты</a><a href="#club">Клуб</a></div>
+    <div class="links"><a href="mailto:club@atlas.expert">club@atlas.expert</a></div>
+    <span class="label">© 2026 ATLAS expedition club</span>
+  </div>
+</footer>
+
+</div><!-- /content -->
+
+<script>
+"use strict";
+
+// ===== MapLibre 3D Map =====
+const map = new maplibregl.Map({
+  container: 'map',
+  style: {
+    version: 8,
+    sources: {
+      dem: {
+        type: 'raster-dem',
+        url: 'https://demotiles.maplibre.org/terrain-tiles/tiles.json',
+        tileSize: 256
+      },
+      osm: {
+        type: 'raster',
+        tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+        tileSize: 256,
+        attribution: '&copy; OpenStreetMap'
+      }
+    },
+    layers: [
+      {
+        id: 'osm',
+        type: 'raster',
+        source: 'osm',
+        paint: {
+          'raster-opacity': 0.35,
+          'raster-saturation': -0.6
+        }
+      }
+    ],
+    terrain: {
+      source: 'dem',
+      exaggeration: 1.5
+    }
+  },
+  center: [72.0, 39.5],
+  zoom: 6,
+  pitch: 60,
+  bearing: -20,
+  interactive: false,
+  attributionControl: false
+});
+
+// Route coordinates
+const ROUTES = {
+  pamir:    { center: [72.0, 39.5],   zoom: 6,  pitch: 60, bearing: -20 },
+  svalbard: { center: [15.6, 78.2],   zoom: 5,  pitch: 55, bearing: 30 },
+  sahara:   { center: [-4.0, 31.0],   zoom: 5,  pitch: 50, bearing: -10 },
+  azores:   { center: [-28.0, 38.5],  zoom: 7,  pitch: 55, bearing: 45 },
+  altai:    { center: [86.5, 50.0],   zoom: 6,  pitch: 60, bearing: 15 },
+  lofoten:  { center: [13.5, 68.2],   zoom: 6,  pitch: 55, bearing: -30 }
+};
+
+// Add route lines
+const routeGeoJSON = {
+  type: 'FeatureCollection',
+  features: [
+    { type: 'Feature', geometry: { type: 'LineString', coordinates: [[68.8,38.5],[69.5,38.8],[70.2,39.0],[71.0,39.3],[72.0,39.5]] }, properties: { name: 'pamir' } },
+    { type: 'Feature', geometry: { type: 'LineString', coordinates: [[15.0,78.0],[15.3,78.1],[15.6,78.2],[16.0,78.3]] }, properties: { name: 'svalbard' } },
+    { type: 'Feature', geometry: { type: 'LineString', coordinates: [[-8.0,31.2],[-6.0,31.1],[-4.0,31.0],[-2.0,30.8]] }, properties: { name: 'sahara' } },
+    { type: 'Feature', geometry: { type: 'LineString', coordinates: [[-31.0,38.3],[-29.5,38.4],[-28.0,38.5],[-26.5,38.6]] }, properties: { name: 'azores' } },
+    { type: 'Feature', geometry: { type: 'LineString', coordinates: [[84.0,49.8],[85.0,49.9],[86.5,50.0],[87.5,50.1]] }, properties: { name: 'altai' } },
+    { type: 'Feature', geometry: { type: 'LineString', coordinates: [[12.0,68.0],[12.8,68.1],[13.5,68.2],[14.2,68.3]] }, properties: { name: 'lofoten' } }
+  ]
+};
+
+map.on('load', () => {
+  map.addSource('routes', { type: 'geojson', data: routeGeoJSON });
+  map.addLayer({
+    id: 'route-lines',
+    type: 'line',
+    source: 'routes',
+    paint: {
+      'line-color': '#E85D04',
+      'line-width': 2,
+      'line-opacity': 0.7,
+      'line-dasharray': [2, 2]
+    }
+  });
+});
+
+// ===== Scroll-driven camera flights =====
+let currentRoute = 'pamir';
+let isFlying = false;
+
+function flyToRoute(routeKey) {
+  if (isFlying || routeKey === currentRoute || !ROUTES[routeKey]) return;
+  isFlying = true;
+  currentRoute = routeKey;
+  const r = ROUTES[routeKey];
+  map.flyTo({
+    center: r.center,
+    zoom: r.zoom,
+    pitch: r.pitch,
+    bearing: r.bearing,
+    duration: 2500,
+    essential: true
+  });
+  setTimeout(() => { isFlying = false; }, 2600);
+}
+
+// IntersectionObserver for route sections
+const routeObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const route = entry.target.dataset.route;
+      if (route) flyToRoute(route);
+    }
+  });
+}, { threshold: 0.4 });
+
+document.querySelectorAll('[data-route]').forEach(sec => {
+  routeObserver.observe(sec);
+});
+
+// ===== Reveal animations =====
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach((en, i) => {
+    if (en.isIntersecting) {
+      en.target.style.transitionDelay = (i % 4 * 70) + 'ms';
+      en.target.classList.add('in');
+      revealObserver.unobserve(en.target);
+    }
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.rv').forEach(el => revealObserver.observe(el));
+
+// ===== Count up =====
+const countObserver = new IntersectionObserver((entries) => {
+  entries.forEach(en => {
+    if (!en.isIntersecting) return;
+    const el = en.target, n = +el.dataset.n;
+    countObserver.unobserve(el);
+    const t0 = performance.now(), dur = 1300;
+    (function fr(now) {
+      const p = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(n * e);
+      if (p < 1) requestAnimationFrame(fr);
+    })(t0);
+  });
+}, { threshold: 0.5 });
+
+document.querySelectorAll('.cv').forEach(c => countObserver.observe(c));
+
+// ===== Header scroll =====
+window.addEventListener('scroll', () => {
+  document.getElementById('hd').classList.toggle('solid', scrollY > 40);
+}, { passive: true });
+
+// ===== Booking modal =====
+function openBook() {
+  alert('Заявка отправлена! Куратор свяжется с вами в течение дня.');
+}
+document.querySelectorAll('[data-book]').forEach(b => {
+  b.addEventListener('click', openBook);
+});
+
+// ===== Route detail expansion =====
+document.querySelectorAll('.route-card').forEach(card => {
+  card.addEventListener('click', () => {
+    card.classList.toggle('expanded');
+  });
+});
+
+// ===== Guide profiles section (injected after manifesto) =====
+const guideSection = document.createElement('section');
+guideSection.className = 'sec';
+guideSection.id = 'guides';
+guideSection.innerHTML = `
+  <div class="wrap">
+    <div class="label rv" style="margin-bottom:44px"><b>08</b> · Команда</div>
+    <div class="guides-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px">
+      ${[
+        {n:'Артём К.',r:'Памир, Алтай',e:'8 лет',img:'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80'},
+        {n:'Мария С.',r:'Шпицберген, Лофотены',e:'6 лет',img:'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80'},
+        {n:'Дмитрий В.',r:'Сахара, Азоры',e:'10 лет',img:'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80'},
+        {n:'Елена П.',r:'Алтай, Памир',e:'5 лет',img:'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80'}
+      ].map(g => `
+        <div class="guide-card rv" style="background:var(--paper-2);border:1px solid var(--line);border-radius:12px;padding:24px;text-align:center;cursor:pointer;transition:transform .3s,box-shadow .3s" onmouseenter="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 24px rgba(44,36,22,.1)'" onmouseleave="this.style.transform='';this.style.boxShadow=''">
+          <img src="${g.img}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;margin:0 auto 16px;border:2px solid var(--line)">
+          <div style="font-family:var(--serif);font-size:18px;font-weight:600">${g.n}</div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-top:4px;text-transform:uppercase;letter-spacing:.08em">${g.e} на маршрутах</div>
+          <div style="font-size:12px;color:var(--ink-3);margin-top:8px">${g.r}</div>
+        </div>
+      `).join('')}
+    </div>
+  </div>
+`;
+const manifesto = document.getElementById('club');
+if (manifesto) manifesto.after(guideSection);
+
+// Re-observe new .rv elements
+document.querySelectorAll('#guides .rv').forEach(el => revealObserver.observe(el));
+
+// ===== Testimonials carousel =====
+const testimonialSection = document.createElement('section');
+testimonialSection.className = 'sec';
+testimonialSection.style.background = 'var(--dark)';
+testimonialSection.style.color = 'var(--dark-ink)';
+testimonialSection.innerHTML = `
+  <div class="wrap">
+    <div class="label rv" style="margin-bottom:44px;color:var(--dark-ink-2)"><b>09</b> · Истории</div>
+    <div class="testimonials" style="display:grid;grid-template-columns:repeat(3,1fr);gap:32px">
+      ${[
+        {t:'Памир изменил моё представление о горах. Перевал Чимтарга в 4 утра — это неописуемо.',a:'Игорь К.',r:'Памир · авг 2025'},
+        {t:'Северное сияние над ледовым лагерем. Я плакал. Спасибо, ATLAS.',a:'Анна М.',r:'Шпицберген · мар 2025'},
+        {t:'Сёрф на Лофотенах в феврале — безумие, которое хочется повторить.',a:'Сергей Д.',r:'Лофотены · сен 2025'}
+      ].map(t => `
+        <div class="rv" style="border-left:2px solid var(--accent);padding-left:24px">
+          <div style="font-family:var(--serif);font-size:18px;font-style:italic;line-height:1.4;color:var(--dark-ink)">"${t.t}"</div>
+          <div style="margin-top:16px;font-family:var(--mono);font-size:11px;color:var(--dark-ink-2)">${t.a}</div>
+          <div style="font-family:var(--mono);font-size:9px;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-top:4px">${t.r}</div>
+        </div>
+      `).join('')}
+    </div>
+  </div>
+`;
+const cta = document.getElementById('cta');
+if (cta) cta.before(testimonialSection);
+document.querySelectorAll('.testimonials .rv').forEach(el => revealObserver.observe(el));
+
+// ===== Route filter chips =====
+const filterBar = document.createElement('div');
+filterBar.className = 'rv';
+filterBar.style.cssText = 'display:flex;gap:8px;margin-bottom:32px;flex-wrap:wrap';
+filterBar.innerHTML = ['Все','Трекинг','Сёрф','Фото','Яхтинг','Полярные'].map((f,i) =>
+  `<button class="filter-chip ${i===0?'active':''}" style="padding:8px 16px;border:1px solid var(--line);border-radius:20px;font-family:var(--mono);font-size:11px;cursor:pointer;transition:all .2s;background:${i===0?'var(--accent)':'var(--paper)'};color:${i===0?'#fff':'var(--ink)'}" onclick="this.parentElement.querySelectorAll('.filter-chip').forEach(c=>{c.style.background='var(--paper)';c.style.color='var(--ink)'});this.style.background='var(--accent)';this.style.color='#fff'">${f}</button>`
+).join('');
+const expeditions = document.getElementById('expeditions');
+if (expeditions) expeditions.querySelector('.wrap').prepend(filterBar);
+revealObserver.observe(filterBar);
+</script>
+function openBook() {
+  alert('Заявка отправлена! Куратор свяжется с вами в течение дня.');
+}
+document.querySelectorAll('[data-book]').forEach(b => {
+  b.addEventListener('click', openBook);
+});
+</script>
+</body>
+</html>

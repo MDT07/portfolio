@@ -88,7 +88,8 @@ portfolio/
 │   └── works/                    # Кейсы: development (Primary Terra),
 │                                 #   norde (NORDE), metric (METRIC CRM),
 │                                 #   atlas (travel-клуб), form (архстудия),
-│                                 #   volt (EV-зарядки), ai (AI WORKS — раздел AI-интеграций);
+│                                 #   volt (EV-зарядки), ai (AI WORKS — раздел AI-интеграций),
+│                                 #   pulse (телемедицина), aura (необанк);
 │                                 #   EN-версии — <slug>.en.mdx
 │
 ├── templates/                    # Исходники самодостаточных демо-шаблонов
@@ -98,7 +99,9 @@ portfolio/
 │   ├── atlas/                    # ATLAS — экспедиционный travel-клуб
 │   ├── form/                     # FORM — архитектурная студия
 │   ├── volt/                     # VOLT — сеть EV-зарядок
-│   └── ai/                       # AI WORKS — лендинг AI-интеграций (демо-чат, ядра)
+│   ├── ai/                       # AI WORKS — лендинг AI-интеграций (демо-чат, ядра)
+│   ├── pulse/                    # PULSE — телемедицина и диагностика
+│   └── aura/                     # AURA — необанк и платёжный кошелёк
 │
 ├── lib/
 │   ├── config.ts                 # siteConfig: бренд, контакты
