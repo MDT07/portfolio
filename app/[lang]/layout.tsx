@@ -51,11 +51,20 @@ export async function generateMetadata({
       title: siteConfig.name,
       description: dict.hero.subtitle,
       locale: lang === "ru" ? "ru_RU" : "en_US",
+      images: [
+        {
+          url: "/images/portfolio-og.png",
+          width: 1200,
+          height: 630,
+          alt: siteConfig.name,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title: siteConfig.name,
       description: dict.hero.subtitle,
+      images: ["/images/portfolio-og.png"],
     },
     alternates: {
       languages: { ru: "/", en: "/en" },
