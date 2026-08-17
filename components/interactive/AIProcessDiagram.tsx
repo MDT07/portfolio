@@ -16,57 +16,59 @@ export default function AIProcessDiagram({
   const active = scenarios.items[activeIndex];
 
   return (
-    <div className="mt-10 border-y border-surface-3 py-6 md:py-8">
-      <div
-        className="flex flex-wrap gap-2"
-        role="group"
-        aria-label={scenarios.label}
-      >
-        {scenarios.items.map((scenario, index) => (
-          <button
-            key={scenario.title}
-            type="button"
-            onClick={() => setActiveIndex(index)}
-            aria-pressed={index === activeIndex}
-            className="border border-surface-3 px-4 py-2.5 text-left text-sm text-text-secondary transition-[color,background-color,border-color] duration-150 hover:border-text-tertiary hover:text-text-primary aria-pressed:border-accent aria-pressed:bg-accent-subtle aria-pressed:text-text-primary"
-          >
-            {scenario.title}
-          </button>
-        ))}
+    <div className="ai-process-experience mt-10">
+      <div className="ai-scenario-rail" role="group" aria-label={scenarios.label}>
+        <p className="editorial-label">{scenarios.title}</p>
+        <div className="ai-scenario-list">
+          {scenarios.items.map((scenario, index) => (
+            <button
+              key={scenario.title}
+              type="button"
+              onClick={() => setActiveIndex(index)}
+              aria-pressed={index === activeIndex}
+            >
+              <span className="ai-scenario-indicator" aria-hidden />
+              <span>{scenario.title}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div className="mt-8 grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(15rem,0.45fr)] md:items-end">
-        <h3 className="font-display text-2xl leading-tight md:text-3xl">
-          {active.title}
-        </h3>
-        <p className="leading-relaxed text-text-secondary md:text-sm">
-          {active.description}
-        </p>
-      </div>
+      <div key={activeIndex} className="ai-process-panel">
+        <header>
+          <div>
+            <span className="editorial-label">{scenarios.label}</span>
+            <h3>{active.title}</h3>
+          </div>
+          <p>{active.description}</p>
+        </header>
 
-      <ol
-        key={activeIndex}
-        className="ai-process-flow mt-9"
-        aria-label={`${process.title}: ${active.title}`}
-      >
-        {active.steps.map((step, index) => (
-          <li key={step} className="ai-process-step">
-            <div className="ai-process-node">
-              <strong className="block text-sm font-medium leading-snug">
-                {step}
-              </strong>
-              <span className="mt-2 block text-xs leading-relaxed text-text-tertiary">
-                {process.steps[index]?.description}
-              </span>
-            </div>
-            {index < active.steps.length - 1 && (
-              <span className="ai-process-connector" aria-hidden>
-                <span className="ai-process-stroke" />
-              </span>
-            )}
-          </li>
-        ))}
-      </ol>
+        <ol className="ai-process-flow" aria-label={`${process.title}: ${active.title}`}>
+          {active.steps.map((step, index) => (
+            <li
+              key={step}
+              className="ai-process-step"
+              style={{ animationDelay: `${index * 70}ms` }}
+            >
+              <div className="ai-process-node">
+                <span>{process.steps[index]?.label}</span>
+                <strong>{step}</strong>
+                <small>{process.steps[index]?.description}</small>
+              </div>
+              {index < active.steps.length - 1 && (
+                <span className="ai-process-connector" aria-hidden>
+                  <span className="ai-process-stroke" />
+                </span>
+              )}
+            </li>
+          ))}
+        </ol>
+
+        <footer aria-live="polite">
+          <span>{process.steps.at(-1)?.label}</span>
+          <strong>{active.steps.at(-1)}</strong>
+        </footer>
+      </div>
     </div>
   );
 }

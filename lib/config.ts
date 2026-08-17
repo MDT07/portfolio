@@ -10,6 +10,7 @@ export const siteConfig = {
 
   telegramUrl: "https://t.me/EMIR_000",
   profiUrl: "https://profi.ru/profile/SemenovEZ",
+  crmpUrl: "https://mdt07.github.io/CRMP/",
 } as const;
 
 export type SiteConfig = typeof siteConfig;

@@ -90,10 +90,16 @@ export const en: Dictionary = {
     contacts: { label: "Contacts", telegram: "Message on Telegram", profi: "Profile on Profi.ru" },
   },
   aiWorks: {
-    label: "AI Works", title: "A light AI workshop",
-    intro: "I design calm, understandable AI tools for real work — from the first request to a validated action.",
+    label: "AI Works", title: "AI embedded in the workflow",
+    intro: "I design AI tools as controlled systems, with context, clear boundaries, result validation, and an action in the right service.",
+    explore: "Explore the system",
+    heroMeta: [
+      { label: "Context", value: "Data, rules, and intent" },
+      { label: "Control", value: "Validation before action" },
+      { label: "Integration", value: "APIs, webhooks, and services" },
+    ],
     solutions: {
-      label: "Solution types", title: "What we can build",
+      label: "Solution types", title: "From a task to a working system",
       items: [
         { title: "AI bots", description: "Conversational assistants for a team, customers, or an internal knowledge base." },
         { title: "Document work", description: "Search, review, and prepare materials with a required result check." },
@@ -113,6 +119,21 @@ export const en: Dictionary = {
         { title: "Navigating knowledge", description: "A team asks a question; the tool finds relevant material and shows it alongside the answer.", steps: ["Question", "Materials", "Summary", "Validation", "Source"] },
         { title: "Preparing a task", description: "A message becomes a structured task draft for a person to review before it is created.", steps: ["Message", "Fields", "Draft", "Review", "Task"] },
       ],
+    },
+    featured: {
+      label: "Competition project",
+      competition: "Anadolu University · AI category",
+      title: "CRMP — Pipeline Intelligence",
+      description: "A CRM platform with the AgentP AI assistant, bringing pipeline, communication, tasks, and validated AI actions into one workspace. The project participated in an Anadolu University competition in the AI category.",
+      link: "Open the project website",
+      ariaLabel: "Open the CRMP competition project in a new tab",
+      stack: ["React", "TypeScript", "FastAPI", "PostgreSQL", "RAG"],
+      preview: {
+        pipeline: "Working pipeline",
+        agent: "AgentP intelligence",
+        signal: "Next action validated",
+        columns: ["Context", "Priority", "Action"],
+      },
     },
     principles: { label: "Principles", items: ["Context over guesses", "Validate before acting", "A person stays in the loop", "The tool explains the next step"] },
     cta: { title: "Discuss an AI scenario", subtitle: "Describe the task and we can identify where AI will genuinely help.", telegram: "Message on Telegram", profi: "Open Profi.ru" },
