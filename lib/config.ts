@@ -5,8 +5,8 @@
 export const siteConfig = {
   /** Бренд портфолио */
   name: "CV Эмир Семенов [ПРОФИ.РУ]",
-  domain: "dev-developer.vercel.app",
-  url: "https://dev-developer.vercel.app",
+  domain: "emir-semenov-portfolio.vercel.app",
+  url: "https://emir-semenov-portfolio.vercel.app",
 
   telegramUrl: "https://t.me/EMIR_000",
   profiUrl: "https://profi.ru/profile/SemenovEZ",
