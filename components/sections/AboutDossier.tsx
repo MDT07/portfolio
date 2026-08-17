@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import portrait from "@/assets/emir-semenov.jpeg";
+import portrait from "@/assets/emir-semenov-bullet-portrait.png";
 import Container from "@/components/layout/Container";
 import { siteConfig } from "@/lib/config";
 import { withLocale, type Locale } from "@/lib/i18n";
@@ -14,8 +14,8 @@ interface AboutDossierProps {
 export default function AboutDossier({ dict, lang }: AboutDossierProps) {
   const portraitAlt =
     lang === "ru"
-      ? "Портрет Эмира Семенова"
-      : "Portrait of Emir Semenov";
+      ? "Точечный портрет Эмира Семенова, собранный из символов"
+      : "A bullet-symbol portrait of Emir Semenov";
 
   return (
     <article className="dossier-page pt-16">
@@ -55,14 +55,14 @@ export default function AboutDossier({ dict, lang }: AboutDossierProps) {
             </div>
 
             <figure className="relative md:col-span-4 md:col-start-9">
-              <div className="aspect-[4/5] overflow-hidden bg-surface-2">
+              <div className="aspect-[4/5] overflow-hidden bg-surface-0">
                 <Image
                   src={portrait}
                   alt={portraitAlt}
                   priority
                   sizes="(min-width: 768px) 33vw, 100vw"
                   placeholder="blur"
-                  className="h-full w-full object-cover object-[50%_42%] grayscale contrast-[1.08]"
+                  className="h-full w-full object-contain"
                 />
               </div>
               <figcaption className="mt-3 flex justify-between gap-4 font-mono text-[10px] uppercase tracking-[0.14em] text-text-tertiary">
