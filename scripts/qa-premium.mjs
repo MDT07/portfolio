@@ -150,8 +150,8 @@ async function main() {
     assert(ruHome.includes('lang="ru"'), "Russian root declares ru language");
     assert(enHome.includes('lang="en"'), "English root declares en language");
 
-    await checkHtml(baseUrl, "/works", ["Archive /", "<h1", "work-archive-grid"]);
-    await checkHtml(baseUrl, "/en/works", ["Archive /", "<h1", "work-archive-grid"]);
+    await checkHtml(baseUrl, "/works", ["Archive /", "<h1", "build-engine"]);
+    await checkHtml(baseUrl, "/en/works", ["Archive /", "<h1", "build-engine"]);
     await checkHtml(baseUrl, "/ai-works", ["ai-works-page", "AI Works", "CRMP"]);
     await checkHtml(baseUrl, "/en/ai-works", ["ai-works-page", "AI Works", "CRMP"]);
 

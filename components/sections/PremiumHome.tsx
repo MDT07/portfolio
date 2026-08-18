@@ -4,6 +4,7 @@ import portrait from "@/assets/emir-semenov-bullet-portrait.png";
 import Container from "@/components/layout/Container";
 import ExpertiseExplorer from "@/components/interactive/ExpertiseExplorer";
 import ProjectBrief from "@/components/interactive/ProjectBrief";
+import SystemObservatory from "@/components/interactive/SystemObservatory";
 import Reveal from "@/components/ui/Reveal";
 import { siteConfig } from "@/lib/config";
 import type { Dictionary } from "@/lib/dictionaries/ru";
@@ -51,21 +52,7 @@ export default function PremiumHome({ dict, lang }: PremiumHomeProps) {
               </div>
             </div>
 
-            <div className="production-map" aria-label={home.hero.signature}>
-              <p>{home.hero.signature}</p>
-              <div className="production-map__trace" aria-hidden>
-                <span className="production-map__line" />
-                <i className="production-map__node production-map__node--one" />
-                <i className="production-map__node production-map__node--two" />
-                <i className="production-map__node production-map__node--three" />
-              </div>
-              <ol>
-                <li><span>01</span> Brief</li>
-                <li><span>02</span> System</li>
-                <li><span>03</span> Production</li>
-              </ol>
-              <strong>WEB / AI</strong>
-            </div>
+            <SystemObservatory lang={lang} />
           </div>
 
           <dl className="hero-signals">
