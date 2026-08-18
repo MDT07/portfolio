@@ -1,313 +1,198 @@
 ---
-version: alpha
-name: Portfolio Real
-description: Strict engineering realism. Monochrome base, one signal accent, modular grid, zero decoration.
+version: 2.0
+name: Signal Blue
+description: A technical portfolio built from one cool blue-grey tonal system.
 ---
 
-# DESIGN.md — Portfolio
+# DESIGN.md — Signal Blue
 
-## 1. Visual Theme & Atmosphere
+## 1. Concept
 
-Строгий инженерный реализм. Интерфейс как чертёж: точный, функциональный, без декора. Плотность — средняя, щедрый whitespace между секциями, но компактный внутри компонентов. Настроение: уверенность через сдержанность. Ничего лишнего — каждый пиксель обоснован.
+The interface is a living product-delivery map: brief, architecture, interface,
+intelligence, validation and launch. Motion explains connections between these
+stages; it is never decoration by itself.
 
-Философия: **precision over decoration**. Дизайн не замечают — замечают результат.
+The visual system is intentionally narrow:
 
-## 2. Color Palette & Roles
+- one cool blue-grey color family;
+- Inter for all reading and display typography;
+- JetBrains Mono for coordinates, labels and technical metadata;
+- thin lines, square geometry and modular grids;
+- small WebGL or 3D details only inside explanatory interfaces;
+- natural document flow without pinned full-page storytelling.
 
-### Base (monochrome)
+## 2. Color system
 
-| Token | Hex | Role |
-|-------|-----|------|
-| `surface-0` | `#0A0A0A` | Page background (dark-first) |
-| `surface-1` | `#111111` | Card, elevated surface |
-| `surface-2` | `#1A1A1A` | Hover state, input background |
-| `surface-3` | `#242424` | Border, divider |
-| `text-primary` | `#EDEDED` | Headings, body |
-| `text-secondary` | `#A1A1A1` | Captions, metadata, secondary text |
-| `text-tertiary` | `#666666` | Placeholders, disabled |
-
-### Accent (signal)
-
-| Token | Hex | Role |
-|-------|-----|------|
-| `accent` | `#0070F3` | Primary CTA, links, active states, focus rings |
-| `accent-hover` | `#0060DF` | Hover on accent elements |
-| `accent-subtle` | `#0C2D4D` | Accent backgrounds (badges, highlights) |
-
-### Semantic
-
-| Token | Hex | Role |
-|-------|-----|------|
-| `success` | `#17C964` | Success states |
-| `error` | `#F31260` | Errors, destructive actions |
-| `warning` | `#F5A524` | Warnings |
-
-### Light mode (secondary)
-
-| Token | Hex | Role |
-|-------|-----|------|
-| `surface-0` | `#FFFFFF` | Page background |
-| `surface-1` | `#FAFAFA` | Card |
-| `surface-2` | `#F5F5F5` | Hover |
-| `surface-3` | `#E5E5E5` | Border |
-| `text-primary` | `#171717` | Headings, body |
-| `text-secondary` | `#737373` | Captions |
-| `text-tertiary` | `#A3A3A3` | Placeholders |
-
-Dark mode — основной (дефолт). Light — переопределение семантического слоя под `[data-theme="light"]` в `globals.css`; компоненты не меняются. Выбор пользователя — в localStorage (`theme`), иначе `prefers-color-scheme`.
-
-## 3. Typography Rules
-
-### Font families
-
-| Role | Family | Fallback | Weight |
-|------|--------|----------|--------|
-| Sans (UI, body) | Inter | system-ui, sans-serif | 400, 500, 600, 700 |
-| Mono (code, labels, metadata) | JetBrains Mono | monospace | 400, 500 |
-
-### Hierarchy
-
-| Level | Size | Weight | Line-height | Letter-spacing | Family |
-|-------|------|--------|-------------|----------------|--------|
-| Display | 72px / 4.5rem | 700 | 1.0 | -0.03em | Sans |
-| H1 | 48px / 3rem | 700 | 1.1 | -0.02em | Sans |
-| H2 | 36px / 2.25rem | 600 | 1.2 | -0.02em | Sans |
-| H3 | 24px / 1.5rem | 600 | 1.3 | -0.01em | Sans |
-| H4 | 18px / 1.125rem | 600 | 1.4 | 0 | Sans |
-| Body | 16px / 1rem | 400 | 1.6 | 0 | Sans |
-| Small | 14px / 0.875rem | 400 | 1.5 | 0 | Sans |
-| Caption | 12px / 0.75rem | 500 | 1.4 | 0.02em | Mono |
-| Label | 11px / 0.6875rem | 500 | 1.3 | 0.06em | Mono |
-
-Uppercase только для `Label` и `Caption` в mono. Body и заголовки — sentence case.
-
-## 4. Component Stylings
-
-### Button
-
-| Variant | Background | Text | Border | Radius |
-|---------|-----------|------|--------|--------|
-| Primary | `accent` | `#FFFFFF` | none | 6px |
-| Secondary | `surface-2` | `text-primary` | `surface-3` | 6px |
-| Ghost | transparent | `text-secondary` | none | 6px |
-
-- Height: 40px (default), 32px (small), 48px (large)
-- Padding: 0 16px (default)
-- Font: 14px, weight 500
-- Transition: `background 150ms ease`
-- Focus: `2px solid accent` outline, offset 2px
-
-### Card
-
-- Background: `surface-1`
-- Border: `1px solid surface-3`
-- Radius: 8px
-- Padding: 24px
-- Hover: `border-color: text-tertiary`, `transform: translateY(-2px)`
-- Transition: `border-color 200ms, transform 200ms`
-
-### Input
-
-- Background: `surface-2`
-- Border: `1px solid surface-3`
-- Radius: 6px
-- Height: 40px
-- Padding: 0 12px
-- Font: 14px
-- Focus: `border-color: accent`
-- Placeholder: `text-tertiary`
-
-### Navigation (Header)
-
-- Height: 64px
-- Background: `surface-0` at 80% opacity + `backdrop-blur(12px)`
-- Border-bottom: `1px solid surface-3`
-- Links: 14px, weight 400, `text-secondary`; hover → `text-primary`
-- Active link: `text-primary` + `2px accent` underline
-
-### Tag / Badge
-
-- Background: `surface-2`
-- Border: `1px solid surface-3`
-- Radius: 4px
-- Padding: 2px 8px
-- Font: 12px mono, weight 500
-- Accent variant: `background: accent-subtle`, `border-color: accent`, `color: accent`
-
-### ThemeToggle / LangSwitcher
-
-- 32×32px (иконка) или mono-кнопка `RU / EN`, radius 6px, border `surface-3`
-- Idle: `text-secondary`; hover → `text-primary`, `border-color: text-tertiary`
-- Тема хранится в `data-theme` на `<html>` + localStorage; anti-FOUC inline-скрипт в `<head>`
-
-### Reveal (scroll-анимация)
-
-- `opacity 0 → 1`, `translateY(24px) → 0`, 400ms, ease `cubic-bezier(0.22, 1, 0.36, 1)`
-- `whileInView`, once, viewport margin `-80px`
-- Вариант `tiltIn` для карточек: + `rotateX(4deg) → 0`
-
-### Counter
-
-- Число: mono, tabular-nums; досчёт до значения 1.2s ease-out при появлении в кадре
-- Единица измерения (`M`, `%`) — `text-accent`, размер ~60% от числа
-
-### BeforeAfter
-
-- Контейнер `aspect-16/9`, radius 8px, border `surface-3`
-- Разделитель: 1px `text-primary/70` + ручка 36px круг `surface-0/90` + border
-- Drag — pointer events, keyboard: стрелки ±4%; `cursor: ew-resize`
-
-### ProcessSteps
-
-- Вертикальный рельс 1px `surface-3`, прогресс — 1px `accent`, scaleY по скроллу (useScroll)
-- Точки шагов: 8px круг, border `accent`, fill `surface-0`
-- Номер шага: mono 11px uppercase `text-tertiary`
-
-### DemoViewer
-
-- Fullscreen overlay `z-100`, background `surface-0`; появление — fade 200ms + scale 0.99→1
-- Тулбар 56px: mono-путь к демо, переключатель desktop/mobile, ссылка «в новой вкладке», закрытие (Esc)
-- Mobile-режим: iframe 390px, radius 8px, border
-
-### Gallery
-
-- Scroll-snap ряд кадров `aspect-16/9`, скрытый скроллбар
-- Счётчик `01 / 05` mono 12px `text-tertiary`; стрелки 32×32px border-кнопки
-
-## 5. Layout Principles
-
-### Spacing scale (4px base)
+### Light surfaces
 
 | Token | Value | Use |
-|-------|-------|-----|
-| `space-1` | 4px | Inline gaps |
-| `space-2` | 8px | Compact padding |
-| `space-3` | 12px | Input padding |
-| `space-4` | 16px | Default gap |
-| `space-6` | 24px | Card padding |
-| `space-8` | 32px | Section inner gap |
-| `space-12` | 48px | Between component groups |
-| `space-16` | 64px | Between sections |
-| `space-24` | 96px | Major section breaks |
-| `space-32` | 128px | Page-level rhythm |
+| --- | --- | --- |
+| `surface-0` | `#EAF0F2` | Primary page surface |
+| `surface-1` | `#E1E9EB` | Raised modules |
+| `surface-2` | `#D4E0E3` | Hover and secondary panels |
+| `surface-3` | `#A9BAC0` | Dividers and borders |
+| `text-primary` | `#0A1B21` | Headings and body |
+| `text-secondary` | `#40565E` | Supporting copy |
+| `text-tertiary` | `#64777E` | Large metadata only |
 
-### Grid
+### Dark surfaces
 
-- Max content width: **1200px**
-- Columns: 12, gap: 24px
-- Side padding: 24px (mobile), 48px (desktop)
-- Секции выравниваются по модульной сетке; асимметрия — исключение, не правило
+| Token | Value | Use |
+| --- | --- | --- |
+| `night` | `#07171D` | Technical scenes |
+| `night-raised` | `#0C222A` | Technical modules |
+| `night-line` | `#294650` | Borders on dark surfaces |
+| `night-ink` | `#EDF6F8` | Primary text on dark surfaces |
+| `night-soft` | `#AAC0C7` | Supporting text on dark surfaces |
 
-### Whitespace philosophy
+### Signal
 
-Пустое пространство — функциональный элемент. Оно разделяет смысловые блоки и создаёт ритм. Между секциями — минимум 96px. Внутри компонентов — компактно. Никогда не заполнять пустоту декором.
+| Token | Value | Use |
+| --- | --- | --- |
+| `accent` | `#176F91` | Links and active states on light surfaces |
+| `signal` | `#55B5DA` | Routes and active states on dark surfaces |
 
-## 6. Depth & Elevation
+No warm beige, pure-white page panels, purple AI gradients, neon rainbow,
+glass cards or isolated colors are permitted. Project imagery may keep its own
+colors because it is evidence, not interface chrome.
 
-| Level | Shadow | Use |
-|-------|--------|-----|
-| 0 | none | Default |
-| 1 | `0 1px 2px rgba(0,0,0,0.4)` | Cards at rest |
-| 2 | `0 4px 12px rgba(0,0,0,0.5)` | Dropdowns, popovers |
-| 3 | `0 8px 24px rgba(0,0,0,0.6)` | Modals |
+### Contrast contract
 
-Без цветных теней. Без glow-эффектов. Глубина — только через тень и border.
+- Light primary pair: `#0A1B21` on `#EAF0F2` — 15.31:1.
+- Light secondary pair: `#40565E` on `#EAF0F2` — 6.73:1.
+- Dark primary pair: `#EDF6F8` on `#07171D` — 16.65:1.
+- Dark secondary pair: `#AAC0C7` on `#07171D` — 9.63:1.
+- Signal button pair: `#07171D` on `#55B5DA` — 7.84:1.
 
-## 7. Do's and Don'ts
+`text-tertiary` is reserved for compact metadata, not essential body copy.
+Each dark section must explicitly set both its background and foreground.
 
-### Do
-- Один акцентный цвет на экране
-- Mono-шрифт для меток, дат, тегов, кода
-- Тонкие borders (1px) вместо теней для разделения
-- Анимации UI 150–300ms, `ease` или `ease-out`; кинематографика demo-шаблонов — по §10
-- Skeleton-загрузка вместо спиннеров
+## 3. Typography
 
-### Don't
-- Градиенты (кроме subtle overlay на фото)
-- Скругления больше 8px
-- Тени с цветным оттенком
-- Больше 3 уровней типографической иерархии на одном экране
-- Декоративные иконки без функции
-- Uppercase для body-текста
-- Анимации дольше 400ms вне кинематографического слоя (§10)
+| Role | Family | Weight | Rules |
+| --- | --- | --- | --- |
+| Display | Inter | 580–650 | Tight tracking, balanced wrap, max 96px |
+| Heading | Inter | 580–650 | Sentence case, compact line-height |
+| Body | Inter | 400–500 | 15–18px, line-height 1.55–1.75 |
+| Technical label | JetBrains Mono | 500–600 | 9–11px, uppercase, tracked |
 
-## 8. Responsive Behavior
+There is no serif display layer. One component may have at most three visible
+text levels: heading, body and technical metadata.
 
-| Breakpoint | Width | Layout |
-|-----------|-------|--------|
-| Mobile | < 640px | Single column, stacked, 24px side padding |
-| Tablet | 640–1024px | 2-column where appropriate, 32px side padding |
-| Desktop | > 1024px | 12-column grid, 1200px max-width, 48px side padding |
+Display size guidelines:
 
-- Touch targets: минимум 44×44px на mobile
-- Display/H1: уменьшаются на ~40% на mobile
-- Навигация: hamburger на mobile, horizontal на desktop
-- Карточки: full-width на mobile, grid на desktop
+- hero desktop: `clamp(50px, 6.5vw, 93px)`;
+- section title desktop: `clamp(40px, 5vw, 77px)`;
+- hero mobile: `clamp(48px, 15vw, 75px)`;
+- section title mobile: `clamp(39px, 12vw, 61px)`.
 
-## 9. Agent Prompt Guide
+## 4. Layout
 
-### Quick color reference
+- Maximum content width: 1320px; 1504px on screens wider than 1600px.
+- Desktop: 12 columns with 24px conceptual gutters.
+- Page gutters: 20px mobile, 32px tablet, 48px desktop.
+- Section spacing: `clamp(88px, 10vw, 152px)`.
+- Mobile is composed as a deliberate single-column layout.
+- Every section owns real height in document flow.
+- Sticky and fixed positioning is limited to global navigation and chapter index.
+- Cards do not overlap adjacent sections or rely on spacer elements.
 
-```
-Background: #0A0A0A (dark) / #FFFFFF (light)
-Card:       #111111 / #FAFAFA
-Border:     #242424 / #E5E5E5
-Text:       #EDEDED / #171717
-Secondary:  #A1A1A1 / #737373
-Accent:     #0070F3
-```
+## 5. Surface rhythm
 
-### Ready-to-use prompt
+The narrative alternates between two temperatures of the same color family:
 
-> Build a page using strict engineering realism. Dark background #0A0A0A, cards on #111111 with 1px #242424 borders, text #EDEDED. Single accent #0070F3 for CTAs and links only. Inter for UI, JetBrains Mono for labels and metadata. 6px border-radius on interactive elements, 8px on cards. No gradients, no decorative shadows, no rounded corners beyond 8px. Generous whitespace between sections (96px+), compact within components. Every element must justify its existence.
+1. Signal — dark technical field.
+2. Identity — light blue-grey dossier.
+3. Systems — dark technical field.
+4. Work — light blue-grey archive.
+5. Intelligence — dark technical field.
+6. Protocol — light blue-grey document.
+7. Contact — dark technical field.
 
-## 10. Cinematic Layer (только demo-шаблоны)
+The alternation is semantic and contrast-safe. It must not introduce unrelated
+palette values.
 
-Применяется исключительно к self-contained демо в `templates/<slug>/`. Основной сайт (`app/`, `components/`) остаётся на правилах §4 и §7. Цель слоя — award-уровень подачи без нарушения базовых принципов: монохром, один акцент, ноль декора.
+## 6. Interaction language
 
-### Motion
+- Hover movement: 2–4px maximum.
+- UI transitions: 150–350ms.
+- Section reveals: opacity + short vertical translation.
+- Signal routes may animate dash offset continuously only while visible.
+- Gallery navigation uses native horizontal scrolling and scroll snap.
+- Touch targets are at least 44px.
+- Pointer hover always has an equivalent keyboard focus state.
+- `prefers-reduced-motion` removes route loops and animated scrolling.
 
-- UI-микроинтеракции (hover, focus, tabs): по-прежнему 150–300ms.
-- Кинематографика: 800–1100ms, ease `cubic-bezier(0.65, 0, 0.35, 1)`. Анимируются только `transform`, `opacity`, `clip-path`.
-- Техники: clip-path reveal медиа (`inset(100% 0 0 0) → inset(0)` + inner `scale 1.12 → 1`), line/word-mask reveal заголовков (overflow-hidden строки, stagger 60–90ms), curtain-wipe между главами, scroll-scrubbed параллакс через rAF (только transform), velocity-marquee.
-- Скролл не джекится: нормальный document flow, без scroll-hijacking и fake-scroll.
-- `prefers-reduced-motion: reduce` отключает весь слой без исключений: контент виден сразу, rAF-циклы не запускаются.
+Large decorative 3D objects, cursor takeovers, scroll-jacking, pinned sequences,
+infinite parallax and transform accumulation are prohibited.
 
-### Chapter inversion (светлая глава)
+## 7. Component rules
 
-- Одна, максимум две светлые главы на страницу. Токены: фон `paper` `#EDEDED`, текст `ink` `#0A0A0A`, вторичный текст `rgba(10,10,10,0.62)`, borders `rgba(10,10,10,0.14)`.
-- Акцент `#0070F3` — только крупные метки и индексы; текстовые акценты на paper — `accent-hover` `#0060DF` (контраст).
-- Инверсия — ритмический бит между тёмными главами, не тема оформления.
+### Navigation
 
-### Редакционные детали
+- 72px fixed header.
+- Homepage header stays on the dark technical surface for reliable contrast.
+- Other routes use theme tokens.
+- Mobile menu is an opaque surface, never transparent above content.
 
-- Архивная нумерация сущностей: «Проект n0.047» — mono 11px, `text-tertiary`.
-- Figure captions у медиа: «Fig. 02 — TERRA NORD, Москва» — mono 11px.
-- Маркеры глав: «001 / Название» — mono uppercase + hairline 1px.
-- Постерный футер: wordmark во всю ширину, частично уходит за нижний край (clipped).
-- Зернистость: SVG-noise overlay, opacity ≤ 0.05, fixed, `pointer-events: none` — кинематографическая текстура, не декор.
-- Live-data штрихи: часы/координаты в mono, обновление не чаще 1 раза в секунду.
-- Display-типографика шаблонов: fluid `clamp()` до 10–14vw, uppercase допустим только в hero-headline и постерном футере.
+### Buttons and links
 
-## 11. Editorial Layer (главная dev.developer)
+- Geometry is square or uses a 2px radius maximum.
+- Primary dark-scene CTA: signal background with night text.
+- Secondary CTA: one-pixel current-color border.
+- Focus: 2px accent outline with 4px offset.
 
-Применяется к главной странице портфолио (`app/[lang]/page.tsx`, секции `Poster*`/`AboutChapter`/`WorksIndex`) и постерному футеру на всех страницах. Остальные страницы (`/works`, `/works/[slug]`) остаются на правилах §4 и §7. Цель — editorial-постер уровня Awwwards внутри строгого реализма: палитра §2 и токены глубины §6 не меняются.
+### Cards
 
-### Типографика
+- One-pixel border is the primary separation mechanism.
+- No soft generic shadows; a restrained deep shadow is allowed only on the hero
+  interactive module.
+- Hover may shift the card upward by no more than 6px.
 
-- Display-serif: **Prata** (Google Fonts, regular 400, кириллица). CSS-var `--font-prata`, утилита `font-display`; fallback Georgia, serif.
-- Prata — только для: hero-headline, заголовков глав, постерного футера. Body, UI, карточки — Inter; метаданные, индексы, маркеры — JetBrains Mono. Больше одной serif-роли на экране не бывает.
-- Размеры — fluid `clamp()`: hero до `clamp(3rem, 9vw, 8rem)`, заголовки глав до `clamp(2.25rem, 5vw, 4.5rem)`. Line-height 0.95–1.05, tracking 0 — Prata не требует сжатия.
-- Uppercase: только hero-headline и постерный футер (как §10). Заголовки глав — sentence case.
+### Forms
 
-### Motion
+- Transparent inputs with visible bottom borders in dark modules.
+- Labels always remain visible; placeholders do not replace labels.
+- Focus, disabled and status states are required.
 
-- Полностью по §10 Motion: 800–1100ms, `cubic-bezier(0.65, 0, 0.35, 1)`, только `transform`/`opacity`/`clip-path`.
-- Допущены на главной: preloader 0→100 (один раз за сессию, sessionStorage), line-mask reveal заголовков, clip-reveal медиа, hover-превью в индексе работ, velocity-marquee, лёгкий scroll-параллакс.
-- Скролл не джекится. `prefers-reduced-motion: reduce` отключает preloader и весь слой: контент виден сразу.
+### Project evidence
 
-### Редакционные детали
+- Screenshots keep their original aspect and identity.
+- Every concept is labelled as a concept or prototype.
+- No invented client, metric, testimonial or result.
 
-- По §10: маркеры глав «001 / Название», архивная нумерация работ, figure captions, постерный футер с clipped wordmark, noise overlay ≤ 0.05.
-- Главы нумеруются последовательно: 001 Подход → 002 Кейсы.
-- Светлая инверсия (§10) допустима, но не обязательна; v1 главной — полностью тёмная.
+## 8. Responsive rules
+
+| Range | Composition |
+| --- | --- |
+| 320–430px | Single column, stacked scenes, compact technical diagrams |
+| 431–767px | Single column with wider media and form fields |
+| 768–1023px | Two-column systems where reading order remains clear |
+| 1024–1599px | Full 12-column composition |
+| 1600px+ | Wider container; type is capped rather than scaled endlessly |
+
+No component may create horizontal page overflow. Horizontal movement is allowed
+only inside labelled galleries, tab rows and project indexes.
+
+## 9. Accessibility and performance
+
+- WCAG 2.2 AA contrast for all meaningful text and controls.
+- Semantic headings and landmarks.
+- Visible focus for every interactive element.
+- Native controls before custom ARIA.
+- Responsive `next/image` assets with reserved dimensions.
+- WebGL is a small optional micro-layer with a CSS fallback.
+- Canvas rendering pauses outside the viewport and when the document is hidden.
+- No new animation dependency without a measurable need.
+
+## 10. Definition of visual done
+
+A change is ready only when:
+
+- light and dark text pairs are explicit and pass contrast checks;
+- typography follows the Inter/JetBrains Mono hierarchy;
+- desktop, tablet and 320–430px layouts keep intentional composition;
+- no legacy `premium-*`, poster or Prata layer remains;
+- reduced motion works;
+- build, lint, typecheck and production route QA pass;
+- real-browser visual review is completed when a browser session is available.

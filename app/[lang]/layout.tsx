@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono, Prata } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import Script from "next/script";
 import { notFound } from "next/navigation";
@@ -17,12 +17,6 @@ const inter = Inter({
 
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-mono",
-  subsets: ["latin", "cyrillic"],
-});
-
-const prata = Prata({
-  weight: "400",
-  variable: "--font-prata",
   subsets: ["latin", "cyrillic"],
 });
 
@@ -89,7 +83,7 @@ export default async function RootLayout({
       data-theme="light"
       data-scroll-behavior="smooth"
       suppressHydrationWarning
-      className={`${inter.variable} ${jetbrainsMono.variable} ${prata.variable} h-full antialiased`}
+      className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <head>
         <Script id="theme-init" src="/theme-init.js" strategy="beforeInteractive" />
