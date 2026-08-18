@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import PremiumHome from "@/components/sections/PremiumHome";
+import DigitalExperience from "@/components/sections/DigitalExperience";
 import { siteConfig } from "@/lib/config";
 import { getDictionary, isLocale, withLocale } from "@/lib/i18n";
 
@@ -109,7 +109,7 @@ export default async function Home({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-      <PremiumHome lang={lang} dict={dict} />
+      <DigitalExperience lang={lang} dict={dict} />
     </>
   );
 }

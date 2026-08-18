@@ -1,0 +1,188 @@
+{
+  "atlas": {
+    "featured": false,
+    "year": "2026",
+    "role": "Design & Development",
+    "tags": ["HTML", "CSS", "JavaScript", "Travel", "Editorial"],
+    "stack": ["HTML5", "CSS3", "Vanilla JS"],
+    "cover": "/images/works/atlas-cover.png",
+    "demo": "/templates/atlas/index.html",
+    "ru": {
+      "title": "ATLAS — клуб экспедиций",
+      "description": "Кинематографичный сайт экспедиционного клуба с маршрутами, фильтрами, модальными программами, журналом и рабочей формой.",
+      "status": "Концепт · рабочий прототип",
+      "sections": [
+        { "title": "Проблема", "paragraphs": ["Travel-бренду нужно погружать в атмосферу экспедиции ещё до заявки. Стандартный каталог не передаёт масштаб маршрута и превращает выбор в просмотр одинаковых карточек."] },
+        { "title": "Концепция", "paragraphs": ["ATLAS работает как цифровой журнал: тёмная editorial-система, кинематографичный Ken Burns hero и последовательное раскрытие маршрутов без перезагрузки страницы."] },
+        { "title": "Система", "paragraphs": ["Самодостаточный HTML-прототип на semantic markup, CSS custom properties и vanilla JavaScript."], "bullets": ["Фильтры экспедиций по регионам", "Модальные программы по дням", "Горизонтальный журнал", "Карточки гидов", "FAQ и валидируемая форма"] },
+        { "title": "Проверка", "paragraphs": ["Рабочие пользовательские сценарии, модальные окна, фильтры, форма, адаптивность и отсутствие горизонтального overflow проверяются проектным QA."] }
+      ]
+    },
+    "en": {
+      "title": "ATLAS — Expedition Club",
+      "description": "A cinematic expedition-club website with routes, filters, modal itineraries, a journal, and a working enquiry form.",
+      "status": "Concept · working prototype",
+      "sections": [
+        { "title": "Problem", "paragraphs": ["A travel brand has to create a sense of expedition before an enquiry is sent. A standard catalog cannot communicate scale and turns discovery into a wall of similar cards."] },
+        { "title": "Concept", "paragraphs": ["ATLAS behaves like a digital magazine: a dark editorial system, a cinematic Ken Burns hero, and route discovery without a page reload."] },
+        { "title": "System", "paragraphs": ["A self-contained HTML prototype built with semantic markup, CSS custom properties, and vanilla JavaScript."], "bullets": ["Region-based expedition filters", "Day-by-day modal itineraries", "Horizontal journal", "Guide profiles", "FAQ and validated form"] },
+        { "title": "Validation", "paragraphs": ["Project QA covers working flows, modals, filters, form behavior, responsive layout, and horizontal overflow."] }
+      ]
+    }
+  },
+  "aura": {
+    "featured": false,
+    "year": "2026",
+    "role": "Design & Development",
+    "tags": ["HTML", "CSS", "JavaScript", "Fintech", "Canvas"],
+    "stack": ["HTML5", "CSS3", "Vanilla JS", "GSAP", "Lenis", "Canvas 2D"],
+    "cover": "/images/works/aura-cover.png",
+    "demo": "/templates/aura/index.html",
+    "ru": {
+      "title": "AURA — Необанк и платёжный кошелёк",
+      "description": "Интерактивный финтех-концепт: карты, конвертация валют и аналитика трат в одном инженерном интерфейсе.",
+      "status": "Концепт · рабочий прототип",
+      "sections": [
+        { "title": "Проблема", "paragraphs": ["Финтех-лендинги часто прячут продукт за мокапами и пустыми слоганами. Требовалось передать доверие и скорость через поведение интерфейса."] },
+        { "title": "Концепция", "paragraphs": ["AURA трактует необанк как точный торговый инструмент: тёмная база, строгая типографика и живые Canvas-данные вместо декоративного шума."] },
+        { "title": "Система", "paragraphs": ["Самодостаточный HTML с GSAP, Lenis, Canvas 2D и vanilla JavaScript."], "bullets": ["Кинетический баланс и spending rings", "Студия банковской карты", "Конвертер валют", "Security-слои", "Waitlist-форма"] },
+        { "title": "Проверка", "paragraphs": ["QA проверяет загрузку, Canvas, настройки карты, конвертер, форму и отсутствие горизонтального overflow."] }
+      ]
+    },
+    "en": {
+      "title": "AURA — Neobank & Payment Wallet",
+      "description": "An interactive fintech concept bringing cards, currency conversion, and spending analytics into one engineered interface.",
+      "status": "Concept · working prototype",
+      "sections": [
+        { "title": "Problem", "paragraphs": ["Fintech landing pages often hide the product behind mockups and generic slogans. The challenge was to express trust and speed through interface behavior."] },
+        { "title": "Concept", "paragraphs": ["AURA treats a neobank as a precise trading instrument: a dark base, engineered typography, and live Canvas data rather than decorative noise."] },
+        { "title": "System", "paragraphs": ["A self-contained HTML build using GSAP, Lenis, Canvas 2D, and vanilla JavaScript."], "bullets": ["Kinetic balance and spending rings", "Bank-card studio", "Currency converter", "Security layers", "Waitlist form"] },
+        { "title": "Validation", "paragraphs": ["QA covers boot behavior, Canvas rendering, card controls, conversion, the form, and horizontal overflow."] }
+      ]
+    }
+  },
+  "development": {
+    "featured": true,
+    "year": "2026",
+    "role": "Design & Development",
+    "tags": ["HTML", "CSS", "JavaScript", "MapLibre", "Responsive"],
+    "stack": ["HTML5", "CSS3", "Vanilla JS", "MapLibre GL"],
+    "cover": "/images/works/development-cover.png",
+    "demo": "/templates/development/index.html",
+    "ru": {
+      "title": "Primary Terra",
+      "description": "Сайт девелопера полного цикла с editorial-айдентикой, интерактивной картой проектов и рабочими продуктовыми сценариями.",
+      "status": "Концепт · рабочий прототип",
+      "sections": [
+        { "title": "Проблема", "paragraphs": ["Типовой сайт девелопера пересказывает раздел «о компании», но не помогает понять активы, географию и подход к проекту."] },
+        { "title": "Концепция", "paragraphs": ["Primary Terra построен как архив из семи глав: bone-база, терракотовый акцент, editorial serif и кинематографичные reveal-переходы."], "bullets": ["Все названия объектов и показатели являются сценарными данными авторского концепта, а не результатами реальной компании."] },
+        { "title": "Система", "paragraphs": ["Один HTML-файл связывает фильтруемый индекс, MapLibre-карту, модальные карточки и валидируемую форму."], "bullets": ["Fallback при недоступном WebGL", "Проектные фильтры и dialog", "Карта с fly-to", "Responsive chapters", "Reduced motion"] },
+        { "title": "Результат", "paragraphs": ["Прототип подтверждает навигацию по объектам, фильтрацию, исследование карты и контактный сценарий. Визуальные токены готовы к адаптации под реальный бренд."] }
+      ]
+    },
+    "en": {
+      "title": "Primary Terra",
+      "description": "A full-cycle developer website with an editorial identity, interactive project map, and working product flows.",
+      "status": "Concept · working prototype",
+      "sections": [
+        { "title": "Problem", "paragraphs": ["A generic property website repeats an about page but does not help visitors understand assets, geography, or the development approach."] },
+        { "title": "Concept", "paragraphs": ["Primary Terra is structured as a seven-chapter archive: a bone surface, terracotta signal color, editorial serif, and cinematic reveals."], "bullets": ["All property names and figures are scenario data for a self-initiated concept, not results from a real company."] },
+        { "title": "System", "paragraphs": ["One HTML file connects a filterable index, MapLibre map, modal project views, and a validated form."], "bullets": ["Fallback when WebGL is unavailable", "Project filters and dialog", "Map fly-to", "Responsive chapters", "Reduced motion"] },
+        { "title": "Outcome", "paragraphs": ["The prototype validates project navigation, filtering, map exploration, and contact flow. Its visual tokens can be adapted to a verified real brand."] }
+      ]
+    }
+  },
+  "form": {
+    "featured": false,
+    "year": "2026",
+    "role": "Design & Development",
+    "tags": ["HTML", "CSS", "JavaScript", "Architecture", "Editorial"],
+    "stack": ["HTML5", "CSS3", "Vanilla JS", "GSAP", "Lenis"],
+    "cover": "/images/works/form-cover.png",
+    "demo": "/templates/form/index.html",
+    "ru": {
+      "title": "FORM — Sectional Monument",
+      "description": "Архитектурное бюро как последовательность сечений: clip-path, размерные аннотации и интерактивная материальная система.",
+      "status": "Концепт · рабочий прототип",
+      "sections": [
+        { "title": "Проблема", "paragraphs": ["Архитектурные сайты часто становятся либо безликой каруселью, либо сухой таблицей. Концепту требовалось одновременно передать масштаб, аналитичность и материальность."] },
+        { "title": "Концепция", "paragraphs": ["Sectional Monument читает здание через срез массы. Горизонтальные полосы, фасад и внутреннее устройство формируют собственную навигационную логику."] },
+        { "title": "Система", "paragraphs": ["GSAP, ScrollTrigger и Lenis управляют reveal-сценами; SVG и vanilla JavaScript отвечают за размерные линии, cursor-knife и материалы."], "bullets": ["Scroll-driven hero", "Асимметричные project bands", "Материальная палитра", "Валидируемая форма"] },
+        { "title": "Проверка", "paragraphs": ["QA покрывает загрузку, clip-path, SVG-аннотации, материальную полосу, форму и overflow."] }
+      ]
+    },
+    "en": {
+      "title": "FORM — Sectional Monument",
+      "description": "An architecture studio expressed as building sections, with clip-path, dimension annotations, and an interactive material system.",
+      "status": "Concept · working prototype",
+      "sections": [
+        { "title": "Problem", "paragraphs": ["Architecture sites often become either faceless carousels or dry project tables. The concept needed to express scale, analysis, and materiality at once."] },
+        { "title": "Concept", "paragraphs": ["Sectional Monument reads a building through its cut. Horizontal bands, facade, and internal structure create a distinct navigation logic."] },
+        { "title": "System", "paragraphs": ["GSAP, ScrollTrigger, and Lenis direct reveals; SVG and vanilla JavaScript power dimension lines, the cursor knife, and material interactions."], "bullets": ["Scroll-driven hero", "Asymmetric project bands", "Material palette", "Validated form"] },
+        { "title": "Validation", "paragraphs": ["QA covers boot, clip-path, SVG annotations, the material strip, form behavior, and overflow."] }
+      ]
+    }
+  },
+  "metric": {
+    "featured": true,
+    "year": "2026",
+    "role": "Design & Development",
+    "tags": ["HTML", "CSS", "JavaScript", "CRM", "SaaS"],
+    "stack": ["HTML5", "CSS3", "Vanilla JS", "localStorage"],
+    "cover": "/images/works/metric-cover.png",
+    "demo": "/templates/metric/index.html",
+    "ru": {
+      "title": "METRIC — CRM поддержка для ведения бизнеса",
+      "description": "Рабочая CRM-платформа: сделки, клиенты, задачи, аналитика, счета, конструктор сущностей и локальный AI-помощник.",
+      "status": "Концепт · рабочий прототип",
+      "sections": [
+        { "title": "Проблема", "paragraphs": ["Малому бизнесу нужна CRM, которую можно адаптировать под собственный процесс. Типовые системы либо перегружены, либо не позволяют быстро создать свою сущность или рабочий раздел."] },
+        { "title": "Концепция", "paragraphs": ["METRIC объединяет стандартное CRM-ядро с blank-canvas конструктором. Детерминированные демо-данные дают одинаковое состояние на старте, а правки сохраняются в localStorage."] },
+        { "title": "Система", "paragraphs": ["Приложение работает локально в одном HTML-файле с собственным state manager, hash router и глобальным диспетчером действий."], "bullets": ["Dashboard и SVG-графики", "Kanban и pointer drag-and-drop", "Клиенты, задачи и счета", "Конструктор страниц и сущностей", "Локальный intent-based AI", "Командная палитра и RU/EN"] },
+        { "title": "Проверка", "paragraphs": ["DOM-QA проверяет desktop и mobile сценарии, drag-and-drop, палитру команд, AI-инструменты, темы и чистую консоль."] }
+      ]
+    },
+    "en": {
+      "title": "METRIC — CRM for Running a Business",
+      "description": "A working CRM platform with deals, clients, tasks, analytics, invoices, an entity builder, and a local AI assistant.",
+      "status": "Concept · working prototype",
+      "sections": [
+        { "title": "Problem", "paragraphs": ["A small business needs a CRM that can follow its process. Standard products are either overloaded or too rigid to quickly create a custom entity or workspace."] },
+        { "title": "Concept", "paragraphs": ["METRIC combines a standard CRM core with a blank-canvas builder. Deterministic demo data creates the same starting point while edits persist in localStorage."] },
+        { "title": "System", "paragraphs": ["The application runs locally in one HTML file with a custom state manager, hash router, and global action dispatcher."], "bullets": ["Dashboard and SVG charts", "Kanban and pointer drag-and-drop", "Clients, tasks, and invoices", "Page and entity builder", "Local intent-based AI", "Command palette and RU/EN"] },
+        { "title": "Validation", "paragraphs": ["DOM QA verifies desktop and mobile flows, drag-and-drop, the command palette, AI tools, themes, and a clean console."] }
+      ]
+    }
+  },
+  "norde": {
+    "featured": true,
+    "year": "2026",
+    "role": "Design & Development",
+    "tags": ["HTML", "CSS", "JavaScript", "E-commerce", "Editorial"],
+    "stack": ["HTML5", "CSS3", "Vanilla JS", "GSAP", "Lenis", "MapLibre"],
+    "cover": "/images/works/norde-cover.png",
+    "demo": "/templates/norde/index.html",
+    "ru": {
+      "title": "NORDE — Object Biographies",
+      "description": "Скандинавская витрина как музейный архив: происхождение материалов, паспорт объекта, инвентарная ведомость и корзина.",
+      "status": "Концепт · рабочий прототип",
+      "sections": [
+        { "title": "Проблема", "paragraphs": ["Стандартная ecommerce-витрина показывает каталог, но редко объясняет происхождение и жизненный цикл вещи. Для нишевого бренда история материала является частью продукта."] },
+        { "title": "Концепция", "paragraphs": ["Object Biographies превращает каждый объект в архивную запись: спецификация, происхождение, материал и инвентарный статус формируют сценарий покупки."] },
+        { "title": "Система", "paragraphs": ["Самодостаточный HTML соединяет GSAP, Lenis, MapLibre и vanilla JavaScript."], "bullets": ["Specimen hero", "Карта происхождения", "Паспорт материалов", "Inventory ledger", "Размеры и рабочая корзина", "Доступный drawer"] },
+        { "title": "Проверка", "paragraphs": ["QA покрывает карту, ledger, выбор размера, корзину, фокус-менеджмент drawer и адаптивность."] }
+      ]
+    },
+    "en": {
+      "title": "NORDE — Object Biographies",
+      "description": "A Scandinavian storefront as a museum archive, combining material provenance, object passports, an inventory ledger, and cart.",
+      "status": "Concept · working prototype",
+      "sections": [
+        { "title": "Problem", "paragraphs": ["A standard ecommerce storefront shows a catalog but rarely explains an object's origin and lifecycle. For a niche brand, material history is part of the product."] },
+        { "title": "Concept", "paragraphs": ["Object Biographies turns every product into an archive record: specification, provenance, material, and inventory status shape the purchase journey."] },
+        { "title": "System", "paragraphs": ["A self-contained HTML build connects GSAP, Lenis, MapLibre, and vanilla JavaScript."], "bullets": ["Specimen hero", "Provenance map", "Material passport", "Inventory ledger", "Size selection and working cart", "Accessible drawer"] },
+        { "title": "Validation", "paragraphs": ["QA covers the map, ledger, size selection, cart, drawer focus management, and responsive behavior."] }
+      ]
+    }
+  }
+}

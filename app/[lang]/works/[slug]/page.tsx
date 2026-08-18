@@ -6,7 +6,7 @@ import Container from "@/components/layout/Container";
 import Tag from "@/components/ui/Tag";
 import Reveal from "@/components/ui/Reveal";
 import DemoViewer from "@/components/interactive/DemoViewer";
-import { getWork, getWorkSlugs } from "@/lib/mdx";
+import { getWork, getWorkSlugs } from "@/lib/works";
 import { getDictionary, isLocale, locales, withLocale } from "@/lib/i18n";
 import { siteConfig } from "@/lib/config";
 
@@ -64,13 +64,12 @@ export default async function WorkDetailPage({
   const work = await getWork(slug, lang);
   if (!work) notFound();
 
-  const { frontmatter: w, content } = work;
+  const { frontmatter: w, sections } = work;
 
   const meta = [
     { label: dict.common.year, value: w.year },
     { label: dict.common.role, value: w.role },
     { label: dict.common.stack, value: w.stack.join(" / ") },
-    ...(w.client ? [{ label: dict.common.client, value: w.client }] : []),
     ...(w.status ? [{ label: dict.common.status, value: w.status }] : []),
   ];
 
@@ -153,7 +152,19 @@ export default async function WorkDetailPage({
             <p>{lang === "ru" ? "Интерактивный прототип с рабочими пользовательскими сценариями." : "Interactive prototype with working user flows."}</p>
           </aside>
           <Reveal i={4}>
-            <div className="case-study__content">{content}</div>
+            <div className="case-study__content">
+              {sections.map((section) => (
+                <section key={section.title}>
+                  <h2>{section.title}</h2>
+                  {section.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+                  {section.bullets && (
+                    <ul>
+                      {section.bullets.map((item) => <li key={item}>{item}</li>)}
+                    </ul>
+                  )}
+                </section>
+              ))}
+            </div>
           </Reveal>
         </div>
 

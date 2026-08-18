@@ -110,7 +110,7 @@ export const ru = {
           title: "Frontend и продуктовый UI",
           description:
             "Компонентные интерфейсы, адаптивные системы, сложное состояние и техническая SEO-база.",
-          items: ["Next.js", "React", "TypeScript", "JavaScript", "HTML5", "CSS3", "Tailwind CSS", "MDX"],
+          items: ["Next.js", "React", "TypeScript", "JavaScript", "HTML5", "CSS3", "Tailwind CSS", "Structured data"],
           proof: "Этот portfolio и все маршруты кейсов собраны на Next.js / React / TypeScript.",
         },
         {
@@ -118,7 +118,7 @@ export const ru = {
           title: "Motion и creative development",
           description:
             "Анимация объясняет иерархию, состояние и переход — без блокировки скролла и лишней нагрузки.",
-          items: ["Framer Motion", "GSAP", "Lenis", "Canvas 2D", "SVG", "CSS Motion"],
+          items: ["Framer Motion", "Lenis", "WebGL", "GLSL", "SVG", "CSS Motion"],
           proof: "FORM, AURA, NORDE и интерактивные portfolio-компоненты демонстрируют разные motion-подходы.",
         },
         {
@@ -234,7 +234,7 @@ export const ru = {
         { title: "Интеграции", description: "Связки между сервисами, API и рабочими процессами с понятными правилами и проверками." },
       ],
     },
-    stack: { label: "Web stack", items: ["Next.js", "React", "TypeScript", "JavaScript", "HTML", "CSS", "Tailwind CSS", "Framer Motion", "GSAP", "Canvas 2D", "MDX", "Git", "Vercel"] },
+    stack: { label: "Web stack", items: ["Next.js", "React", "TypeScript", "JavaScript", "HTML", "CSS", "Tailwind CSS", "Framer Motion", "WebGL", "GLSL", "Git", "Vercel"] },
     skills: { label: "Навыки", items: ["Адаптивная вёрстка", "Компоненты и дизайн-системы", "Анимация", "API и webhooks", "Производительность", "Доступность", "Техническое SEO"] },
     approach: {
       label: "Подход", title: "Понятная задача — понятная система",

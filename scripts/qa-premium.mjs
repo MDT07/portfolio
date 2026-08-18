@@ -2,13 +2,14 @@
 
 import { spawn } from "node:child_process";
 import { createServer } from "node:net";
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 
 const ROOT = resolve(import.meta.dirname, "..");
 const NEXT_BIN = join(ROOT, "node_modules", "next", "dist", "bin", "next");
-const WORKS_DIR = join(ROOT, "content", "works");
+const WORKS_DATA_PATH = join(ROOT, "lib", "work-data.json");
 const PUBLIC_DIR = join(ROOT, "public");
+const WORKS_DATA = JSON.parse(readFileSync(WORKS_DATA_PATH, "utf8"));
 const failures = [];
 let checks = 0;
 
@@ -38,19 +39,14 @@ async function freePort() {
 }
 
 function localizedSlugs() {
-  return readdirSync(WORKS_DIR)
-    .filter((file) => file.endsWith(".mdx") && !file.endsWith(".en.mdx"))
-    .map((file) => file.replace(/\.mdx$/, ""))
-    .sort();
+  return Object.keys(WORKS_DATA).sort();
 }
 
 function frontmatterAssetPaths() {
   const assets = new Set(["/images/portfolio-og.png"]);
-  for (const file of readdirSync(WORKS_DIR).filter((item) => item.endsWith(".mdx"))) {
-    const source = readFileSync(join(WORKS_DIR, file), "utf8");
-    for (const match of source.matchAll(/^(?:cover|demo):\s*["']?([^"'\n]+)["']?$/gm)) {
-      assets.add(match[1].trim());
-    }
+  for (const work of Object.values(WORKS_DATA)) {
+    if (typeof work.cover === "string") assets.add(work.cover);
+    if (typeof work.demo === "string") assets.add(work.demo);
   }
   return [...assets];
 }
@@ -96,9 +92,10 @@ async function checkHtml(baseUrl, path, markers) {
 async function main() {
   assert(existsSync(join(ROOT, ".next", "BUILD_ID")), "production build exists");
   assert(existsSync(NEXT_BIN), "local Next.js binary exists");
+  assert(existsSync(WORKS_DATA_PATH), "structured case-study data exists");
 
   const slugs = localizedSlugs();
-  assert(slugs.length > 0, "case-study source files exist");
+  assert(slugs.length > 0, "case-study data records exist");
   assert(!slugs.includes("ai"), "legacy AI case is absent from the work collection");
   assert(!slugs.includes("pulse") && !slugs.includes("volt"), "removed PULSE and VOLT cases stay absent");
 
@@ -108,7 +105,15 @@ async function main() {
   assert(!globalCss.includes("cinematic-camera"), "legacy pinned cinematic CSS is absent");
 
   const packageJson = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
-  for (const removedDependency of ["gsap", "@gsap/react", "simplex-noise", "stats-js", "tone"]) {
+  for (const removedDependency of [
+    "gsap",
+    "@gsap/react",
+    "simplex-noise",
+    "stats-js",
+    "tone",
+    "gray-matter",
+    "next-mdx-remote",
+  ]) {
     assert(!packageJson.dependencies?.[removedDependency], `unused dependency is absent: ${removedDependency}`);
   }
 
@@ -140,12 +145,18 @@ async function main() {
       "id=\"services\"",
       "id=\"contact\"",
       "project-brief",
+      "digital-experience",
+      "signal-core",
+      "project-reel",
+      "scene-index",
       "CV Эмир Семенов [ПРОФИ.РУ]",
     ]);
     const enHome = await checkHtml(baseUrl, "/en", [
       "id=\"home-title\"",
       "application/ld+json",
-      "Digital products — from idea to production.",
+      "digital-experience",
+      "signal-core",
+      "project-reel",
     ]);
     assert(ruHome.includes('lang="ru"'), "Russian root declares ru language");
     assert(enHome.includes('lang="en"'), "English root declares en language");

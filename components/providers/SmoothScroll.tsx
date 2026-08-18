@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { MotionConfig } from "framer-motion";
 import { usePathname } from "next/navigation";
 import type Lenis from "lenis";
 import { stripLocale } from "@/lib/i18n";
@@ -49,5 +50,5 @@ export default function SmoothScroll({
     };
   }, [isAboutPage]);
 
-  return <>{children}</>;
+  return <MotionConfig reducedMotion="user">{children}</MotionConfig>;
 }

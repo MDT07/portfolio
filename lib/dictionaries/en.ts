@@ -112,7 +112,7 @@ export const en: Dictionary = {
           title: "Frontend and product UI",
           description:
             "Component interfaces, responsive systems, complex state, and a technical SEO foundation.",
-          items: ["Next.js", "React", "TypeScript", "JavaScript", "HTML5", "CSS3", "Tailwind CSS", "MDX"],
+          items: ["Next.js", "React", "TypeScript", "JavaScript", "HTML5", "CSS3", "Tailwind CSS", "Structured data"],
           proof: "This portfolio and its case routes are built with Next.js, React, and TypeScript.",
         },
         {
@@ -120,7 +120,7 @@ export const en: Dictionary = {
           title: "Motion and creative development",
           description:
             "Animation explains hierarchy, state, and transition without blocking scroll or adding needless cost.",
-          items: ["Framer Motion", "GSAP", "Lenis", "Canvas 2D", "SVG", "CSS Motion"],
+          items: ["Framer Motion", "Lenis", "WebGL", "GLSL", "SVG", "CSS Motion"],
           proof: "FORM, AURA, NORDE, and the portfolio interactions demonstrate different motion approaches.",
         },
         {
@@ -236,7 +236,7 @@ export const en: Dictionary = {
         { title: "Integrations", description: "Connections between services, APIs, and workflows with clear rules and validation." },
       ],
     },
-    stack: { label: "Web stack", items: ["Next.js", "React", "TypeScript", "JavaScript", "HTML", "CSS", "Tailwind CSS", "Framer Motion", "GSAP", "Canvas 2D", "MDX", "Git", "Vercel"] },
+    stack: { label: "Web stack", items: ["Next.js", "React", "TypeScript", "JavaScript", "HTML", "CSS", "Tailwind CSS", "Framer Motion", "WebGL", "GLSL", "Git", "Vercel"] },
     skills: { label: "Skills", items: ["Responsive development", "Components and design systems", "Animation", "APIs and webhooks", "Performance", "Accessibility", "Technical SEO"] },
     approach: {
       label: "Approach", title: "A clear task needs a clear system",

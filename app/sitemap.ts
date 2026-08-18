@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { siteConfig } from "@/lib/config";
 import { locales, withLocale } from "@/lib/i18n";
-import { getWorkSlugs } from "@/lib/mdx";
+import { getWorkSlugs } from "@/lib/works";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = siteConfig.url;

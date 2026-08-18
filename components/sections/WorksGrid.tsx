@@ -2,7 +2,7 @@ import Link from "next/link";
 import Container from "@/components/layout/Container";
 import Reveal from "@/components/ui/Reveal";
 import BuildEngineArchive from "@/components/interactive/BuildEngineArchive";
-import { getAllWorks } from "@/lib/mdx";
+import { getAllWorks } from "@/lib/works";
 import { withLocale, type Locale } from "@/lib/i18n";
 import type { Dictionary } from "@/lib/dictionaries/ru";
 

@@ -1,182 +1,84 @@
-# Portfolio — Архитектура проекта
+# Portfolio — архитектура проекта
 
-## Концепция
+## Продуктовая концепция
 
-Портфолио разработчика как демонстрация инженерной культуры. Не визитка, а артефакт: код, структура и визуальный язык сами по себе доказывают уровень.
+`SIGNAL / SHIP` — двуязычное технологическое портфолио Эмира Семенова. Главная страница ведёт посетителя по естественному document flow: сигнал → профессиональная позиция → системы и стек → работы → AI → метод → контакт.
 
-**Стиль:** строгий реализм. Инженерная точность, модульная сетка, монохромная база с одним сигнальным акцентом. Никакой декоративности — каждый элемент обоснован функцией. Ближе к Vercel и Linear по духу: precision, clarity, restraint.
+Визуальный язык строится на инженерной сетке, тёмных системных сценах, тёплой editorial-бумаге и одном холодном синем сигнале. Интерактивность объясняет профессиональный подход: WebGL-ядро переключает режимы «Интерфейс / Архитектура / Интеллект», каталог работает как touch-friendly project reel, а AI-сцена показывает проверяемый pipeline.
 
-**Главная** — Awwwards-level creative-dev experience, построенная на Canvas 2D без WebGL. Одна scroll-driven история из 6 сцен: Portal/Hero, Capabilities, Spatial Works Gallery, Experiments Lab, Tech Stack, Contact/Outro. Scroll управляет "камерой" в 2.5D-типографическом пространстве; фон — интерактивное поле частиц-констелляций с реакцией на курсор и скорость скролла. Сохранены монохромная база, Prata и единый акцент, но DESIGN.md временно переопределён для этой страницы: допустимы glow, depth и shader-like Canvas 2D-эффекты. При `prefers-reduced-motion: reduce` вся кинематографика отключается и показывается статичный editorial-поток.
-
-**Референсы по духу:**
-- [Vercel](https://vercel.com) — чёрно-белая точность, Geist, нулевой шум
-- [Linear](https://linear.app) — ультраминимализм, один акцент, идеальный ритм
-- [GeoLibre](https://github.com/opengeos/GeoLibre) — технический уровень: React + TypeScript, чистая архитектура
-
-**Дизайн-система:** формат [DESIGN.md](https://github.com/VoltAgent/awesome-design-md) (Google Stitch spec) — единый источник правды для токенов. §10 — кинематографический слой демо-шаблонов, §11 — editorial-слой главной.
-
----
+Скролл не перехватывается, секции не pin-ятся и имеют физическую высоту в document flow. На главной Lenis отключён. `prefers-reduced-motion` отключает кинетическую ленту, входные трансформации и непрерывный WebGL render loop.
 
 ## Стек
 
-| Слой | Технология | Версия | Назначение |
-|------|-----------|--------|-----------|
-| Фреймворк | Next.js (App Router) | 16 | SSG, routing, image optimization, proxy (ex-middleware) |
-| Язык | TypeScript | 5 | Типобезопасность |
-| Стили | Tailwind CSS | 4 | Токены из DESIGN.md → utility classes |
-| Анимации | Framer Motion | 12 | Scroll-driven, page transitions (template.tsx), кинематографика §11 |
-| Smooth scroll | Lenis | 1 | Тактильный скролл (components/providers/SmoothScroll) |
-| Контент | MDX (next-mdx-remote/rsc + gray-matter) | — | Кейсы, локализация `<slug>.en.mdx` |
-| i18n | Собственная (app/[lang] + proxy.ts) | — | RU на корне, EN под /en |
-| Мониторинг | Sentry (@sentry/nextjs) | — | Опционально, env-gated (без DSN отключён) |
-| Аналитика | Vercel Analytics | — | Нативно |
-| Шрифты | Inter + JetBrains Mono + Prata | — | Sans для UI, mono для меток, Prata — display-serif §11 |
-| Деплой | Vercel | — | Нативно для Next.js |
+| Слой | Реализация |
+|---|---|
+| Framework | Next.js 16 App Router, React 19, TypeScript |
+| Styles | Tailwind CSS 4 + CSS design tokens |
+| Motion | Framer Motion, CSS Motion; Lenis только на внутренних страницах |
+| Graphics | Нативный WebGL/GLSL с CSS fallback |
+| Content | Типизированный JSON data-layer `lib/work-data.json` |
+| i18n | RU на корне, EN под `/en`, routing через `proxy.ts` |
+| Images | `next/image`, локальные portfolio assets |
+| SEO | Metadata, canonical/hreflang, Open Graph, Person/WebSite/CreativeWork JSON-LD, sitemap, robots |
+| Delivery | Vercel Analytics, опциональный Sentry, Vercel deployment |
 
----
+## Основные модули
 
-## Структура
+```text
+app/[lang]/
+├── page.tsx                    # metadata + schema + SIGNAL / SHIP
+├── ai-works/page.tsx           # AI workshop
+└── works/
+    ├── page.tsx                # полный архив
+    └── [slug]/page.tsx         # типизированный case-study route
 
+components/
+├── sections/DigitalExperience.tsx
+├── interactive/
+│   ├── WebGLSignal.tsx         # GPU-сцена и CSS fallback
+│   ├── SceneNavigator.tsx      # chapter index
+│   ├── ProjectReel.tsx         # scroll-snap gallery
+│   ├── ExpertiseExplorer.tsx   # accessible tabs
+│   ├── AIProcessDiagram.tsx
+│   ├── BuildEngineArchive.tsx
+│   ├── DemoViewer.tsx
+│   └── ProjectBrief.tsx
+├── layout/
+└── ui/
+
+lib/
+├── work-data.json              # RU/EN кейсы
+├── works.ts                    # типизированный data API
+├── dictionaries/              # интерфейсный контент RU/EN
+├── config.ts                   # публичные ссылки и canonical origin
+└── i18n.ts
 ```
-portfolio/
-├── portfolio.md                  # Этот файл — архитектурный контракт
-├── HERMES.md                     # Инструментальный стек для Hermes agent
-├── DESIGN.md                     # Дизайн-токены (Google Stitch spec)
-├── package.json
-├── next.config.ts                # withSentryConfig при наличии DSN
-├── proxy.ts                      # i18n-роутинг: /en → [lang]=en, /ru → редирект, /* → rewrite /ru
-├── tsconfig.json
-├── instrumentation.ts            # Sentry server/edge register
-├── instrumentation-client.ts     # Sentry client init
-├── sentry.server.config.ts
-├── sentry.edge.config.ts
-├── .env.example                  # Sentry DSN (заглушка)
-│
-├── app/
-│   ├── globals.css               # Токены @theme + --font-display + light-вариант [data-theme]
-│   ├── [lang]/                   # Локализованное дерево (ru, en)
-│   │   ├── layout.tsx            # html, шрифты, anti-FOUC тема, Header/PosterFooter, Analytics
-│   │   ├── template.tsx          # Кинематографичный вход страницы (300ms)
-│   │   ├── page.tsx              # Главная: PosterHero + Marquee + AboutChapter + WorksIndex (§11)
-│   │   └── works/
-│   │       ├── page.tsx          # Каталог кейсов (grid)
-│   │       └── [slug]/page.tsx   # Детальная кейса (MDX + демо)
-│   ├── sitemap.ts                # Все маршруты × локали + hreflang
-│   ├── robots.ts
-│   └── opengraph-image.png       # 1200×630, брендированная
-│
-├── components/
-│   ├── ui/                       # Примитивы: Button, Card, Tag, Reveal, MaskText,
-│   │                             #   ThemeToggle, LangSwitcher, MagneticButton, TextScramble, SoundToggle
-│   ├── layout/                   # Header (nav + theme + lang + sound), PosterFooter (§11), Container, FooterWrapper
-│   ├── sections/                 # Главная: CinematicPage, CinematicHero, CapabilitiesScene,
-│   │                             #   SpatialWorksScene, ExperimentsScene, TechScene, ContactScene
-│   │                             #   (старые PosterHero, Marquee, AboutChapter, WorksIndex отключены на главной)
-│   │                             # Каталог /works: WorksGrid
-│   ├── interactive/              # Клиентские виджеты для MDX и страниц:
-│   │                             #   Counter, BeforeAfter, ProcessSteps,
-│   │                             #   DemoViewer (iframe fullscreen), Gallery
-│   ├── canvas/                   # Canvas 2D-слой: CanvasEnvironment, ParticleField, LiquidDistortion
-│   ├── camera/                   # CameraRig — scroll-driven CSS 3D-камера
-│   ├── navigation/               # SceneNav — навигация по сценам
-│   ├── cursor/                   # CustomCursor — blend-mode курсор
-│   ├── mdx/mdx-components.tsx    # Маппинг MDX → стилизованные блоки + интерактив
-│   └── providers/SmoothScroll.tsx # Lenis (off при prefers-reduced-motion)
-│                                  # SceneProvider — состояние сцен, scroll progress, cursor, sound
-│
-├── content/
-│   └── works/                    # Кейсы: development (Primary Terra),
-│                                 #   norde (NORDE), metric (METRIC CRM),
-│                                 #   atlas (travel-клуб), form (архстудия),
-│                                 #   volt (EV-зарядки), ai (AI WORKS — раздел AI-интеграций),
-│                                 #   pulse (телемедицина), aura (необанк);
-│                                 #   EN-версии — <slug>.en.mdx
-│
-├── templates/                    # Исходники самодостаточных демо-шаблонов
-│   ├── development/              # PRIMARY TERRA — девелопер полного цикла
-│   ├── norde/                    # NORDE — архив объектов с биографией
-│   ├── metric/                   # METRIC — CRM-конструктор для бизнеса
-│   ├── atlas/                    # ATLAS — экспедиционный travel-клуб
-│   ├── form/                     # FORM — архитектурная студия
-│   ├── volt/                     # VOLT — сеть EV-зарядок
-│   ├── ai/                       # AI WORKS — лендинг AI-интеграций (демо-чат, ядра)
-│   ├── pulse/                    # PULSE — телемедицина и диагностика
-│   └── aura/                     # AURA — необанк и платёжный кошелёк
-│
-├── lib/
-│   ├── config.ts                 # siteConfig: бренд, контакты
-│   ├── i18n.ts                   # locales, getDictionary, withLocale, stripLocale
-│   ├── dictionaries/             # ru.ts, en.ts (DeepString-тип Dictionary)
-│   ├── mdx.ts                    # Загрузчик MDX (works, локали)
-│   ├── animations.ts             # Framer Motion пресеты
-│   ├── scenes.ts                 # Метаданные сцен и keyframes камеры
-│   ├── canvas.ts                 # Утилиты Canvas 2D
-│   ├── hooks.ts                  # useMediaQuery, useMounted, useReducedMotion и т.д.
-│   └── utils.ts                  # cn()
-│
-└── public/
-    ├── images/
-    │   ├── portrait-dot.webp     # Портрет: точечная монохромная стилизация
-    │   └── works/                # Обложки кейсов 1600×900 (headless Chrome)
-    └── templates/                # Копия templates/ для live-демо по /templates/*
-```
-
----
-
-## Конвенции
-
-### Именование
-- Компоненты: `PascalCase.tsx`
-- Утилиты: `camelCase.ts`
-- MDX-кейсы: `kebab-case.mdx`
-- CSS-классы: только Tailwind utilities, кастомные классы — исключение
-
-### Компоненты
-- Server Components по умолчанию; `"use client"` только при необходимости (анимации, интерактив)
-- Один файл — один компонент
-- Props типизируются через `interface ComponentNameProps`
-
-### Контент
-- Каждый кейс = один MDX в `content/works/` (+ `<slug>.en.mdx`) + live-исходники в `templates/<slug>/`, дублированные в `public/templates/<slug>/`
-- Frontmatter works: `title`, `description`, `tags`, `year`, `role`, `stack`, `cover`, `demo`, `featured`
-
-### i18n
-- RU — дефолт на корневых путях (proxy rewrite → `/ru`), EN — под префиксом `/en`
-- Тексты — только через словари `lib/dictionaries/`; новые ключи добавляются в оба языка
-- Третий язык: добавить локаль в `lib/i18n.ts` + словарь — маршруты поднимутся автоматически
-
-### Коммиты
-- Conventional Commits: `feat:`, `fix:`, `docs:`, `style:`, `refactor:`
-
----
 
 ## Маршруты
 
-| Путь | Страница | Тип |
-|------|----------|-----|
-| `/` (и `/en`) | Главная — editorial-постер: подход + работы | SSG |
-| `/works` | Каталог кейсов | SSG |
-| `/works/[slug]` | Детальная кейса | SSG (generateStaticParams) |
-| `/templates/*` | Live-демо шаблонов | Статика из public/ |
+| Route | Назначение |
+|---|---|
+| `/`, `/en` | Основной narrative portfolio / tech CV |
+| `/works`, `/en/works` | Архив работ |
+| `/works/[slug]`, `/en/works/[slug]` | Кейс и рабочее demo |
+| `/ai-works`, `/en/ai-works` | AI-направление и CRMP |
+| `/works/ai`, `/en/works/ai` | Permanent redirect на AI Works |
+| `/templates/*` | Самодостаточные статические прототипы |
 
-Все страницы статические, обе локали пререндерятся. Бэкенда нет — контакт через mailto (email в `lib/config.ts`), мониторинг — Sentry при наличии DSN в env.
+## Контент и достоверность
 
----
+В каталоге находятся шесть авторских концептов и рабочих прототипов: ATLAS, AURA, PRIMARY TERRA, FORM, METRIC и NORDE. Они явно обозначены как концепты; PULSE, VOLT и старый AI WORKS исключены. CRMP указан только как реально опубликованный конкурсный проект. Клиенты, отзывы, метрики, опыт и результаты не придумываются.
 
-## Кейсы
+Каждый кейс хранит общие технические поля и синхронные RU/EN-секции в `lib/work-data.json`. Live demo остаётся самодостаточным HTML в `templates/<slug>/index.html` и синхронной public-копии.
 
-### 1. PRIMARY TERRA — девелопер полного цикла (реальный кейс)
+## Проверка
 
-Сайт девелоперской компании. Нумерованные секции 001–004, анимированные счётчики метрик, каталог проектов с фильтром и цифрами по каждому (цена за м², площади, рассрочка, статус), технологии строительства, контакты с формой.
+```bash
+npm run validate
+npm run lint
+npm run typecheck
+npm run build
+npm run qa:premium
+```
 
-**Визуал:** монументальная типографика, монохром + один акцент, фото объектов (Unsplash), reveal-анимации на IntersectionObserver.
-
-### 2. NORDE — интернет-магазин
-
-Витрина минималистичного магазина одежды и товаров для дома. Каталог с фильтрами, quick-view с выбором размера, корзина-drawer с полным состоянием на чистом JS.
-
-### 3. METRIC — CRM поддержка для ведения бизнеса
-
-Полнофункциональная CRM-платформа уровня 2026: дашборд с SVG-графиком и воронкой, сделки с канбаном (drag-n-drop на pointer events) и drawer-карточкой, клиенты, задачи с календарём, аналитика, счета. Ось продукта — конструктор: сборка своих страниц из виджетов на dnd-сетке и кастомные сущности с полями, появляющиеся в сайдбаре с CRUD. METRIC AI — локальный чат-ассистент (сводки, прогноз, создание записей). Командная палитра ⌘K, шорткаты, светлая/тёмная темы, RU/EN. Своя айдентика: светлый Linear/Attio-like UI, акцент индиго #4F46E5, Onest + JetBrains Mono.
-
-**Формат всех кейсов:** самодостаточный `templates/<slug>/index.html` — открывается без сборки. Плюс MDX-страница в `content/works/<slug>.mdx` (ru+en) и обложка `public/images/works/<slug>-cover.png` (скриншот headless Chrome 1600×900).
+`qa:premium` поднимает production server на свободном порту и проверяет локали, metadata, все routes, redirects, sitemap, robots, assets, удалённые кейсы и отсутствие server warnings.

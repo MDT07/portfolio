@@ -44,9 +44,9 @@ export default function Header({ lang, labels }: HeaderProps) {
   }, [menuOpen]);
 
   const links = [
-    { path: "/#services", label: labels.services, anchor: true },
-    { path: "/works", label: labels.works },
-    { path: "/ai-works", label: labels.aiWorks },
+    { path: "/#systems", label: labels.services, anchor: true },
+    { path: "/#work", label: labels.works, anchor: true },
+    { path: "/#intelligence", label: labels.aiWorks, anchor: true },
   ];
 
   const localizedHref = (path: string, anchor?: boolean) =>
@@ -61,6 +61,7 @@ export default function Header({ lang, labels }: HeaderProps) {
     <header
       className={cn(
         "fixed left-0 right-0 top-0 z-50 h-[4.5rem] border-b transition-colors duration-200",
+        currentPath === "/" && "experience-header",
         scrolled || menuOpen
           ? "border-surface-3 bg-surface-0"
           : "border-transparent bg-transparent"
