@@ -13,6 +13,7 @@ export default function PosterFooter({ lang, dict }: PosterFooterProps) {
   const contacts = [
     { label: dict.about.contacts.telegram, href: siteConfig.telegramUrl },
     { label: dict.about.contacts.profi, href: siteConfig.profiUrl },
+    { label: "GitHub", href: siteConfig.githubUrl },
   ];
 
   const menu = [
@@ -22,13 +23,13 @@ export default function PosterFooter({ lang, dict }: PosterFooterProps) {
   ];
 
   return (
-    <footer className="border-t border-surface-3">
-      <Container className="py-10 md:py-12">
+    <footer className="border-t border-surface-3 bg-surface-1">
+      <Container className="py-12 md:py-16">
         <div className="grid gap-10 md:grid-cols-12 md:gap-6">
           <div className="max-w-xs md:col-span-4">
             <Link
               href={withLocale(lang, "/")}
-              className="font-display text-xl leading-tight"
+              className="font-display text-2xl leading-tight"
             >
               {siteConfig.name}
             </Link>
@@ -69,6 +70,10 @@ export default function PosterFooter({ lang, dict }: PosterFooterProps) {
               </a>
             ))}
           </div>
+        </div>
+        <div className="mt-12 flex flex-col gap-2 border-t border-surface-3 pt-5 font-mono text-[10px] uppercase tracking-[0.1em] text-text-tertiary sm:flex-row sm:items-center sm:justify-between">
+          <span>© {new Date().getFullYear()} Emir Semenov</span>
+          <span>Next.js · Vercel · RU/EN</span>
         </div>
       </Container>
     </footer>

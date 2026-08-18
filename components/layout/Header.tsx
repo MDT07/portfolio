@@ -6,16 +6,22 @@ import { usePathname } from "next/navigation";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import LangSwitcher from "@/components/ui/LangSwitcher";
 import { stripLocale, withLocale, type Locale } from "@/lib/i18n";
-import type { Dictionary } from "@/lib/dictionaries/ru";
 import { cn } from "@/lib/utils";
-import { siteConfig } from "@/lib/config";
 
 interface HeaderProps {
   lang: Locale;
-  dict: Dictionary;
+  labels: {
+    services: string;
+    works: string;
+    aiWorks: string;
+    contact: string;
+    language: string;
+    theme: string;
+    openMenu: string;
+  };
 }
 
-export default function Header({ lang, dict }: HeaderProps) {
+export default function Header({ lang, labels }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
@@ -28,11 +34,25 @@ export default function Header({ lang, dict }: HeaderProps) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => {
+    if (!menuOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMenuOpen(false);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [menuOpen]);
+
   const links = [
-    { path: "/", label: dict.nav.about },
-    { path: "/works", label: dict.nav.works },
-    { path: "/ai-works", label: dict.nav.aiWorks },
+    { path: "/#services", label: labels.services, anchor: true },
+    { path: "/works", label: labels.works },
+    { path: "/ai-works", label: labels.aiWorks },
   ];
+
+  const localizedHref = (path: string, anchor?: boolean) =>
+    anchor
+      ? `${withLocale(lang, "/")}#${path.split("#")[1]}`
+      : withLocale(lang, path);
 
   const isActive = (path: string) =>
     path === "/" ? currentPath === "/" : currentPath.startsWith(path);
@@ -40,18 +60,18 @@ export default function Header({ lang, dict }: HeaderProps) {
   return (
     <header
       className={cn(
-        "fixed left-0 right-0 top-0 z-50 h-16 border-b transition-colors duration-200",
+        "fixed left-0 right-0 top-0 z-50 h-[4.5rem] border-b transition-colors duration-200",
         scrolled || menuOpen
           ? "border-surface-3 bg-surface-0"
           : "border-transparent bg-transparent"
       )}
     >
-      <div className="mx-auto flex h-full max-w-[1200px] items-center justify-between px-6 md:px-12">
+      <div className="mx-auto flex h-full max-w-[1320px] items-center justify-between px-5 md:px-8 lg:px-12">
         <Link
           href={withLocale(lang, "/")}
-          className="max-w-[12rem] truncate whitespace-nowrap font-mono text-[11px] font-medium tracking-wide text-text-primary lg:max-w-none lg:text-xs"
+          className="whitespace-nowrap font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-text-primary"
         >
-          {siteConfig.name}
+          Emir.Semenov <span className="text-accent">/ Dev</span>
         </Link>
 
         {/* Desktop nav */}
@@ -59,7 +79,7 @@ export default function Header({ lang, dict }: HeaderProps) {
           {links.map((link) => (
             <Link
               key={link.path}
-              href={withLocale(lang, link.path)}
+              href={localizedHref(link.path, link.anchor)}
               className={cn(
                 "relative py-1 text-sm transition-colors duration-150",
                 isActive(link.path)
@@ -72,9 +92,15 @@ export default function Header({ lang, dict }: HeaderProps) {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-2 md:flex">
-          <LangSwitcher lang={lang} label={dict.common.language} />
-          <ThemeToggle label={dict.common.theme} />
+        <div className="hidden items-center gap-1 md:flex">
+          <LangSwitcher lang={lang} label={labels.language} />
+          <ThemeToggle label={labels.theme} />
+          <Link
+            href={`${withLocale(lang, "/")}#contact`}
+            className="ml-2 border border-text-primary px-3 py-2 font-mono text-[10px] uppercase tracking-[0.1em] transition-colors hover:bg-text-primary hover:text-surface-0"
+          >
+            {labels.contact}
+          </Link>
         </div>
 
         {/* Mobile burger */}
@@ -82,7 +108,7 @@ export default function Header({ lang, dict }: HeaderProps) {
           type="button"
           onClick={() => setMenuOpen(!menuOpen)}
           className="flex h-10 w-10 items-center justify-center md:hidden"
-          aria-label="Menu"
+          aria-label={labels.openMenu}
           aria-expanded={menuOpen}
           aria-controls="mobile-navigation"
         >
@@ -112,7 +138,7 @@ export default function Header({ lang, dict }: HeaderProps) {
           {links.map((link) => (
             <Link
               key={link.path}
-              href={withLocale(lang, link.path)}
+              href={localizedHref(link.path, link.anchor)}
               onClick={() => setMenuOpen(false)}
               className={cn(
                 "block py-3 text-sm transition-colors",
@@ -125,9 +151,16 @@ export default function Header({ lang, dict }: HeaderProps) {
             </Link>
           ))}
           <div className="mt-3 flex items-center gap-2 border-t border-surface-3 pt-4">
-            <LangSwitcher lang={lang} label={dict.common.language} />
-            <ThemeToggle label={dict.common.theme} />
+            <LangSwitcher lang={lang} label={labels.language} />
+            <ThemeToggle label={labels.theme} />
           </div>
+          <Link
+            href={`${withLocale(lang, "/")}#contact`}
+            onClick={() => setMenuOpen(false)}
+            className="mt-4 flex min-h-11 items-center justify-between border border-text-primary px-4 font-mono text-[11px] uppercase tracking-[0.1em]"
+          >
+            {labels.contact}<span aria-hidden>↘</span>
+          </Link>
         </nav>
       )}
     </header>

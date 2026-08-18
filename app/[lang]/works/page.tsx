@@ -3,7 +3,8 @@ import type { Metadata } from "next";
 import Container from "@/components/layout/Container";
 import Reveal from "@/components/ui/Reveal";
 import WorksGrid from "@/components/sections/WorksGrid";
-import { getDictionary, isLocale } from "@/lib/i18n";
+import { siteConfig } from "@/lib/config";
+import { getDictionary, isLocale, withLocale } from "@/lib/i18n";
 
 export async function generateMetadata({
   params,
@@ -11,8 +12,33 @@ export async function generateMetadata({
   params: Promise<{ lang: string }>;
 }): Promise<Metadata> {
   const { lang } = await params;
+  if (!isLocale(lang)) return {};
   const dict = getDictionary(isLocale(lang) ? lang : "ru");
-  return { title: dict.works.title, description: dict.works.subtitle };
+  const canonical = withLocale(lang, "/works");
+  return {
+    metadataBase: new URL(siteConfig.url),
+    title: dict.works.title,
+    description: dict.works.subtitle,
+    alternates: {
+      canonical,
+      languages: { ru: "/works", en: "/en/works" },
+    },
+    openGraph: {
+      type: "website",
+      title: dict.works.title,
+      description: dict.works.subtitle,
+      url: canonical,
+      siteName: siteConfig.name,
+      locale: lang === "ru" ? "ru_RU" : "en_US",
+      images: [{ url: "/images/portfolio-og.png", width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: dict.works.title,
+      description: dict.works.subtitle,
+      images: ["/images/portfolio-og.png"],
+    },
+  };
 }
 
 export default async function WorksPage({
@@ -26,18 +52,17 @@ export default async function WorksPage({
 
   return (
     <>
-      <section className="pb-8 pt-32 md:pt-40">
+      <section className="works-hero pt-32 md:pt-44">
         <Container>
           <Reveal>
-            <p className="mb-4 font-mono text-xs font-medium uppercase tracking-widest text-text-tertiary">
-              {dict.works.label}
-            </p>
-            <h1 className="max-w-2xl text-4xl font-bold tracking-tight md:text-5xl">
-              {dict.works.title}
-            </h1>
-            <p className="mt-6 max-w-xl text-lg text-text-secondary">
-              {dict.works.subtitle}
-            </p>
+            <div className="works-hero__grid">
+              <p className="editorial-label">Archive / {dict.works.label}</p>
+              <h1>{dict.works.title}</h1>
+              <div>
+                <p>{dict.works.subtitle}</p>
+                <span>{lang === "ru" ? "Концепты отмечены явно · Все демо интерактивны" : "Concepts are labelled · Every demo is interactive"}</span>
+              </div>
+            </div>
           </Reveal>
         </Container>
       </section>

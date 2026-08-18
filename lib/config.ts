@@ -10,6 +10,7 @@ export const siteConfig = {
 
   telegramUrl: "https://t.me/EMIR_000",
   profiUrl: "https://profi.ru/profile/SemenovEZ",
+  githubUrl: "https://github.com/MDT07/portfolio",
   crmpUrl: "https://mdt07.github.io/CRMP/",
 } as const;
 

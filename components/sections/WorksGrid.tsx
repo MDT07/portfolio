@@ -1,8 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import Container from "@/components/layout/Container";
-import Card from "@/components/ui/Card";
-import Tag from "@/components/ui/Tag";
 import Reveal from "@/components/ui/Reveal";
 import { getAllWorks, type WorkEntry } from "@/lib/mdx";
 import { withLocale, type Locale } from "@/lib/i18n";
@@ -27,39 +25,31 @@ function WorkCard({
   i: number;
 }) {
   const { frontmatter: w } = work;
-  const href = work.slug === "ai" ? "/ai-works" : `/works/${work.slug}`;
+  const href = `/works/${work.slug}`;
+  const status =
+    w.status ?? (lang === "ru" ? "Концепт · прототип" : "Concept · prototype");
   return (
-    <Reveal i={i} variant="tiltIn" className="h-full">
-      <Link href={withLocale(lang, href)} className="block h-full">
-        <Card className="group flex h-full cursor-pointer flex-col">
-          <div className="relative mb-4 aspect-[16/10] overflow-hidden rounded-md bg-surface-2">
+    <Reveal i={i} className={i % 3 === 0 ? "work-archive-card--wide" : ""}>
+      <Link href={withLocale(lang, href)} className="work-archive-card">
+          <div className="work-archive-card__visual">
             <Image
               src={w.cover}
-              alt={w.title}
+              alt=""
               fill
-              sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-              className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+              sizes={i % 3 === 0 ? "(min-width: 1024px) 70vw, 100vw" : "(min-width: 768px) 50vw, 100vw"}
+              className="object-cover"
             />
           </div>
-          <div className="flex flex-1 items-start justify-between">
-            <div>
-              <h3 className="text-lg font-semibold transition-colors group-hover:text-accent">
-                {w.title}
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-text-secondary">
-                {w.description}
-              </p>
-            </div>
-            <span className="ml-4 shrink-0 font-mono text-xs text-text-tertiary">
-              {w.year}
-            </span>
+          <div className="work-archive-card__meta">
+            <span>{String(i + 1).padStart(2, "0")} / {status}</span>
+            <span>{w.year}</span>
           </div>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {w.tags.slice(0, 4).map((tag) => (
-              <Tag key={tag}>{tag}</Tag>
-            ))}
+          <h2>{w.title}</h2>
+          <p>{w.description}</p>
+          <div className="work-archive-card__footer">
+            <span>{w.tags.slice(0, 3).join(" · ")}</span>
+            <span aria-hidden>↗</span>
           </div>
-        </Card>
       </Link>
     </Reveal>
   );
@@ -75,7 +65,7 @@ export default function WorksGrid({
   if (featuredOnly) works = works.filter((w) => w.frontmatter.featured);
 
   return (
-    <section className="border-t border-surface-3 py-24 md:py-32">
+    <section className="work-archive pb-24 md:pb-32">
       <Container>
         {!hideHeader && (
           <Reveal>
@@ -100,7 +90,7 @@ export default function WorksGrid({
           </Reveal>
         )}
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="work-archive-grid">
           {works.map((work, i) => (
             <WorkCard key={work.slug} work={work} lang={lang} i={i} />
           ))}

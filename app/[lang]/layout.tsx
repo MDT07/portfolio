@@ -96,7 +96,18 @@ export default async function RootLayout({
       </head>
       <body className="flex min-h-full flex-col bg-surface-0 text-text-primary">
         <SmoothScroll>
-          <Header lang={lang} dict={dict} />
+          <Header
+            lang={lang}
+            labels={{
+              services: dict.nav.services,
+              works: dict.nav.works,
+              aiWorks: dict.nav.aiWorks,
+              contact: dict.nav.contact,
+              language: dict.common.language,
+              theme: dict.common.theme,
+              openMenu: lang === "ru" ? "Открыть меню" : "Open menu",
+            }}
+          />
           <main className="flex-1">{children}</main>
           <FooterWrapper lang={lang} dict={dict} />
         </SmoothScroll>

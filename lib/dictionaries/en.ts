@@ -3,8 +3,10 @@ import type { Dictionary } from "./ru";
 export const en: Dictionary = {
   nav: {
     about: "About",
+    services: "Services",
     works: "Works",
     aiWorks: "AI works",
+    contact: "Start a project",
   },
   common: {
     openDemo: "Open demo",
@@ -37,6 +39,160 @@ export const en: Dictionary = {
       "Accessibility",
     ],
   },
+  home: {
+    hero: {
+      eyebrow: "Emir Semenov · independent developer",
+      title: "Digital products — from idea to production.",
+      description:
+        "I design and ship web platforms, interfaces, and intelligent automation systems. Architecture, UX/UI, development, integrations, and deployment stay in one delivery loop.",
+      primary: "View projects",
+      secondary: "Discuss a project",
+      signature: "Design × Engineering × AI",
+      signals: [
+        { label: "Web", value: "Sites, platforms, interfaces" },
+        { label: "AI", value: "Assistants, RAG, agents" },
+        { label: "Automation", value: "Bots, APIs, workflows" },
+      ],
+    },
+    services: {
+      label: "Services",
+      title: "Not an isolated feature. A complete product.",
+      intro:
+        "I work at product level: understand the context, define the system, and take it through to a working launch.",
+      items: [
+        {
+          title: "Web products",
+          outcome: "Turn an idea or business problem into a clear digital interface.",
+          description:
+            "Landing pages, corporate sites, portfolios, web applications, dashboards, e-commerce, and custom platforms.",
+        },
+        {
+          title: "AI systems",
+          outcome: "Embed intelligence into a real process, not a decorative chat window.",
+          description:
+            "AI assistants, agents, RAG and knowledge bases, LLM integrations, tool calling, and controlled actions.",
+        },
+        {
+          title: "Bots and automation",
+          outcome: "Reduce manual hand-offs between messages, data, and services.",
+          description:
+            "Telegram, WhatsApp, VK, and web bots, CRM/API integrations, lead qualification, and internal workflows.",
+        },
+        {
+          title: "Full-cycle development",
+          outcome: "One delivery logic from the first map to production and support.",
+          description:
+            "Discovery, UX/UI, architecture, frontend, integrations, data, authentication flows, testing, deployment, and optimization.",
+        },
+      ],
+    },
+    work: {
+      label: "Selected work",
+      title: "The evidence lives in the working interface.",
+      intro:
+        "The cases show more than visual polish: flows, state, architecture decisions, and interaction are part of the proof.",
+      disclosure:
+        "Some projects are self-initiated concepts and working prototypes. They are labelled clearly and are not presented as client work.",
+      openCase: "Explore the case",
+      openDemo: "Open working demo",
+      featuredLabel: "Competition AI project",
+      featuredTitle: "CRMP · Pipeline Intelligence",
+      featuredText:
+        "A CRM system with the AgentP AI assistant. The project participated in an Anadolu University competition in the AI category.",
+      featuredLink: "Open CRMP",
+    },
+    expertise: {
+      label: "Expertise",
+      title: "The stack is organized by problems, not logos.",
+      intro:
+        "Only tools and disciplines supported by current projects or the professional profile are shown.",
+      groups: [
+        {
+          label: "Interfaces",
+          title: "Frontend and product UI",
+          description:
+            "Component interfaces, responsive systems, complex state, and a technical SEO foundation.",
+          items: ["Next.js", "React", "TypeScript", "JavaScript", "HTML5", "CSS3", "Tailwind CSS", "MDX"],
+          proof: "This portfolio and its case routes are built with Next.js, React, and TypeScript.",
+        },
+        {
+          label: "Motion",
+          title: "Motion and creative development",
+          description:
+            "Animation explains hierarchy, state, and transition without blocking scroll or adding needless cost.",
+          items: ["Framer Motion", "GSAP", "Lenis", "Canvas 2D", "SVG", "CSS Motion"],
+          proof: "FORM, AURA, NORDE, and the portfolio interactions demonstrate different motion approaches.",
+        },
+        {
+          label: "AI systems",
+          title: "AI, agents, and knowledge systems",
+          description:
+            "Context, retrieval, structured output, validation, and external action form one controlled loop.",
+          items: ["LLM integrations", "RAG", "AI agents", "Tool calling", "Structured outputs", "Knowledge bases", "Prompt design"],
+          proof: "CRMP and AI Works demonstrate pipelines, human-in-the-loop, and deterministic action boundaries.",
+        },
+        {
+          label: "Delivery",
+          title: "Backend, integrations, and production",
+          description:
+            "I connect the interface to APIs, data, and external services, then take the product to an observable release.",
+          items: ["Python", "FastAPI", "PostgreSQL", "REST API", "Webhooks", "Authentication flows", "Git", "Vercel"],
+          proof: "CRMP demonstrates the React / FastAPI / PostgreSQL stack; this portfolio deploys automatically from GitHub to Vercel.",
+        },
+      ],
+    },
+    process: {
+      label: "Process",
+      title: "Each stage removes uncertainty.",
+      items: [
+        { title: "Context", description: "Goal, audience, constraints, data, and definition of done." },
+        { title: "Architecture", description: "Flows, information model, integrations, and technical boundaries." },
+        { title: "UX/UI", description: "Prototype, visual system, states, and responsive behaviour." },
+        { title: "Development", description: "Components, logic, API connections, data, and accessibility." },
+        { title: "Validation", description: "Functional flows, devices, performance, and edge cases." },
+        { title: "Launch", description: "Deployment, analytics, monitoring, and a clear handover." },
+      ],
+    },
+    ai: {
+      label: "AI and automation",
+      title: "Intelligence only where it improves the decision.",
+      description:
+        "I design bots and AI tools with context, a knowledge layer, result validation, and safe action through an API or webhook.",
+      points: ["Telegram · WhatsApp · VK · Web chat", "RAG · knowledge bases · AI agents", "CRM · API · internal processes"],
+      link: "Enter the AI workshop",
+    },
+    profile: {
+      label: "Professional profile",
+      title: "I work where product, design, and engineering meet.",
+      description:
+        "The job is not just to write an interface. I connect the user flow, visual system, technical architecture, and launch into one maintainable product.",
+      notes: ["Direct collaboration without needless layers", "Decisions are explained and documented", "Clarity, speed, and maintainability come first"],
+    },
+    faq: {
+      label: "FAQ",
+      title: "Before the first message",
+      items: [
+        { question: "What can I bring to you?", answer: "A new web product, a redesign of an existing interface, an AI assistant, a bot, an integration, or workflow automation." },
+        { question: "Can we start without a finished specification?", answer: "Yes. A goal, audience, and current problem are enough to begin. The solution structure and project boundaries can be defined during discovery." },
+        { question: "How is the stack chosen?", answer: "From product requirements, integrations, load, and maintenance needs. Technology follows architecture rather than being selected for its name." },
+        { question: "How do we start?", answer: "Complete the short brief below or contact me directly via Telegram or PROFI.RU. Unconfirmed timelines and prices are not published on the site." },
+      ],
+    },
+    contact: {
+      label: "New project",
+      title: "Let’s build something worth launching.",
+      intro: "Describe the task briefly. The form prepares and copies a brief, then opens a direct Telegram conversation.",
+      name: "Your name",
+      contact: "How should I reach you?",
+      type: "Project type",
+      types: ["Web product", "AI / bot", "Automation", "Redesign", "Other"],
+      description: "What needs to be built or improved?",
+      submit: "Copy brief and open Telegram",
+      success: "Brief copied. Telegram opened in a new tab.",
+      fallback: "Telegram opened. If the brief was not copied, copy the field content manually.",
+      direct: "Or go directly",
+    },
+  },
   manifesto: {
     label: "Principles",
     title: "How I work",
@@ -65,7 +221,7 @@ export const en: Dictionary = {
     label: "Cases",
     title: "Selected works",
     subtitle:
-      "Every project is a fully working product: from architecture to the last pixel.",
+      "Self-initiated concepts and working prototypes with a clear problem, decisions, stack, and interactive demo.",
     allWorks: "All works →",
   },
   about: {

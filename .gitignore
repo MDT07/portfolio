@@ -46,3 +46,6 @@ next-env.d.ts
 
 # hermes agent workspace
 /.hermes/
+
+# local autonomous-loop state
+/.loop/

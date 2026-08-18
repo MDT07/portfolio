@@ -11,6 +11,13 @@ const PUBLIC_FILE = /\.[^/]+$/;
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Next 16 may run Proxy again for the destination of an internal rewrite.
+  // Mark the default-locale pass so `/` can resolve to `/ru` without being
+  // caught by the public `/ru` → `/` canonical redirect below.
+  if (request.headers.get("x-default-locale-rewrite") === "1") {
+    return NextResponse.next();
+  }
+
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api") ||
@@ -34,7 +41,11 @@ export function proxy(request: NextRequest) {
 
   const url = request.nextUrl.clone();
   url.pathname = `/ru${pathname === "/" ? "" : pathname}`;
-  return NextResponse.rewrite(url);
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-default-locale-rewrite", "1");
+  return NextResponse.rewrite(url, {
+    request: { headers: requestHeaders },
+  });
 }
 
 export const config = {
