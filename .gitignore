@@ -49,3 +49,4 @@ next-env.d.ts
 
 # local autonomous-loop state
 /.loop/
+.env*.local
