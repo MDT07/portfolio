@@ -147,6 +147,8 @@ async function main() {
       "project-brief",
       "digital-experience",
       "signal-core",
+      "signal-core__diagram",
+      "signal-core__micro",
       "project-reel",
       "scene-index",
       "CV Эмир Семенов [ПРОФИ.РУ]",
@@ -156,6 +158,8 @@ async function main() {
       "application/ld+json",
       "digital-experience",
       "signal-core",
+      "signal-core__diagram",
+      "signal-core__micro",
       "project-reel",
     ]);
     assert(ruHome.includes('lang="ru"'), "Russian root declares ru language");

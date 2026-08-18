@@ -16,6 +16,35 @@ const copy = {
   ],
 } as const;
 
+const nodeCopy = {
+  ru: ["Задача", "Сценарий", "Данные", "UI-система", "API", "Запуск"],
+  en: ["Brief", "Flow", "Data", "UI system", "API", "Launch"],
+} as const;
+
+const nodePositions = [
+  { x: 34, y: 70 },
+  { x: 22, y: 208 },
+  { x: 48, y: 346 },
+  { x: 566, y: 70 },
+  { x: 578, y: 208 },
+  { x: 552, y: 346 },
+] as const;
+
+const routes = [
+  "M154 91 C246 91 250 176 314 208",
+  "M142 229 C232 229 260 229 314 229",
+  "M168 367 C250 367 250 282 314 250",
+  "M406 208 C470 176 474 91 566 91",
+  "M406 229 C460 229 488 229 578 229",
+  "M406 250 C470 282 470 367 552 367",
+] as const;
+
+const activeRoutes = [
+  new Set([0, 1, 3, 5]),
+  new Set([0, 2, 4, 5]),
+  new Set([1, 2, 4, 5]),
+] as const;
+
 const vertexShader = `
 attribute vec2 aPosition;
 void main() { gl_Position = vec4(aPosition, 0.0, 1.0); }
@@ -113,6 +142,7 @@ export default function WebGLSignal({ lang }: { lang: Locale }) {
   const [active, setActive] = useState(1);
   const [available, setAvailable] = useState(true);
   const items = copy[lang];
+  const nodes = nodeCopy[lang];
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -252,15 +282,35 @@ export default function WebGLSignal({ lang }: { lang: Locale }) {
 
   return (
     <div className="signal-core" onPointerMove={updatePointer} onPointerLeave={() => { pointerRef.current = { x: 0, y: 0 }; }}>
-      <div className="signal-core__fallback" aria-hidden>
-        <i /><i /><i />
-      </div>
-      <canvas ref={canvasRef} className="signal-core__canvas" aria-hidden hidden={!available} />
       <div className="signal-core__hud">
         <header>
-          <span><i aria-hidden /> WEBGL / PRODUCT CORE</span>
-          <span>{available ? "GPU" : "CSS"} FALLBACK</span>
+          <span><i aria-hidden /> 2D DELIVERY MAP / LIVE</span>
+          <span>{available ? "WEBGL MICRO CORE" : "CSS MICRO CORE"}</span>
         </header>
+        <svg className="signal-core__diagram" viewBox="0 0 720 458" role="img" aria-label={lang === "ru" ? "Схема сборки цифрового продукта" : "Digital product delivery map"}>
+          <g aria-hidden>
+            {routes.map((route) => <path key={`base-${route}`} d={route} className="signal-core__path" />)}
+            {routes.map((route, index) => activeRoutes[active].has(index) && (
+              <path key={`${active}-${route}`} d={route} className="signal-core__route" />
+            ))}
+          </g>
+          {nodePositions.map((position, index) => (
+            <g
+              key={nodes[index]}
+              className={`signal-core__node ${activeRoutes[active].has(index) ? "is-active" : ""}`}
+              transform={`translate(${position.x} ${position.y})`}
+            >
+              <rect width="120" height="42" />
+              <circle cx="13" cy="21" r="3" />
+              <text x="24" y="25">{nodes[index]}</text>
+            </g>
+          ))}
+        </svg>
+        <div className="signal-core__micro" aria-hidden>
+          <div className="signal-core__fallback"><i /><i /><i /></div>
+          <canvas ref={canvasRef} className="signal-core__canvas" hidden={!available} />
+          <span>CORE / 0{active + 1}</span>
+        </div>
         <div className="signal-core__readout" aria-live="polite">
           <span>0{active + 1}</span>
           <strong>{items[active].label}</strong>
